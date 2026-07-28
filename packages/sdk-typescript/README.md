@@ -41,6 +41,10 @@ const job = await client.parse.async({ ocr_model: 'paddleocr-vl-1.6' }, file);
 await client.parse.sync({ ocr_model: 'paddleocr-vl-1.6', file_id: uploaded.id });
 ```
 
+If synchronous processing exceeds the server wait limit, `parse.sync()` returns
+a `JobAccepted` reference. Use `'status' in result` to distinguish it from the
+terminal parse result, then poll with `client.jobs.get(result.id)`.
+
 The SDK adds an idempotency key to every parse and extract request. Pass
 `idempotencyKey` when you need to control retries.
 
@@ -55,16 +59,25 @@ const extracted = await client.extract.sync(
   },
   file
 );
+
+const suggested = await client.extract.suggestSchema({
+  parse_job_id: 'opj_...',
+  hint: 'Invoice number, vendor, and total',
+});
 ```
 
 ## Jobs
 
 ```ts
-const jobs = await client.jobs.list({ status: 'succeeded', limit: 25 });
+const jobsPage = await client.jobs.list({ status: 'succeeded', limit: 25 });
+const firstJobId = jobsPage.data[0]?.id;
 const job = await client.jobs.get('opj_...');
 const parseBody = await client.jobs.result('opj_...', { format: 'openparser@1' });
 const bytes = await client.jobs.source('opj_...');
 ```
+
+`jobs.result()` returns parse representations. Extract output is available on
+the job returned by `jobs.get()`.
 
 ## Files
 
@@ -80,8 +93,11 @@ await client.files.delete(uploaded.id);
 ```ts
 const ocrModels = await client.models.ocr();
 const llmModels = await client.models.llm({ mode: 'search', q: 'gpt' });
+const firstOcrModel = ocrModels.data[0];
+const firstLlmModel = llmModels.data[0];
 
-const pipelines = await client.pipelines.list();
+const pipelinePage = await client.pipelines.list();
+const firstPipeline = pipelinePage.items[0];
 const pipeline = await client.pipelines.create({
   name: 'invoice-default',
   ocr_model: 'paddleocr-vl-1.6',

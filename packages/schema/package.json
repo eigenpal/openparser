@@ -1,6 +1,6 @@
 {
   "name": "@openparser/schema",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "description": "Zod schemas and TypeScript types for OpenParser and openparser@1 documents",
   "type": "module",
   "main": "./dist/index.js",

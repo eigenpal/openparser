@@ -35,11 +35,16 @@ LlmModelsMode = Literal["suggested", "search"]
 
 
 class AttrDict(dict[str, Any]):
-    def __getattr__(self, name: str) -> Any:
+    def __getattribute__(self, name: str) -> Any:
+        if not name.startswith("__"):
+            try:
+                return dict.__getitem__(self, name)
+            except KeyError:
+                pass
         try:
-            return self[name]
-        except KeyError as exc:
-            raise AttributeError(name) from exc
+            return dict.__getattribute__(self, name)
+        except AttributeError:
+            raise AttributeError(name) from None
 
 
 def _to_attr(value: Any) -> Any:

@@ -114,6 +114,24 @@ describe('OpenParserClient', () => {
     expect(captured[0]?.headers?.['content-type']).toMatch(/^multipart\/form-data/);
   });
 
+  test('accepts successful binary file and job-source responses', async () => {
+    const client = new OpenParserClient({
+      apiKey: 'eg_test',
+      baseUrl: 'https://api.openparser.dev',
+      fetch: mockFetch([
+        { status: 200, body: 'file-bytes', headers: { 'content-type': 'application/pdf' } },
+        { status: 200, body: 'source-bytes', headers: { 'content-type': 'image/jpeg' } },
+      ]),
+      maxRetries: 0,
+    });
+
+    const file = await client.files.download('file_test');
+    const source = await client.jobs.source('opj_test');
+
+    expect(file).toBeInstanceOf(Blob);
+    expect(source).toBeInstanceOf(Blob);
+  });
+
   test('401, 404, 429, and 400 responses map to typed errors', async () => {
     const client = new OpenParserClient({
       apiKey: 'eg_test',

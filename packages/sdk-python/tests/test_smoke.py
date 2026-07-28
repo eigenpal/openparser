@@ -82,6 +82,18 @@ def test_401_404_429_and_400_raise_typed_errors(client: OpenParserClient) -> Non
 
 
 @respx.mock
+def test_response_fields_take_precedence_over_dict_methods(client: OpenParserClient) -> None:
+    respx.get("https://api.openparser.dev/pipelines").mock(
+        return_value=httpx.Response(200, json={"items": [{"id": "oppl_123"}]})
+    )
+
+    response = client.pipelines.list()
+
+    assert response.items[0].id == "oppl_123"
+    assert dict.items(response)
+
+
+@respx.mock
 def test_wait_for_job_polls_until_terminal(client: OpenParserClient) -> None:
     respx.get("https://api.openparser.dev/jobs/opj_123").mock(
         side_effect=[

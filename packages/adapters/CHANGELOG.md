@@ -1,12 +1,20 @@
 # @openparser/adapters
 
+## 0.1.0
+
+### Patch Changes
+
+- fdf6bae: Fix binary downloads in the TypeScript SDK and CLI, detect upload media types in the CLI, preserve Python response fields such as `items`, and publish declarations that work in NodeNext projects.
+- Updated dependencies [fdf6bae]
+  - @openparser/schema@0.1.0
+
 ## 0.0.4
 
 ### Patch Changes
 
 - 63a2368: Align package descriptions and CLI help with the public guides, and organize the repository package table by use case.
 - Updated dependencies [63a2368]
-  - @openparser/schema@0.0.5
+  - @openparser/schema@0.0.4
 
 ## 0.0.3
 

@@ -145,7 +145,8 @@ export class OpenParserClient {
         }
         const status = response?.status ?? 0;
         const willRetry = mayRetry && isRetriableStatus(status) && attempt < this.maxRetries;
-        if (response && !willRetry) assertJsonResponse(response);
+        const successfulBinary = response?.ok === true && retryContext.responseType === 'binary';
+        if (response && !willRetry && !successfulBinary) assertJsonResponse(response);
         if (response && response.ok && result.data !== undefined) {
           return result.data;
         }

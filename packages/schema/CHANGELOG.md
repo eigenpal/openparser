@@ -1,5 +1,11 @@
 # @openparser/schema
 
+## 0.1.0
+
+### Patch Changes
+
+- fdf6bae: Fix binary downloads in the TypeScript SDK and CLI, detect upload media types in the CLI, preserve Python response fields such as `items`, and publish declarations that work in NodeNext projects.
+
 ## 0.0.4
 
 ### Patch Changes

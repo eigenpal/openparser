@@ -3,7 +3,7 @@
  */
 
 export const SDK_LANGUAGE = 'typescript';
-export const SDK_VERSION = '0.0.4';
+export const SDK_VERSION = '0.1.0';
 
 function detectRuntime(): string {
   const g = globalThis as unknown as {

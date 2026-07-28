@@ -63,14 +63,44 @@ parsed = client.parse.sync({"ocr_model": "paddleocr-vl-1.6", "file_id": uploaded
 The SDK adds an `Idempotency-Key` header to every parse and extract request. Pass
 `idempotency_key=` when you need to control retries.
 
+## Extract
+
+```python
+extracted = client.extract.sync(
+    {
+        "ocr_model": "paddleocr-vl-1.6",
+        "llm_model": "openai/gpt-4.1-mini",
+        "schema": {
+            "type": "object",
+            "properties": {"total": {"type": "number"}},
+        },
+    },
+    file=Path("invoice.pdf"),
+)
+
+suggested = client.extract.suggest_schema(
+    {
+        "parse_job_id": "opj_...",
+        "hint": "Invoice number, vendor, and total",
+    }
+)
+```
+
+`OpenParserClient` is synchronous. Methods named `async_` submit durable jobs
+without waiting for processing to finish.
+
 ## Jobs
 
 ```python
-jobs = client.jobs.list(status="succeeded", limit=25)
+jobs_page = client.jobs.list(status="succeeded", limit=25)
+first_job_id = jobs_page.data[0].id
 job = client.jobs.get("opj_...")
 parse_result = client.jobs.result("opj_...", format="openparser@1")
 source_bytes = client.jobs.source("opj_...")
 ```
+
+`jobs.result()` returns parse representations. Extract output is available on
+the job returned by `jobs.get()`.
 
 ## Files
 
@@ -88,6 +118,8 @@ Uploads accept `pathlib.Path`, a file handle, or `{"content": bytes, "filename":
 ```python
 ocr_models = client.models.list_ocr()
 llm_models = client.models.list_llm(mode="search", q="claude")
+first_ocr_model = ocr_models.data[0]
+first_llm_model = llm_models.data[0]
 ```
 
 ## Pipelines
@@ -107,6 +139,7 @@ pipeline = client.pipelines.create(
 )
 
 listed = client.pipelines.list()
+first_pipeline = listed.items[0]
 current = client.pipelines.get(pipeline.id)
 updated = client.pipelines.update(pipeline.id, {"name": "invoice-v2"})
 client.pipelines.delete(pipeline.id)

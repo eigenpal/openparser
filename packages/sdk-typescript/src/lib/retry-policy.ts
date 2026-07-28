@@ -5,6 +5,8 @@ export interface RequestRetryContext {
   method: string;
   /** Non-empty Idempotency-Key when the server deduplicates admission. */
   idempotencyKey?: string;
+  /** Successful responses return bytes rather than the normal JSON envelope. */
+  responseType?: 'json' | 'binary';
 }
 
 export function isRetriableStatus(status: number): boolean {

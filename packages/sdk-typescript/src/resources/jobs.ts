@@ -82,7 +82,7 @@ export class JobsResource {
         });
         return response as OperationResult<Blob>;
       },
-      { method: 'GET' }
+      { method: 'GET', responseType: 'binary' }
     );
   }
 }
