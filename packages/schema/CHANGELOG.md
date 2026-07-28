@@ -1,5 +1,11 @@
 # @openparser/schema
 
+## 0.0.3
+
+### Patch Changes
+
+- f241476: Rewrite the public repository and package guides with clearer setup instructions, examples, and contribution steps.
+
 ## 0.0.2
 
 ### Patch Changes

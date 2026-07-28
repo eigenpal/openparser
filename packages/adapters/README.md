@@ -1,6 +1,14 @@
 # @openparser/adapters
 
-Pure provider-result → `openparser@1` converters. No HTTP transport, credentials, health checks, figure storage, worker capacity, database, or billing.
+Convert provider OCR responses into `openparser@1` documents.
+
+[Documentation](https://docs.openparser.dev) · [OpenParser](https://openparser.dev)
+
+## Install
+
+```bash
+npm install @openparser/adapters
+```
 
 ## Paddle HPS
 
@@ -11,6 +19,12 @@ import {
 } from '@openparser/adapters/paddle';
 ```
 
-Pass already-fetched HPS `layoutParsingResults` (and optional page dims / figure URI map). Materializing crops and calling HPS remain host responsibilities.
+Pass the `layoutParsingResults` returned by HPS. You can also provide page
+dimensions and a map of figure URLs.
 
-License: Apache-2.0
+Your application calls the provider and stores extracted figures. Pass the
+response to the adapter for conversion.
+
+## License
+
+[Apache-2.0](./LICENSE)

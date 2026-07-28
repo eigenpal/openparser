@@ -4,6 +4,8 @@ Parse and extract structured data from documents with the OpenParser API.
 
 Install the PyPI distribution `openparser-sdk`; import the client as `openparser`.
 
+[Documentation](https://docs.openparser.dev) · [OpenParser](https://openparser.dev)
+
 [![license](https://img.shields.io/badge/license-Apache--2.0-3B5BDB?labelColor=555)](./LICENSE)
 
 ## Install
@@ -12,7 +14,7 @@ Install the PyPI distribution `openparser-sdk`; import the client as `openparser
 pip install openparser-sdk
 ```
 
-Requires Python 3.10+. Get an API key from your OpenParser dashboard.
+Use Python 3.10 or newer. Create an API key in the OpenParser dashboard.
 
 ## Quick Start
 
@@ -31,20 +33,22 @@ result = client.parse.sync(
 print(result.page_count)
 ```
 
-Set `OPENPARSER_API_KEY` and optionally `OPENPARSER_BASE_URL` (default `https://api.openparser.dev`) instead of passing constructor arguments.
+Set `OPENPARSER_API_KEY` to create the client without constructor arguments.
+Set `OPENPARSER_BASE_URL` to use a different API origin.
 
 ## Parse
 
-Sync endpoints wait up to the server sync limit (typically 300 seconds) and return the terminal parse result when ready. If the wait expires first, the API returns `202` with a durable job reference.
+The API holds synchronous requests for up to 300 seconds. It returns the result
+when processing finishes or a durable job reference when the wait expires.
 
 ```python
-# Sync — server holds the connection until ready or timeout.
+# Sync: hold the connection until the result or timeout.
 parsed = client.parse.sync(
     {"ocr_model": "paddleocr-vl-1.6"},
     file=Path("document.pdf"),
 )
 
-# Async — admit immediately and poll later.
+# Async: create a job and poll it later.
 accepted = client.parse.async_(
     {"ocr_model": "paddleocr-vl-1.6"},
     file=Path("document.pdf"),
@@ -56,7 +60,8 @@ uploaded = client.files.upload(Path("document.pdf"))
 parsed = client.parse.sync({"ocr_model": "paddleocr-vl-1.6", "file_id": uploaded.id})
 ```
 
-Every parse or extract `POST` sends an `Idempotency-Key` header. The SDK generates one automatically; pass `idempotency_key=` to control retries.
+The SDK adds an `Idempotency-Key` header to every parse and extract request. Pass
+`idempotency_key=` when you need to control retries.
 
 ## Jobs
 
@@ -127,11 +132,13 @@ Every non-2xx response raises a typed subclass of `OpenParserError`:
 | 504  | `OpenParserGatewayTimeoutError`     |
 | 5xx  | `OpenParserServerError`             |
 
-The original API error body is preserved on `error.envelope` (`code`, `message`, `request_id`, `retryable`).
+Each error exposes the API response through `error.envelope`: `code`, `message`,
+`request_id`, and `retryable`.
 
 ## Development
 
-Regenerate the committed OpenAPI client after spec changes:
+After changing the OpenAPI specification, regenerate the client and run its
+checks:
 
 ```bash
 packages/sdk-python/scripts/codegen.sh
@@ -141,4 +148,4 @@ uv run --project packages/sdk-python pytest
 
 ## License
 
-Apache-2.0
+[Apache-2.0](./LICENSE)

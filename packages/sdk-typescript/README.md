@@ -1,6 +1,8 @@
 # @openparser/sdk
 
-Official TypeScript SDK for the [OpenParser OCR API](https://openparser.dev).
+Parse documents and extract structured data with TypeScript.
+
+[Documentation](https://docs.openparser.dev) · [OpenParser](https://openparser.dev)
 
 ## Install
 
@@ -8,9 +10,10 @@ Official TypeScript SDK for the [OpenParser OCR API](https://openparser.dev).
 npm i @openparser/sdk
 ```
 
-Requires a TypeScript-aware runtime: Bun, Deno, Node 22+ (native TS), `tsx`, or any modern bundler.
+Run the SDK with Bun, Deno, Node 22+, `tsx`, or a TypeScript-aware bundler.
 
-Set `OPENPARSER_API_KEY` or pass `apiKey` explicitly. Keys need `ocr:full` or platform wildcard scope.
+Set `OPENPARSER_API_KEY` or pass `apiKey`. The key needs the `ocr:full` scope or
+a platform wildcard scope.
 
 ## Quick start
 
@@ -28,17 +31,18 @@ const parsed = await client.parse.sync(
 ## Parse
 
 ```ts
-// Synchronous — waits up to the server sync limit (default 300s).
+// Synchronous: waits up to the server sync limit (default 300s).
 const result = await client.parse.sync({ ocr_model: 'paddleocr-vl-1.6' }, file);
 
-// Async — returns a durable job reference immediately.
+// Async: returns a durable job reference immediately.
 const job = await client.parse.async({ ocr_model: 'paddleocr-vl-1.6' }, file);
 
 // Reuse a pooled file instead of uploading bytes.
 await client.parse.sync({ ocr_model: 'paddleocr-vl-1.6', file_id: uploaded.id });
 ```
 
-Every parse/extract admission requires an idempotency key. The SDK generates one automatically; pass `idempotencyKey` to override.
+The SDK adds an idempotency key to every parse and extract request. Pass
+`idempotencyKey` when you need to control retries.
 
 ## Extract
 
@@ -92,13 +96,16 @@ const pipeline = await client.pipelines.create({
 | ------------ | --------------------- | ---------------------------- |
 | `apiKey`     | `OPENPARSER_API_KEY`  | required                     |
 | `baseUrl`    | `OPENPARSER_BASE_URL` | `https://api.openparser.dev` |
-| `timeoutMs`  | —                     | `300000`                     |
-| `maxRetries` | —                     | `3`                          |
+| `timeoutMs`  |                       | `300000`                     |
+| `maxRetries` |                       | `3`                          |
 
 ## Errors
 
-Non-2xx responses throw typed errors (`OpenParserAuthError`, `OpenParserNotFoundError`, `OpenParserRateLimitError`, etc.) with the server `ErrorResponse` envelope attached.
+The SDK throws typed errors for non-2xx responses, including
+`OpenParserAuthError`, `OpenParserNotFoundError`, and
+`OpenParserRateLimitError`. Each error exposes the server `ErrorResponse`
+through its `envelope` property.
 
 ## License
 
-Apache-2.0 — see [LICENSE](./LICENSE).
+[Apache-2.0](./LICENSE)

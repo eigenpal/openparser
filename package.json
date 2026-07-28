@@ -1,7 +1,7 @@
 {
   "name": "openparser",
   "private": true,
-  "description": "OpenParser — open OCR schemas, adapters, SDKs, and CLI (openparser@1)",
+  "description": "Open OCR schemas, adapters, SDKs, and CLI for openparser@1",
   "license": "Apache-2.0",
   "workspaces": [
     "packages/schema",

@@ -1,11 +1,21 @@
 # OpenParser
 
-Open OCR wire schemas (`openparser@1`), provider adapters, official SDKs, and CLI.
+Turn PDFs and images into text, layouts, and structured data with one API.
 
 **[Website](https://openparser.dev)** · **[Documentation](https://docs.openparser.dev)**
 
-This repository is the mirrored OpenParser source tree. Packages publish (when
-enabled) as:
+## Get started
+
+```bash
+npm install -g @openparser/cli
+openparser auth login
+openparser parse sync ./document.pdf --json
+```
+
+Choose the [TypeScript SDK](packages/sdk-typescript),
+[Python SDK](packages/sdk-python), or [CLI](packages/cli).
+
+## Packages
 
 | Source | Package |
 | ------ | ------- |
@@ -15,9 +25,9 @@ enabled) as:
 | [`packages/sdk-python`](https://github.com/eigenpal/openparser/tree/main/packages/sdk-python) | [`openparser-sdk`](https://pypi.org/project/openparser-sdk/) (import `openparser`) |
 | [`packages/cli`](https://github.com/eigenpal/openparser/tree/main/packages/cli) | [`@openparser/cli`](https://www.npmjs.com/package/@openparser/cli) |
 
-The canonical HTTP contract lives at [`docs/OCR_API_OPENAPI.yaml`](docs/OCR_API_OPENAPI.yaml).
+## Development
 
-## Develop
+Install the dependencies and run the checks from the repository root:
 
 ```bash
 bun install
@@ -27,6 +37,10 @@ bun test
 
 Python SDK work uses `uv` inside `packages/sdk-python`.
 
+## Contributing
+
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
+
 ## License
 
-Apache-2.0 — see [LICENSE](LICENSE).
+[Apache-2.0](LICENSE)

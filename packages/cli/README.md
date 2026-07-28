@@ -1,15 +1,18 @@
 # @openparser/cli
 
-Parse and extract documents from your terminal. Agent-ready JSON output.
+Parse and extract documents from your terminal, CI jobs, or agent tools.
+
+[Documentation](https://docs.openparser.dev) · [OpenParser](https://openparser.dev)
 
 ## Install
 
 ```bash
 npm i -g @openparser/cli
-openparser auth login            # or set OPENPARSER_API_KEY in CI
-# Named profiles: openparser auth login --profile staging
-# Switch: openparser auth use staging  (or OPENPARSER_PROFILE=staging)
+openparser auth login
 ```
+
+Set `OPENPARSER_API_KEY` in CI. Use `openparser auth login --profile staging`
+and `openparser auth use staging` to manage named profiles.
 
 ## Commands
 
@@ -24,7 +27,7 @@ openparser auth login            # or set OPENPARSER_API_KEY in CI
 | [`openparser files`](./docs/files.md)         | Upload and reuse pooled files.                               |
 | [`openparser pipelines`](./docs/pipelines.md) | Saved extraction pipelines.                                  |
 
-Generated reference docs live under [`docs/`](./docs/). Regenerate with:
+Regenerate the command reference under [`docs/`](./docs/) with:
 
 ```bash
 bun run --cwd packages/cli generate
@@ -52,14 +55,14 @@ openparser files upload ./contract.pdf
 
 ## Environment variables
 
-| Variable              | Purpose                                                                                              |
-| --------------------- | ---------------------------------------------------------------------------------------------------- |
-| `OPENPARSER_API_KEY`  | Bypass profiles for CI. When set, the credentials file is not consulted for the API key or base URL. |
-| `OPENPARSER_BASE_URL` | Override the API origin (default `https://api.openparser.dev`).                                      |
-| `OPENPARSER_PROFILE`  | One-shell profile switch. Persistent equivalent: `openparser auth use <name>`.                       |
+| Variable              | Purpose                                                                           |
+| --------------------- | --------------------------------------------------------------------------------- |
+| `OPENPARSER_API_KEY`  | Bypass profiles for CI. When set, the CLI ignores the saved API key and base URL. |
+| `OPENPARSER_BASE_URL` | Override the API origin (default `https://api.openparser.dev`).                   |
+| `OPENPARSER_PROFILE`  | One-shell profile switch. Persistent equivalent: `openparser auth use <name>`.    |
 
 Resolution precedence: command-line flags > env vars > active profile > defaults.
 
 ## License
 
-Apache-2.0. See [LICENSE](./LICENSE).
+[Apache-2.0](./LICENSE)

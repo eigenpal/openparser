@@ -1,5 +1,13 @@
 # @openparser/cli
 
+## 0.0.3
+
+### Patch Changes
+
+- f241476: Rewrite the public repository and package guides with clearer setup instructions, examples, and contribution steps.
+- Updated dependencies [f241476]
+  - @openparser/sdk@0.0.4
+
 ## 0.0.2
 
 ### Patch Changes
