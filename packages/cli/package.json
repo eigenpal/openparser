@@ -1,7 +1,7 @@
 {
   "name": "@openparser/cli",
-  "version": "0.0.3",
-  "description": "OpenParser CLI — parse and extract documents from your terminal.",
+  "version": "0.0.4",
+  "description": "Parse and extract documents from your terminal, CI jobs, or agent tools.",
   "keywords": [
     "openparser",
     "cli",
@@ -46,7 +46,7 @@
   },
   "dependencies": {
     "@clack/prompts": "^1.3.0",
-    "@openparser/sdk": "0.0.3",
+    "@openparser/sdk": "0.0.4",
     "commander": "^14.0.3",
     "picocolors": "^1.1.1",
     "zod": "^4.4.3"

@@ -1,5 +1,11 @@
 # @openparser/schema
 
+## 0.0.4
+
+### Patch Changes
+
+- 63a2368: Align package descriptions and CLI help with the public guides, and organize the repository package table by use case.
+
 ## 0.0.3
 
 ### Patch Changes

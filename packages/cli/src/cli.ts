@@ -26,7 +26,7 @@ const cliVersion = pkg.version === '0.0.0-placeholder' ? 'dev' : pkg.version;
 
 program
   .name('openparser')
-  .description('OpenParser CLI — parse and extract documents from your terminal')
+  .description('Parse and extract documents from your terminal, CI jobs, or agent tools')
   .enablePositionalOptions()
   .version(cliVersion, '-v, --version', 'Print the CLI version and exit')
   .option(

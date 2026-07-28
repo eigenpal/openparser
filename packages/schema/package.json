@@ -1,7 +1,7 @@
 {
   "name": "@openparser/schema",
-  "version": "0.0.3",
-  "description": "OpenParser public OCR wire schemas and OpenAPI source (openparser@1)",
+  "version": "0.0.4",
+  "description": "Zod schemas and TypeScript types for OpenParser and openparser@1 documents",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./src/index.ts",

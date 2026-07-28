@@ -1,38 +1,38 @@
 {
-  "version": "0.0.3",
-  "sourceSha": "f24147676ed7640468033fef9b925a611af0ef7c",
-  "preparedSha": "929c1a482c3ec8c75894e3eb8459a25fbdcddad0",
-  "artifactRunId": "30361697101",
+  "version": "0.0.4",
+  "sourceSha": "63a23687cdcbb8fed60cdc33ee152b60103da76f",
+  "preparedSha": "c148521b565444eb5849c0e75c90449a764b3248",
+  "artifactRunId": "30362211368",
   "artifacts": {
     "@openparser/schema": {
       "kind": "npm",
-      "file": "openparser-schema-0.0.3.tgz",
-      "digest": "sha512-sHZIPUGUQJ4EzAFGCidLFKtQgadygesj8s7Ajk2xteoR9FuAhVmrmsD3JoSmk1hmB6MocW/d3IQoesSs4hzYtQ=="
+      "file": "openparser-schema-0.0.4.tgz",
+      "digest": "sha512-vXXP1BpB9ucjDclHVKFM0Wv74FCjLMs5+TchYN2/o468rI8kaa3vA85WHqwq3vlq99RiUdExGuiHg8mAa8/78Q=="
     },
     "@openparser/adapters": {
       "kind": "npm",
-      "file": "openparser-adapters-0.0.3.tgz",
-      "digest": "sha512-0Oq7DO4wqZh55WPLoThZx+EsZ8E+5XD4/DRYwBfQjymTq/45gmtzyGl4xIf+esC2mGhUD7SBwDtB+Lc9fXfUpA=="
+      "file": "openparser-adapters-0.0.4.tgz",
+      "digest": "sha512-iUgxW1uxaCM6rfbac/o+7mFttOE9iYlpsQwPb42CfFCpfItN2K6WYFnaBfyTTesDlfOQbmhkgpx1WurDgBOF8A=="
     },
     "@openparser/sdk": {
       "kind": "npm",
-      "file": "openparser-sdk-0.0.3.tgz",
-      "digest": "sha512-knUBchMAXlNbkyGwmwYJIbt+paQcik1HlN/ZerK90uviE14f685EBX/q/pzlxpIzjJ61ewfZnjc/x9QuM4XFDg=="
+      "file": "openparser-sdk-0.0.4.tgz",
+      "digest": "sha512-hEuY4vlDIFiMKm2Wa2YpNPqL0KRrXvPTRb/ymdBgXG+HJtzn0uatQud2aspRkQyIa1eHqWgu27C58FCoVFl4yw=="
     },
     "@openparser/cli": {
       "kind": "npm",
-      "file": "openparser-cli-0.0.3.tgz",
-      "digest": "sha512-rSbgPL3c5Ty5eZK97M8H+6W0Rx42rn5+CKJYD7UAYdBIKQ6WUHNIdba8BEnLLYnIVC0cHSh7Hbd0f3wWuWCPcg=="
+      "file": "openparser-cli-0.0.4.tgz",
+      "digest": "sha512-uaZp3NoMtAygly+TOKXG41Jj9KsZVnZ7aVOc627jpkg6yDDZZWeJXw/hgdBuIRUyIqQN034F9urr8SmQFc9E8w=="
     },
     "openparser-sdk-wheel": {
       "kind": "pypi",
-      "file": "openparser_sdk-0.0.3-py3-none-any.whl",
-      "digest": "dd69fc1301414929ccf06c95fcaf846bc3b0d0e55747757d20c5877a49c3497b"
+      "file": "openparser_sdk-0.0.4-py3-none-any.whl",
+      "digest": "464ed9f3ea77d907bcae1137380069fb4fd7dce58ce790b218f9d1f07e6934b9"
     },
     "openparser-sdk-sdist": {
       "kind": "pypi",
-      "file": "openparser_sdk-0.0.3.tar.gz",
-      "digest": "66c54e7135e35feed8c59cc243aba89036fcfaddd56218ee5105854b80cc45ca"
+      "file": "openparser_sdk-0.0.4.tar.gz",
+      "digest": "18c8e1446757f7f15e85479353a04eddc24ff435499fbf76a1d5107bd06d1ad5"
     }
   }
 }

@@ -1,7 +1,7 @@
 [project]
 name = "openparser-sdk"
-version = "0.0.3"
-description = "Official Python SDK for the OpenParser API"
+version = "0.0.4"
+description = "Parse documents and extract structured data with Python"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "Apache-2.0" }

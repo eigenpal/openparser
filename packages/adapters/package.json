@@ -1,7 +1,7 @@
 {
   "name": "@openparser/adapters",
-  "version": "0.0.3",
-  "description": "Pure provider → openparser@1 conversion adapters (no HTTP or storage)",
+  "version": "0.0.4",
+  "description": "Convert provider OCR responses into openparser@1 documents",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./src/index.ts",
@@ -40,7 +40,7 @@
     "pack:smoke": "bun scripts/pack-smoke.ts"
   },
   "dependencies": {
-    "@openparser/schema": "0.0.3"
+    "@openparser/schema": "0.0.4"
   },
   "devDependencies": {
     "esbuild": "^0.25.12",
