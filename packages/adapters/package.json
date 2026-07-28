@@ -1,6 +1,6 @@
 {
   "name": "@openparser/adapters",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Pure provider → openparser@1 conversion adapters (no HTTP or storage)",
   "type": "module",
   "main": "./dist/index.js",
@@ -40,7 +40,7 @@
     "pack:smoke": "bun scripts/pack-smoke.ts"
   },
   "dependencies": {
-    "@openparser/schema": "0.0.1"
+    "@openparser/schema": "0.0.2"
   },
   "devDependencies": {
     "esbuild": "^0.25.12",

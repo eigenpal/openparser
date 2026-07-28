@@ -1,5 +1,13 @@
 # @openparser/cli
 
+## 0.0.2
+
+### Patch Changes
+
+- f23f255: Make the OpenParser repository easier to navigate with direct links to the website, documentation, source directories, and published packages.
+- Updated dependencies [f23f255]
+  - @openparser/sdk@0.0.3
+
 ## 0.0.1
 
 ### Minor Changes
