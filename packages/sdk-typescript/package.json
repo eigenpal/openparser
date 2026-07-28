@@ -1,0 +1,76 @@
+{
+  "name": "@openparser/sdk",
+  "version": "0.0.1",
+  "description": "Official TypeScript SDK for the OpenParser OCR API",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./src/index.ts",
+  "engines": {
+    "node": ">=20"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "bun": "./src/index.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./generated": {
+      "types": "./src/generated/index.ts",
+      "bun": "./src/generated/index.ts",
+      "import": "./dist/generated/index.js",
+      "default": "./dist/generated/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "!src/**/*.test.ts",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "codegen": "openapi-ts -f openapi-ts.config.ts && bun scripts/fix-generated-imports.ts && prettier --write src/generated",
+    "codegen:check": "bun run codegen && git diff --exit-code src/generated/",
+    "build": "bun scripts/build.ts",
+    "prepack": "bun run build",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "pack:smoke": "bun scripts/pack-smoke.ts"
+  },
+  "dependencies": {
+    "@hey-api/client-fetch": "0.13.1"
+  },
+  "devDependencies": {
+    "@hey-api/openapi-ts": "0.97.1",
+    "typescript": "6.0.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": {
+    "name": "OpenParser",
+    "url": "https://openparser.dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eigenpal/openparser.git",
+    "directory": "packages/sdk-typescript"
+  },
+  "bugs": {
+    "url": "https://github.com/eigenpal/openparser/issues"
+  },
+  "homepage": "https://github.com/eigenpal/openparser/tree/main/packages/sdk-typescript#readme",
+  "license": "Apache-2.0",
+  "keywords": [
+    "openparser",
+    "sdk",
+    "api",
+    "client",
+    "typescript",
+    "ocr",
+    "document-parsing",
+    "extraction"
+  ]
+}

@@ -1,0 +1,13 @@
+# Configuration for `openapi-python-client`. Used by scripts/codegen.sh.
+#
+# Output: src/openparser/_generated/  (committed; ships with the published wheel)
+#
+# Naming: we override the auto-generated package name so the result lives at
+# openparser._generated instead of the spec-derived default. The hand-written
+# `openparser.client.OpenParserClient` facade wraps the generated client.
+
+project_name_override: _generated
+package_name_override: _generated
+field_constraints: true
+use_path_prefixes_for_title_model_names: true
+post_hooks: []

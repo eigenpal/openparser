@@ -1,0 +1,38 @@
+{
+  "version": "0.0.1",
+  "sourceSha": "0176d6fe7aea54b8579ef81c54d4d9801c3f3eea",
+  "preparedSha": "728668f38c61768b31e8cc7d6aba2dca85461cdd",
+  "artifactRunId": "30359560502",
+  "artifacts": {
+    "@openparser/schema": {
+      "kind": "npm",
+      "file": "openparser-schema-0.0.1.tgz",
+      "digest": "sha512-mMLTyFFe9xnYCNtL7e45SJnGfwEE2dJizX8wKG3umhBpXW3vGLjkrIRCwPE62d8eCf/LDf/0BRLPy0cY+5RsdQ=="
+    },
+    "@openparser/adapters": {
+      "kind": "npm",
+      "file": "openparser-adapters-0.0.1.tgz",
+      "digest": "sha512-45+XSx0TYTZ+Sa9IhK4NQVxcqIw7EwIFuDtayT3zTZpomIJGfpH+S2ACV1UqZo5lHS8pEoiRYydGGAAu9cmjyA=="
+    },
+    "@openparser/sdk": {
+      "kind": "npm",
+      "file": "openparser-sdk-0.0.1.tgz",
+      "digest": "sha512-sUPN/kabQ8/hoa6gKgoS+TyxBTlKA4Ev/e0rjgG4+nOBOyJ3L+dV9dpEz9Ick2sbe/lvLJQ5/D8OcqsaNPfvDQ=="
+    },
+    "@openparser/cli": {
+      "kind": "npm",
+      "file": "openparser-cli-0.0.1.tgz",
+      "digest": "sha512-XYeNCLAim03wS3B8QNQhf8VV3OfpHyfUfD3KrMd9MQj51DBQLcHQmPb2S+OKOkqZzCf+XDwzK5nxMdaKzKbCHg=="
+    },
+    "openparser-sdk-wheel": {
+      "kind": "pypi",
+      "file": "openparser_sdk-0.0.1-py3-none-any.whl",
+      "digest": "82c0c94712984973548b2e0cc16b4955201c27bc828b888016cd201b79e0944a"
+    },
+    "openparser-sdk-sdist": {
+      "kind": "pypi",
+      "file": "openparser_sdk-0.0.1.tar.gz",
+      "digest": "016fa98ce6d762010fdfb81dff850c32c2644e134508ef4477f79a6e5db1e9a4"
+    }
+  }
+}

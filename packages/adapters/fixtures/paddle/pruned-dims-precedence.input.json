@@ -1,0 +1,21 @@
+{
+  "documentId": "doc-golden-geometry",
+  "pages": [{ "number": 1, "width": 612, "height": 792 }],
+  "dataInfoPages": [{ "number": 1, "width": 1000, "height": 1400 }],
+  "layoutResults": [
+    {
+      "prunedResult": {
+        "width": 1224,
+        "height": 1584,
+        "parsing_res_list": [
+          {
+            "block_id": 0,
+            "block_label": "header",
+            "block_content": "Edge",
+            "block_bbox": [1100, 20, 1200, 60]
+          }
+        ]
+      }
+    }
+  ]
+}

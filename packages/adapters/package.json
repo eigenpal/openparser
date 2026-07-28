@@ -1,0 +1,75 @@
+{
+  "name": "@openparser/adapters",
+  "version": "0.0.1",
+  "description": "Pure provider → openparser@1 conversion adapters (no HTTP or storage)",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./src/index.ts",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "bun": "./src/index.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./paddle": {
+      "types": "./src/paddle/index.ts",
+      "bun": "./src/paddle/index.ts",
+      "import": "./dist/paddle/index.js",
+      "default": "./dist/paddle/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "!src/**/*.test.ts",
+    "CHANGELOG.md",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "bun scripts/build.ts",
+    "prepack": "bun run build",
+    "lint": "eslint src/",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "pack:smoke": "bun scripts/pack-smoke.ts"
+  },
+  "dependencies": {
+    "@openparser/schema": "0.0.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.12",
+    "typescript": "^6.0.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": {
+    "name": "EigenPal",
+    "email": "support@eigenpal.com",
+    "url": "https://openparser.dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eigenpal/openparser.git",
+    "directory": "packages/adapters"
+  },
+  "homepage": "https://github.com/eigenpal/openparser#readme",
+  "license": "Apache-2.0",
+  "keywords": [
+    "openparser",
+    "ocr",
+    "paddle",
+    "hps",
+    "adapter",
+    "document-understanding"
+  ],
+  "bugs": {
+    "url": "https://github.com/eigenpal/openparser/issues"
+  }
+}

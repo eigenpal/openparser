@@ -1,0 +1,88 @@
+{
+  "name": "@openparser/schema",
+  "version": "0.0.1",
+  "description": "OpenParser public OCR wire schemas and OpenAPI source (openparser@1)",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./src/index.ts",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "bun": "./src/index.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./document": {
+      "types": "./src/document/index.ts",
+      "bun": "./src/document/index.ts",
+      "import": "./dist/document/index.js",
+      "default": "./dist/document/index.js"
+    },
+    "./http": {
+      "types": "./src/http/index.ts",
+      "bun": "./src/http/index.ts",
+      "import": "./dist/http/index.js",
+      "default": "./dist/http/index.js"
+    },
+    "./openapi-server": {
+      "types": "./src/openapi-generate.ts",
+      "bun": "./src/openapi-generate.ts",
+      "import": "./dist/openapi-generate.js",
+      "default": "./dist/openapi-generate.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "!src/**/*.test.ts",
+    "CHANGELOG.md",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "bun scripts/build.ts",
+    "prepack": "bun run build",
+    "lint": "eslint src/",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "pack:smoke": "bun scripts/pack-smoke.ts"
+  },
+  "dependencies": {
+    "yaml": "^2.7.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.12",
+    "typescript": "^6.0.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": {
+    "name": "EigenPal",
+    "email": "support@eigenpal.com",
+    "url": "https://openparser.dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eigenpal/openparser.git",
+    "directory": "packages/schema"
+  },
+  "homepage": "https://github.com/eigenpal/openparser#readme",
+  "license": "Apache-2.0",
+  "keywords": [
+    "openparser",
+    "ocr",
+    "schema",
+    "openapi",
+    "zod",
+    "document-understanding"
+  ],
+  "bugs": {
+    "url": "https://github.com/eigenpal/openparser/issues"
+  }
+}

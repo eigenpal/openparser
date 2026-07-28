@@ -1,0 +1,24 @@
+{
+  "name": "openparser",
+  "private": true,
+  "description": "OpenParser — open OCR schemas, adapters, SDKs, and CLI (openparser@1)",
+  "license": "Apache-2.0",
+  "workspaces": [
+    "packages/schema",
+    "packages/adapters",
+    "packages/sdk-typescript",
+    "packages/cli"
+  ],
+  "scripts": {
+    "typecheck": "bun run --filter '@openparser/*' typecheck",
+    "test": "bun test packages/schema packages/adapters packages/sdk-typescript packages/cli"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eigenpal/openparser.git"
+  },
+  "homepage": "https://github.com/eigenpal/openparser#readme",
+  "bugs": {
+    "url": "https://github.com/eigenpal/openparser/issues"
+  }
+}
