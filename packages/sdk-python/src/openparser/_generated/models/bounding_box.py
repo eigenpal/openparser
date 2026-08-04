@@ -23,16 +23,16 @@ class BoundingBox:
     """ Axis-aligned integer page coordinates with exclusive right and bottom edges.
 
         Attributes:
-            left (int):
-            top (int):
-            right (int):
-            bottom (int):
+            left (float):
+            top (float):
+            right (float):
+            bottom (float):
      """
 
-    left: int
-    top: int
-    right: int
-    bottom: int
+    left: float
+    top: float
+    right: float
+    bottom: float
 
 
 

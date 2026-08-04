@@ -1,4 +1,4 @@
-import type { BoundingBox } from '@openparser/schema/document';
+import type { BoundingBox } from '@openparser/schema';
 
 /** Minimum IoU to accept a layout-detection score for a parsing block. */
 export const LAYOUT_DET_IOU_THRESHOLD = 0.5;

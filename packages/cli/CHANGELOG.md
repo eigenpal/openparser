@@ -1,5 +1,17 @@
 # @openparser/cli
 
+## 1.0.0
+
+### Minor Changes
+
+- 34c31bd: `@openparser/schema` is now document-only: `openparser@1` graph types plus the generic raw OCR envelope. Hosted API request/job/catalog/extraction wire schemas moved out of the published package (private Eigenpal workspace surface). Install `@openparser/schema` for document validation; use the SDKs for the hosted HTTP API.
+
+### Patch Changes
+
+- Updated dependencies [34c31bd]
+- Updated dependencies [34c31bd]
+  - @openparser/sdk@1.0.0
+
 ## 0.1.0
 
 ### Patch Changes

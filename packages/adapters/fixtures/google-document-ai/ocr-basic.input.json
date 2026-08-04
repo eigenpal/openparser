@@ -1,0 +1,47 @@
+{
+  "documentId": "omni-0001",
+  "response": {
+    "processor_type": "OCR_PROCESSOR",
+    "page_count": 1,
+    "document": {
+      "text": "Quarterly report\nRevenue 42\n",
+      "pages": [
+        {
+          "dimension": { "width": 1000, "height": 1000 },
+          "lines": [
+            {
+              "layout": {
+                "textAnchor": { "textSegments": [{ "endIndex": "17" }] },
+                "confidence": 0.99,
+                "boundingPoly": {
+                  "normalizedVertices": [
+                    { "x": 0.1, "y": 0.1 },
+                    { "x": 0.5, "y": 0.1 },
+                    { "x": 0.5, "y": 0.15 },
+                    { "x": 0.1, "y": 0.15 }
+                  ]
+                }
+              }
+            },
+            {
+              "layout": {
+                "textAnchor": {
+                  "textSegments": [{ "startIndex": "17", "endIndex": "28" }]
+                },
+                "confidence": 0.98,
+                "boundingPoly": {
+                  "normalizedVertices": [
+                    { "x": 0.1, "y": 0.2 },
+                    { "x": 0.5, "y": 0.2 },
+                    { "x": 0.5, "y": 0.25 },
+                    { "x": 0.1, "y": 0.25 }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

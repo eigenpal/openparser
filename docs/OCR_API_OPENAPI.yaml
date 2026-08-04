@@ -3,7 +3,7 @@ openapi: 3.1.0
 info:
   title: OpenParser API
   version: 1.0.0
-  description: "OpenParser API for document parsing and schema-constrained extraction.\n\nAuthentication uses Eigenpal bearer API keys. The authenticated key resolves\n`tenant_id` server-side; clients must not supply tenant identifiers. API keys must carry\nthe platform wildcard (`*`) or the dedicated `ocr:full` scope. Missing or unrelated\nscopes grant none. Admission requests are rate limited per organization (tenant),\nnot per API key.\n\nEvery parse or extract `POST` requires an `Idempotency-Key` header. Repeating the same tenant, operation,\nand idempotency key returns the same durable job or terminal result. Reusing the key with a\ndifferent request body returns `409`.\n\nParse and file-backed extract admission accepts **either** a direct multipart file upload\n**or** an Eigenpal reusable file-pool id (`file_id` from `POST /files`). Single-document\nextract additionally accepts `parse_job_id`, referencing a tenant-owned succeeded canonical\nparse job; it is mutually exclusive with file bytes and `file_id`. `parse_job_id` is not\naccepted by extract batch items. Arbitrary source URLs and presigned third-party URLs are\nnot accepted. Cross-tenant or unknown `file_id` / `parse_job_id` values return `404`.\nReferenced file bytes are copied into dedicated OCR object storage; OCR admission never\ncreates Eigenpal `files` table rows.\n\nParse and extract operations have **no hidden automatic retry**, **no fallback model**,\n**no hidden repair beyond the explicit `repair_attempts` bound**, and **no chunking or\ntruncation** beyond documented limits.\n\nSynchronous endpoints create durable jobs, wait up to the configured sync wait limit\n(default 300 seconds; deployment-tunable, not a client-selectable hard maximum), and\nreturn the terminal result when ready:\n- `200` with the raw terminal body (`ParsedDocument` for parse; `ExtractionTerminalResult`\n  for extract) on success;\n- `422` `ErrorResponse` when the durable job reaches terminal `failed` within the wait\n  window (in addition to admission-time unprocessable configuration);\n- `504` `ErrorResponse` when the durable job reaches terminal `indeterminate` within the\n  wait window;\n- `202` with a durable job reference if the wait limit expires first.\n\nDisconnecting does not cancel work. Cancellation is not part of this API version.\nAccepted (`202`) responses include a `Location` header that may be an absolute URI or a\npath-absolute relative reference to `GET /jobs/{id}`.\n\n`429` and `503` responses include `Retry-After` with a suggested wait in seconds before\nretrying admission. HTTP `503` is reserved for API admission dependency failures (for\nexample OCR source object upload). Transient GPU/HPS unavailability does **not** reject\nknown-model admission; jobs remain durable and queued until a ready replica and worker\ncapacity exist. Tenant concurrency caps and queue-age alarms bound and observe backlog.\n\n**Billing (customer page charge):** parse and file-backed extract charge **USD $0.001 per\nsuccessfully parsed page** ($1 per 1,000 pages; **0.1 shared-ledger credits per page** at\nthe fixed $0.01/credit presentation unit). The authoritative page count is the HPS/parse\nresult `page_count` on the canonical `ParsedDocument`. A single extract admitted with\n`parse_job_id` reuses that document, does not run OCR, and applies **no additional page\ncharge**; its provider-accepted OpenRouter attempts remain billable. No page charge applies\nbefore a successful terminal result is published and made retrievable. A job that terminates as `failed` or `indeterminate` incurs zero page charge, including an extract job that parsed successfully but did not publish a successful extraction result. Client disconnection after admission does not suppress a charge when the durable job later publishes a retrievable\nsuccessful result. Provider-accepted OpenRouter extraction attempts are billed separately\nat the customer retail token rates published by `GET /models/llm` (see `attempts` / `usage`\non `ExtractionTerminalResult`). Catalog `prompt_usd_per_1m` / `completion_usd_per_1m`\nfields are **customer retail** rates (`basis: customer_retail`), not raw provider list\nprices. Batches charge per child job. Page charges use the OCR model's customer retail\n`usd_per_page` (currently $0.001 for PaddleOCR-VL 1.6). Charge keys are idempotent. Credit reserve/refund behavior integrates with\nEigenpal billing and is not embedded in sync parse response bodies.\n\nAdmission does not limit document page count. Other document limits: **50 MiB per file**, **100 million\nrendered pixels per page**, and **100 MiB aggregate batch input** across multipart uploads\nand resolved `file_id` bytes. Reusable file-pool uploads accept up to **100 MiB**. Supported media\ntypes: **PDF**, **PNG**, **JPEG**. Encrypted PDFs are rejected. Archives, SVG, HTML, and other\nformats are rejected.\n"
+  description: "OpenParser API for document parsing and schema-constrained extraction.\n\nAuthentication uses Eigenpal bearer API keys. The authenticated key resolves\n`tenant_id` server-side; clients must not supply tenant identifiers. API keys must carry\nthe platform wildcard (`*`) or the dedicated `ocr:full` scope. Missing or unrelated\nscopes grant none. Admission requests are rate limited per organization (tenant),\nnot per API key.\n\nEvery parse or extract `POST` requires an `Idempotency-Key` header. Repeating the same tenant, operation,\nand idempotency key returns the same durable job or terminal result. Reusing the key with a\ndifferent request body returns `409`.\n\nParse and file-backed extract admission accepts **either** a direct multipart file upload\n**or** an Eigenpal reusable file-pool id (`file_id` from `POST /files`). Single-document\nextract additionally accepts `parse_job_id`, referencing a tenant-owned succeeded canonical\nparse job; it is mutually exclusive with file bytes and `file_id`. `parse_job_id` is not\naccepted by extract batch items. Arbitrary source URLs and presigned third-party URLs are\nnot accepted. Cross-tenant or unknown `file_id` / `parse_job_id` values return `404`.\nReferenced file bytes are copied into dedicated OCR object storage; OCR admission never\ncreates Eigenpal `files` table rows.\n\nParse and extract operations have **no hidden automatic retry**, **no fallback model**,\n**no hidden repair beyond the explicit `repair_attempts` bound**, and **no chunking or\ntruncation** beyond documented limits.\n\nSynchronous endpoints create durable jobs, wait up to the configured sync wait limit\n(default 300 seconds; deployment-tunable, not a client-selectable hard maximum), and\nreturn the terminal result when ready:\n- `200` with the raw terminal body (`ParsedDocument` for parse; `ExtractionTerminalResult`\n  for extract) on success;\n- `422` `ErrorResponse` when the durable job reaches terminal `failed` within the wait\n  window (in addition to admission-time unprocessable configuration);\n- `504` `ErrorResponse` when the durable job reaches terminal `indeterminate` within the\n  wait window;\n- `202` with a durable job reference if the wait limit expires first.\n\nDisconnecting does not cancel work. Cancellation is not part of this API version.\nAccepted (`202`) responses include a `Location` header that may be an absolute URI or a\npath-absolute relative reference to `GET /jobs/{id}`.\n\n`429` and `503` responses include `Retry-After` with a suggested wait in seconds before\nretrying admission. HTTP `503` is reserved for API admission dependency failures (for\nexample OCR source object upload). Transient GPU/HPS unavailability does **not** reject\nknown-model admission; jobs remain durable and queued until a ready replica and worker\ncapacity exist. Tenant concurrency caps and queue-age alarms bound and observe backlog.\n\n**Billing (customer page charge):** parse and file-backed extract charge **USD $0.001 per\nsuccessfully parsed page** ($1 per 1,000 pages; **0.1 shared-ledger credits per page** at\nthe fixed $0.01/credit presentation unit). The authoritative page count is the HPS/parse\nresult page count recorded on the durable job (`page_count`, derived from the canonical\n`ParsedDocument.pages` length). A single extract admitted with\n`parse_job_id` reuses that document, does not run OCR, and applies **no additional page\ncharge**; its provider-accepted OpenRouter attempts remain billable. No page charge applies\nbefore a successful terminal result is published and made retrievable. A job that terminates as `failed` or `indeterminate` incurs zero page charge, including an extract job that parsed successfully but did not publish a successful extraction result. Client disconnection after admission does not suppress a charge when the durable job later publishes a retrievable\nsuccessful result. Provider-accepted OpenRouter extraction attempts are billed separately\nat the customer retail token rates published by `GET /models/llm` (see `attempts` / `usage`\non `ExtractionTerminalResult`). Catalog `prompt_usd_per_1m` / `completion_usd_per_1m`\nfields are **customer retail** rates (`basis: customer_retail`), not raw provider list\nprices. Batches charge per child job. Page charges use the OCR model's customer retail\n`usd_per_page` (currently $0.001 for PaddleOCR-VL 1.6). Charge keys are idempotent. Credit reserve/refund behavior integrates with\nEigenpal billing and is not embedded in sync parse response bodies.\n\nAdmission does not limit document page count. Other document limits: **50 MiB per file**, **100 million\nrendered pixels per page**, and **100 MiB aggregate batch input** across multipart uploads\nand resolved `file_id` bytes. Reusable file-pool uploads accept up to **100 MiB**. Supported media\ntypes: **PDF**, **PNG**, **JPEG**. Encrypted PDFs are rejected. Archives, SVG, HTML, and other\nformats are rejected.\n"
 servers:
   - url: 'https://{ocr_host}'
     description: Dedicated OCR hostname (environment-specific deployment value)
@@ -15,7 +15,7 @@ servers:
           - sapi.openparser.dev
 tags:
   - name: parse
-    description: 'OCR parsing to the versioned `openparser@1` format or opt-in raw Paddle output'
+    description: 'OCR parsing to the versioned `openparser@1` format or opt-in raw provider output'
   - name: extract
     description: Parse plus schema-constrained LLM extraction
   - name: pipelines
@@ -503,6 +503,18 @@ components:
                   message: encrypted PDFs are not supported
                   request_id: req_01h2example
                   retryable: false
+            modelPageLimit:
+              value:
+                error:
+                  code: model_page_limit
+                  message: google-docai-ocr supports at most 15 PDF pages per document
+                  request_id: req_01h2example
+                  retryable: false
+                  details:
+                    ocr_model: google-docai-ocr
+                    page_count: 16
+                    max_pages: 15
+                    media_type: application/pdf
             invalidSchema:
               value:
                 error:
@@ -768,38 +780,60 @@ components:
       value:
         output_format: openparser@1
         document_id: doc_01h2example
-        page_count: 1
+        provenance:
+          provider: paddle
+          model: paddleocr-vl-1.6
+        text: "# Invoice\\n\\nTotal due: $1,234.56"
         markdown: "# Invoice\n\nTotal due: $1,234.56\n"
-        blocks:
-          - index: 0
-            page_number: 1
+        pages:
+          - number: 1
+            width: 1700
+            height: 2200
+            unit: pixel
+            element_ids:
+              - e0
+              - e1
+            reading_order:
+              - e0
+              - e1
+        elements:
+          - id: e0
             kind: text
+            role: heading
             text: '# Invoice'
-            bbox:
-              left: 72
-              top: 48
-              right: 220
-              bottom: 92
-            confidence: 0.98
-            region_id: r_01
-            coordinate_width: 1700
-            coordinate_height: 2200
-          - index: 1
-            page_number: 1
+            spans: []
+            languages: []
+            locations:
+              - page_number: 1
+                bbox:
+                  left: 72
+                  top: 48
+                  right: 220
+                  bottom: 92
+            confidence:
+              score: 0.98
+              scope: recognition
+              calibrated: false
+          - id: e1
             kind: text
+            role: paragraph
             text: 'Total due: $1,234.56'
-            bbox:
-              left: 72
-              top: 180
-              right: 420
-              bottom: 220
-            confidence: 0.95
-            region_id: r_02
-            coordinate_width: 1700
-            coordinate_height: 2200
-        regions: []
-        contents: []
-        chunks: []
+            spans: []
+            languages: []
+            locations:
+              - page_number: 1
+                bbox:
+                  left: 72
+                  top: 180
+                  right: 420
+                  bottom: 220
+            confidence:
+              score: 0.95
+              scope: recognition
+              calibrated: false
+        text_annotations: []
+        relations: []
+        assets: []
     RawParseResultPaddle:
       value:
         output_format: raw
@@ -827,16 +861,37 @@ components:
         parsed_document:
           output_format: openparser@1
           document_id: doc_01h2example
-          page_count: 1
+          provenance:
+            provider: paddle
+            model: paddleocr-vl-1.6
+          text: 'Total due: $1,234.56'
           markdown: 'Total due: $1,234.56'
-          blocks:
-            - index: 0
-              page_number: 1
+          pages:
+            - number: 1
+              width: 1700
+              height: 2200
+              unit: pixel
+              element_ids:
+                - e0
+              reading_order:
+                - e0
+          elements:
+            - id: e0
               kind: text
+              role: paragraph
               text: 'Total due: $1,234.56'
-          regions: []
-          contents: []
-          chunks: []
+              spans: []
+              languages: []
+              locations:
+                - page_number: 1
+                  bbox:
+                    left: 72
+                    top: 180
+                    right: 420
+                    bottom: 220
+          text_annotations: []
+          relations: []
+          assets: []
         llm_model: openai/gpt-5.6-terra
         attempts:
           - index: 0
@@ -858,23 +913,37 @@ components:
         parsed_document:
           output_format: openparser@1
           document_id: doc_01h2grounded
-          page_count: 1
+          provenance:
+            provider: paddle
+            model: paddleocr-vl-1.6
+          text: 'Status: paid'
           markdown: 'Status: paid'
-          blocks:
-            - index: 0
-              page_number: 1
+          pages:
+            - number: 1
+              width: 1700
+              height: 2200
+              unit: pixel
+              element_ids:
+                - e0
+              reading_order:
+                - e0
+          elements:
+            - id: e0
               kind: text
+              role: paragraph
               text: 'Status: paid'
-              bbox:
-                left: 72
-                top: 180
-                right: 420
-                bottom: 220
-              coordinate_width: 1700
-              coordinate_height: 2200
-          regions: []
-          contents: []
-          chunks: []
+              spans: []
+              languages: []
+              locations:
+                - page_number: 1
+                  bbox:
+                    left: 72
+                    top: 180
+                    right: 420
+                    bottom: 220
+          text_annotations: []
+          relations: []
+          assets: []
         llm_model: openai/gpt-5.6-terra
         attempts:
           - index: 0
@@ -889,21 +958,19 @@ components:
           fields:
             - path: status
               citations:
-                - block_index: 0
+                - element_id: e0
                   page_number: 1
                   bbox:
                     left: 72
                     top: 180
                     right: 420
                     bottom: 220
-                  coordinate_width: 1700
-                  coordinate_height: 2200
                   source_type: text
-                  granularity: block
+                  granularity: element
             - path: total_due
               citations: []
               dropped_source_ids:
-                - b999
+                - elem-missing
     JobParseSucceeded:
       value:
         id: opj_7f9f2f3d0f8a4f0a9a2b2f6f0a7d2c11
@@ -917,16 +984,37 @@ components:
         result:
           output_format: openparser@1
           document_id: doc_01h2example
-          page_count: 1
+          provenance:
+            provider: paddle
+            model: paddleocr-vl-1.6
+          text: Hello
           markdown: Hello
-          blocks:
-            - index: 0
-              page_number: 1
+          pages:
+            - number: 1
+              width: 1000
+              height: 1400
+              unit: pixel
+              element_ids:
+                - e0
+              reading_order:
+                - e0
+          elements:
+            - id: e0
               kind: text
+              role: paragraph
               text: Hello
-          regions: []
-          contents: []
-          chunks: []
+              spans: []
+              languages: []
+              locations:
+                - page_number: 1
+                  bbox:
+                    left: 72
+                    top: 48
+                    right: 200
+                    bottom: 92
+          text_annotations: []
+          relations: []
+          assets: []
     JobBatchRunning:
       value:
         id: opj_b2c3d4e56f7a8901bcdef23456789012
@@ -954,16 +1042,37 @@ components:
               result:
                 output_format: openparser@1
                 document_id: doc_a
-                page_count: 1
+                provenance:
+                  provider: paddle
+                  model: paddleocr-vl-1.6
+                text: A
                 markdown: A
-                blocks:
-                  - index: 0
-                    page_number: 1
+                pages:
+                  - number: 1
+                    width: 1000
+                    height: 1400
+                    unit: pixel
+                    element_ids:
+                      - e0
+                    reading_order:
+                      - e0
+                elements:
+                  - id: e0
                     kind: text
+                    role: paragraph
                     text: A
-                regions: []
-                contents: []
-                chunks: []
+                    spans: []
+                    languages: []
+                    locations:
+                      - page_number: 1
+                        bbox:
+                          left: 72
+                          top: 48
+                          right: 120
+                          bottom: 92
+                text_annotations: []
+                relations: []
+                assets: []
             - client_item_id: b
               job_id: opj_d4e5f6a789012345bcdef01234567890
               file_index: 1
@@ -997,16 +1106,37 @@ components:
               result:
                 output_format: openparser@1
                 document_id: doc_a
-                page_count: 1
+                provenance:
+                  provider: paddle
+                  model: paddleocr-vl-1.6
+                text: A
                 markdown: A
-                blocks:
-                  - index: 0
-                    page_number: 1
+                pages:
+                  - number: 1
+                    width: 1000
+                    height: 1400
+                    unit: pixel
+                    element_ids:
+                      - e0
+                    reading_order:
+                      - e0
+                elements:
+                  - id: e0
                     kind: text
+                    role: paragraph
                     text: A
-                regions: []
-                contents: []
-                chunks: []
+                    spans: []
+                    languages: []
+                    locations:
+                      - page_number: 1
+                        bbox:
+                          left: 72
+                          top: 48
+                          right: 120
+                          bottom: 92
+                text_annotations: []
+                relations: []
+                assets: []
             - client_item_id: b
               job_id: opj_d4e5f6a789012345bcdef01234567890
               file_index: 1
@@ -1057,9 +1187,9 @@ components:
       example: opj_V1StGXR8_Z5jdHi6B-myT
     OcrModel:
       type: string
-      enum:
-        - paddleocr-vl-1.6
-      description: "Stable public OCR model registry name. `paddleocr-vl-1.6` locks\n`formatBlockContent=true`, `visualize=false`, and `returnMarkdownImages=false`.\nPublic `ocr_options` (`image_block_ocr`, `chart_recognition`, `merge_layout_blocks`)\nare admitted per model catalog. Layout-block merging defaults off so text remains\naligned with its detected geometry. Canonical output always retains figure and\nempty-detection geometry in `regions`/`blocks`; binary figure crops are not\ncaller-configurable and are never embedded as base64 in canonical responses.\n"
+      minLength: 1
+      maxLength: 128
+      description: "Stable hosted OCR model registry name from `GET /models`. Each catalog entry declares\nits supported `ocr_options`, defaults, current availability, output capabilities, and\nretail page price. Unknown model names return `422 unsupported_ocr_model`.\n"
     LlmModel:
       type: string
       minLength: 1
@@ -1093,15 +1223,11 @@ components:
           maxLength: 128
         ocr_options:
           type: object
-          properties:
-            image_block_ocr:
-              type: boolean
-            chart_recognition:
-              type: boolean
-            merge_layout_blocks:
-              description: Merge nearby cross-column or staggered text regions before recognition. Defaults to false to preserve one-to-one text and bounding-box alignment.
-              type: boolean
-          additionalProperties: false
+          propertyNames:
+            type: string
+            minLength: 1
+            maxLength: 128
+          additionalProperties: {}
         file_id:
           type: string
           minLength: 1
@@ -1130,15 +1256,11 @@ components:
           maxLength: 128
         ocr_options:
           type: object
-          properties:
-            image_block_ocr:
-              type: boolean
-            chart_recognition:
-              type: boolean
-            merge_layout_blocks:
-              description: Merge nearby cross-column or staggered text regions before recognition. Defaults to false to preserve one-to-one text and bounding-box alignment.
-              type: boolean
-          additionalProperties: false
+          propertyNames:
+            type: string
+            minLength: 1
+            maxLength: 128
+          additionalProperties: {}
         llm_model:
           type: string
           minLength: 1
@@ -1228,15 +1350,11 @@ components:
           maxLength: 128
         ocr_options:
           type: object
-          properties:
-            image_block_ocr:
-              type: boolean
-            chart_recognition:
-              type: boolean
-            merge_layout_blocks:
-              description: Merge nearby cross-column or staggered text regions before recognition. Defaults to false to preserve one-to-one text and bounding-box alignment.
-              type: boolean
-          additionalProperties: false
+          propertyNames:
+            type: string
+            minLength: 1
+            maxLength: 128
+          additionalProperties: {}
         llm_model:
           type: string
           minLength: 1
@@ -1301,15 +1419,11 @@ components:
         ocr_options:
           anyOf:
             - type: object
-              properties:
-                image_block_ocr:
-                  type: boolean
-                chart_recognition:
-                  type: boolean
-                merge_layout_blocks:
-                  description: Merge nearby cross-column or staggered text regions before recognition. Defaults to false to preserve one-to-one text and bounding-box alignment.
-                  type: boolean
-              additionalProperties: false
+              propertyNames:
+                type: string
+                minLength: 1
+                maxLength: 128
+              additionalProperties: {}
             - type: 'null'
         llm_model:
           type: string
@@ -1377,18 +1491,11 @@ components:
           maxLength: 128
         ocr_options:
           type: object
-          properties:
-            image_block_ocr:
-              type: boolean
-            chart_recognition:
-              type: boolean
-            merge_layout_blocks:
-              type: boolean
-          required:
-            - image_block_ocr
-            - chart_recognition
-            - merge_layout_blocks
-          additionalProperties: false
+          propertyNames:
+            type: string
+            minLength: 1
+            maxLength: 128
+          additionalProperties: {}
         llm_model:
           $ref: '#/components/schemas/LlmModel'
         llm_options:
@@ -1501,15 +1608,11 @@ components:
           maxLength: 128
         ocr_options:
           type: object
-          properties:
-            image_block_ocr:
-              type: boolean
-            chart_recognition:
-              type: boolean
-            merge_layout_blocks:
-              description: Merge nearby cross-column or staggered text regions before recognition. Defaults to false to preserve one-to-one text and bounding-box alignment.
-              type: boolean
-          additionalProperties: false
+          propertyNames:
+            type: string
+            minLength: 1
+            maxLength: 128
+          additionalProperties: {}
       required:
         - client_item_id
         - ocr_model
@@ -1542,15 +1645,11 @@ components:
           maxLength: 128
         ocr_options:
           type: object
-          properties:
-            image_block_ocr:
-              type: boolean
-            chart_recognition:
-              type: boolean
-            merge_layout_blocks:
-              description: Merge nearby cross-column or staggered text regions before recognition. Defaults to false to preserve one-to-one text and bounding-box alignment.
-              type: boolean
-          additionalProperties: false
+          propertyNames:
+            type: string
+            minLength: 1
+            maxLength: 128
+          additionalProperties: {}
         llm_model:
           type: string
           minLength: 1
@@ -1620,15 +1719,11 @@ components:
                 maxLength: 128
               ocr_options:
                 type: object
-                properties:
-                  image_block_ocr:
-                    type: boolean
-                  chart_recognition:
-                    type: boolean
-                  merge_layout_blocks:
-                    description: Merge nearby cross-column or staggered text regions before recognition. Defaults to false to preserve one-to-one text and bounding-box alignment.
-                    type: boolean
-                additionalProperties: false
+                propertyNames:
+                  type: string
+                  minLength: 1
+                  maxLength: 128
+                additionalProperties: {}
             required:
               - client_item_id
               - ocr_model
@@ -1676,15 +1771,11 @@ components:
                 maxLength: 128
               ocr_options:
                 type: object
-                properties:
-                  image_block_ocr:
-                    type: boolean
-                  chart_recognition:
-                    type: boolean
-                  merge_layout_blocks:
-                    description: Merge nearby cross-column or staggered text regions before recognition. Defaults to false to preserve one-to-one text and bounding-box alignment.
-                    type: boolean
-                additionalProperties: false
+                propertyNames:
+                  type: string
+                  minLength: 1
+                  maxLength: 128
+                additionalProperties: {}
               llm_model:
                 type: string
                 minLength: 1
@@ -1738,46 +1829,6 @@ components:
       enum:
         - openparser@1
         - raw
-    PaddleRawProfile:
-      type: object
-      properties:
-        name:
-          type: string
-          const: eigenpal-paddle-layout-v1
-        options:
-          type: object
-          properties:
-            format_block_content:
-              type: boolean
-              const: true
-            use_chart_recognition:
-              type: boolean
-            use_ocr_for_image_block:
-              type: boolean
-            return_markdown_images:
-              type: boolean
-            visualize:
-              type: boolean
-              const: false
-            image_block_ocr:
-              type: boolean
-            chart_recognition:
-              type: boolean
-            merge_layout_blocks:
-              type: boolean
-          required:
-            - format_block_content
-            - use_chart_recognition
-            - use_ocr_for_image_block
-            - return_markdown_images
-            - visualize
-            - image_block_ocr
-            - chart_recognition
-          additionalProperties: false
-      required:
-        - name
-        - options
-      additionalProperties: false
     RawParseResult:
       type: object
       properties:
@@ -1786,12 +1837,28 @@ components:
           const: raw
         provider:
           type: string
-          const: paddle
+          minLength: 1
+          maxLength: 128
         model:
           type: string
-          const: paddleocr-vl-1.6
+          minLength: 1
+          maxLength: 128
         profile:
-          $ref: '#/components/schemas/PaddleRawProfile'
+          type: object
+          properties:
+            name:
+              type: string
+              minLength: 1
+              maxLength: 256
+            options:
+              type: object
+              propertyNames:
+                type: string
+              additionalProperties: {}
+          required:
+            - name
+            - options
+          additionalProperties: false
         result:
           type: object
           propertyNames:
@@ -1889,25 +1956,34 @@ components:
         - updated_at
         - child_count
       additionalProperties: false
+    Point:
+      type: object
+      properties:
+        x:
+          type: number
+          minimum: 0
+        'y':
+          type: number
+          minimum: 0
+      required:
+        - x
+        - 'y'
+      additionalProperties: false
     BoundingBox:
       type: object
       properties:
         left:
-          type: integer
+          type: number
           minimum: 0
-          maximum: 9007199254740991
         top:
-          type: integer
+          type: number
           minimum: 0
-          maximum: 9007199254740991
         right:
-          type: integer
+          type: number
           exclusiveMinimum: 0
-          maximum: 9007199254740991
         bottom:
-          type: integer
+          type: number
           exclusiveMinimum: 0
-          maximum: 9007199254740991
       required:
         - left
         - top
@@ -1915,420 +1991,980 @@ components:
         - bottom
       additionalProperties: false
       description: Axis-aligned integer page coordinates with exclusive right and bottom edges.
-    PageBlock:
+    Polygon:
+      minItems: 3
+      type: array
+      items:
+        $ref: '#/components/schemas/Point'
+    Geometry:
       type: object
       properties:
-        index:
-          type: integer
-          minimum: 0
-          maximum: 9007199254740991
-          description: 'Zero-based reading-order index, contiguous from 0.'
         page_number:
           type: integer
           minimum: 1
           maximum: 9007199254740991
-        kind:
-          type: string
-          enum:
-            - text
-            - table
-            - figure
-        text:
-          anyOf:
-            - type: string
-            - type: 'null'
-        table_html:
-          anyOf:
-            - type: string
-            - type: 'null'
-        figure_uri:
-          anyOf:
-            - type: string
-            - type: 'null'
-        bbox:
-          anyOf:
-            - $ref: '#/components/schemas/BoundingBox'
-            - type: 'null'
-        polygon:
-          anyOf:
-            - minItems: 3
-              type: array
-              items:
-                type: object
-                properties:
-                  x:
-                    type: number
-                    minimum: 0
-                  'y':
-                    type: number
-                    minimum: 0
-                required:
-                  - x
-                  - 'y'
-                additionalProperties: false
-            - type: 'null'
-        confidence:
-          anyOf:
-            - type: number
-              minimum: 0
-              maximum: 1
-            - type: 'null'
-        source_label:
-          anyOf:
-            - type: string
-              minLength: 1
-            - type: 'null'
-        region_id:
-          anyOf:
-            - type: string
-              minLength: 1
-            - type: 'null'
-        coordinate_width:
-          anyOf:
-            - type: integer
-              exclusiveMinimum: 0
-              maximum: 9007199254740991
-            - type: 'null'
-        coordinate_height:
-          anyOf:
-            - type: integer
-              exclusiveMinimum: 0
-              maximum: 9007199254740991
-            - type: 'null'
-      required:
-        - index
-        - page_number
-        - kind
-      additionalProperties: false
-      description: "Primary stable parse interface: one ordered page block in reading order. Optional core\nfields are serialized as JSON `null` when absent.\n"
-      allOf:
-        - if:
-            properties:
-              kind:
-                const: text
-            required:
-              - kind
-          then:
-            required:
-              - text
-            properties:
-              text:
-                type: string
-        - if:
-            properties:
-              kind:
-                const: table
-            required:
-              - kind
-          then:
-            required:
-              - table_html
-            properties:
-              table_html:
-                type: string
-        - if:
-            properties:
-              kind:
-                const: figure
-            required:
-              - kind
-          then:
-            required:
-              - figure_uri
-            properties:
-              figure_uri:
-                type: string
-        - if:
-            properties:
-              coordinate_width:
-                type: integer
-          then:
-            properties:
-              coordinate_height:
-                type: integer
-        - if:
-            properties:
-              coordinate_height:
-                type: integer
-          then:
-            properties:
-              coordinate_width:
-                type: integer
-    RegionType:
-      type: string
-      enum:
-        - text
-        - heading
-        - table
-        - key_value
-        - figure
-        - checkbox
-        - signature
-        - barcode
-        - formula
-        - header_footer
-    Region:
-      type: object
-      properties:
-        id:
-          type: string
-          minLength: 1
-        page_number:
-          type: integer
-          minimum: 1
-          maximum: 9007199254740991
-        type:
-          $ref: '#/components/schemas/RegionType'
         bbox:
           $ref: '#/components/schemas/BoundingBox'
         polygon:
-          anyOf:
-            - minItems: 3
-              type: array
-              items:
-                type: object
-                properties:
-                  x:
-                    type: number
-                    minimum: 0
-                  'y':
-                    type: number
-                    minimum: 0
-                required:
-                  - x
-                  - 'y'
-                additionalProperties: false
-            - type: 'null'
-        coordinate_width:
-          anyOf:
-            - type: integer
-              exclusiveMinimum: 0
-              maximum: 9007199254740991
-            - type: 'null'
-        coordinate_height:
-          anyOf:
-            - type: integer
-              exclusiveMinimum: 0
-              maximum: 9007199254740991
-            - type: 'null'
-        confidence:
-          anyOf:
-            - type: number
-              minimum: 0
-              maximum: 1
-            - type: 'null'
-        source_label:
-          anyOf:
-            - type: string
-              minLength: 1
-            - type: 'null'
+          $ref: '#/components/schemas/Polygon'
+        rotation_degrees:
+          type: number
+          minimum: -360
+          maximum: 360
       required:
-        - id
         - page_number
-        - type
         - bbox
       additionalProperties: false
-      allOf:
-        - if:
-            properties:
-              coordinate_width:
-                type: integer
-          then:
-            properties:
-              coordinate_height:
-                type: integer
-        - if:
-            properties:
-              coordinate_height:
-                type: integer
-          then:
-            properties:
-              coordinate_width:
-                type: integer
-    ContentKind:
-      type: string
-      enum:
-        - text
-        - table
-        - state
-        - figure
-    RegionContent:
+    Confidence:
       type: object
       properties:
-        region_id:
+        score:
+          type: number
+          minimum: 0
+          maximum: 1
+        scope:
           type: string
-          minLength: 1
-        kind:
-          $ref: '#/components/schemas/ContentKind'
-        text:
-          anyOf:
-            - type: string
-            - type: 'null'
-        table_html:
-          anyOf:
-            - type: string
-            - type: 'null'
-        detected_state:
-          anyOf:
-            - type: boolean
-            - type: 'null'
-        confidence:
-          anyOf:
-            - type: number
-              minimum: 0
-              maximum: 1
-            - type: 'null'
+          enum:
+            - detection
+            - recognition
+            - classification
+            - geometry
+            - answer
+            - quality
+        calibrated:
+          default: false
+          type: boolean
+        source_value:
+          type: number
+        source_scale:
+          type: string
+          enum:
+            - zero_to_one
+            - zero_to_hundred
+            - log_probability
+            - unknown
       required:
-        - region_id
-        - kind
+        - score
+        - scope
+        - calibrated
       additionalProperties: false
-      allOf:
-        - anyOf:
-            - required:
-                - text
-              properties:
-                text:
-                  type: string
-            - required:
-                - table_html
-              properties:
-                table_html:
-                  type: string
-            - required:
-                - detected_state
-              properties:
-                detected_state:
-                  type: boolean
-        - if:
-            properties:
-              kind:
-                const: table
-            required:
-              - kind
-          then:
-            required:
-              - table_html
-            properties:
-              table_html:
-                type: string
-        - if:
-            properties:
-              kind:
-                const: state
-            required:
-              - kind
-          then:
-            required:
-              - detected_state
-            properties:
-              detected_state:
-                type: boolean
-    ChunkProvenanceSpan:
+    TextSpan:
       type: object
       properties:
-        start_char:
+        start:
           type: integer
           minimum: 0
           maximum: 9007199254740991
-        end_char:
+        end:
           type: integer
           exclusiveMinimum: 0
           maximum: 9007199254740991
-        page_number:
-          type: integer
-          minimum: 1
-          maximum: 9007199254740991
-        bbox:
-          $ref: '#/components/schemas/BoundingBox'
-        region_id:
+      required:
+        - start
+        - end
+      additionalProperties: false
+    Language:
+      type: object
+      properties:
+        code:
           type: string
           minLength: 1
+          maxLength: 64
+        confidence:
+          $ref: '#/components/schemas/Confidence'
       required:
-        - start_char
-        - end_char
-        - page_number
-        - bbox
-        - region_id
+        - code
       additionalProperties: false
-    ExtractionChunk:
+    TextStyle:
+      type: object
+      properties:
+        font_family:
+          type: string
+          minLength: 1
+        font_size:
+          type: number
+          exclusiveMinimum: 0
+        font_size_unit:
+          type: string
+          enum:
+            - pixel
+            - point
+            - inch
+            - em
+            - unknown
+        font_weight:
+          type: integer
+          minimum: 1
+          maximum: 1000
+        bold:
+          type: boolean
+        italic:
+          type: boolean
+        underline:
+          type: boolean
+        strikethrough:
+          type: boolean
+        handwritten:
+          type: boolean
+        monospace:
+          type: boolean
+        small_caps:
+          type: boolean
+        superscript:
+          type: boolean
+        subscript:
+          type: boolean
+        foreground_color:
+          type: string
+          minLength: 1
+        background_color:
+          type: string
+          minLength: 1
+      additionalProperties: false
+    TextRole:
+      type: string
+      enum:
+        - document_title
+        - heading
+        - paragraph
+        - line
+        - word
+        - symbol
+        - list
+        - list_item
+        - caption
+        - footnote
+        - page_header
+        - page_footer
+        - page_number
+        - code
+        - other
+    SourceProvenance:
+      type: object
+      properties:
+        native_id:
+          type: string
+          minLength: 1
+        native_type:
+          type: string
+          minLength: 1
+        native_label:
+          type: string
+          minLength: 1
+      additionalProperties: false
+    TableCell:
       type: object
       properties:
         id:
           type: string
-          pattern: '^[0-9a-f]{64}$'
-        index:
+          minLength: 1
+        row_index:
           type: integer
           minimum: 0
           maximum: 9007199254740991
-        document_id:
+        column_index:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        row_span:
+          default: 1
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+        column_span:
+          default: 1
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+        role:
+          default: body
           type: string
-          minLength: 1
+          enum:
+            - body
+            - column_header
+            - row_header
+            - stub
+            - title
+            - footer
         text:
           type: string
-          minLength: 1
-        content_sha256:
-          type: string
-          pattern: '^[0-9a-f]{64}$'
-        page_numbers:
+        spans:
           default: []
           type: array
           items:
-            type: integer
-            minimum: 1
-            maximum: 9007199254740991
-          uniqueItems: true
-        page_start:
-          anyOf:
-            - type: integer
-              minimum: 1
-              maximum: 9007199254740991
-            - type: 'null'
-        page_end:
-          anyOf:
-            - type: integer
-              minimum: 1
-              maximum: 9007199254740991
-            - type: 'null'
-        region_ids:
+            $ref: '#/components/schemas/TextSpan'
+        locations:
+          default: []
+          type: array
+          items:
+            $ref: '#/components/schemas/Geometry'
+        confidence:
+          $ref: '#/components/schemas/Confidence'
+        source:
+          $ref: '#/components/schemas/SourceProvenance'
+        element_ids:
           default: []
           type: array
           items:
             type: string
             minLength: 1
-          uniqueItems: true
-        provenance_spans:
+      required:
+        - id
+        - row_index
+        - column_index
+        - row_span
+        - column_span
+        - role
+        - text
+        - spans
+        - locations
+        - element_ids
+      additionalProperties: false
+    StructuredValue:
+      type: object
+      properties:
+        text:
+          type: string
+        spans:
           default: []
           type: array
           items:
-            $ref: '#/components/schemas/ChunkProvenanceSpan'
+            $ref: '#/components/schemas/TextSpan'
+        element_ids:
+          default: []
+          type: array
+          items:
+            type: string
+            minLength: 1
+        locations:
+          default: []
+          type: array
+          items:
+            $ref: '#/components/schemas/Geometry'
+        confidence:
+          $ref: '#/components/schemas/Confidence'
+      required:
+        - text
+        - spans
+        - element_ids
+        - locations
+      additionalProperties: false
+    TextElement:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+        locations:
+          default: []
+          type: array
+          items:
+            $ref: '#/components/schemas/Geometry'
+        confidence:
+          $ref: '#/components/schemas/Confidence'
+        source:
+          $ref: '#/components/schemas/SourceProvenance'
+        kind:
+          type: string
+          const: text
+        role:
+          $ref: '#/components/schemas/TextRole'
+        text:
+          type: string
+        spans:
+          default: []
+          type: array
+          items:
+            $ref: '#/components/schemas/TextSpan'
+        languages:
+          default: []
+          type: array
+          items:
+            $ref: '#/components/schemas/Language'
+        style:
+          $ref: '#/components/schemas/TextStyle'
+        break_after:
+          $ref: '#/components/schemas/TextBreak'
       required:
         - id
-        - index
-        - document_id
+        - locations
+        - kind
+        - role
         - text
-        - content_sha256
-        - page_numbers
-        - region_ids
-        - provenance_spans
+        - spans
+        - languages
       additionalProperties: false
-      description: "Canonical extraction chunk. `id` and `content_sha256` are lowercase SHA-256 hashes;\n`content_sha256` hashes `text`. Page numbers are sorted and unique. When present,\n`page_start` and `page_end` equal the minimum and maximum `page_numbers`. Region IDs and\nprovenance spans must match the parent document's regions.\n"
-      allOf:
-        - if:
-            properties:
-              page_start:
-                type: integer
-          then:
-            properties:
-              page_end:
-                type: integer
-        - if:
-            properties:
-              page_end:
-                type: integer
-          then:
-            properties:
-              page_start:
-                type: integer
+    TableElement:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+        locations:
+          default: []
+          type: array
+          items:
+            $ref: '#/components/schemas/Geometry'
+        confidence:
+          $ref: '#/components/schemas/Confidence'
+        source:
+          $ref: '#/components/schemas/SourceProvenance'
+        kind:
+          type: string
+          const: table
+        row_count:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        column_count:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        cells:
+          default: []
+          type: array
+          items:
+            $ref: '#/components/schemas/TableCell'
+        html:
+          type: string
+        markdown:
+          type: string
+      required:
+        - id
+        - locations
+        - kind
+        - row_count
+        - column_count
+        - cells
+      additionalProperties: false
+    FigureElement:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+        locations:
+          default: []
+          type: array
+          items:
+            $ref: '#/components/schemas/Geometry'
+        confidence:
+          $ref: '#/components/schemas/Confidence'
+        source:
+          $ref: '#/components/schemas/SourceProvenance'
+        kind:
+          type: string
+          const: figure
+        asset_id:
+          type: string
+          minLength: 1
+        caption:
+          type: string
+        caption_spans:
+          default: []
+          type: array
+          items:
+            $ref: '#/components/schemas/TextSpan'
+        alt_text:
+          type: string
+      required:
+        - id
+        - locations
+        - kind
+        - caption_spans
+      additionalProperties: false
+    FormulaElement:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+        locations:
+          default: []
+          type: array
+          items:
+            $ref: '#/components/schemas/Geometry'
+        confidence:
+          $ref: '#/components/schemas/Confidence'
+        source:
+          $ref: '#/components/schemas/SourceProvenance'
+        kind:
+          type: string
+          const: formula
+        value:
+          type: string
+        format:
+          $ref: '#/components/schemas/FormulaFormat'
+        spans:
+          default: []
+          type: array
+          items:
+            $ref: '#/components/schemas/TextSpan'
+      required:
+        - id
+        - locations
+        - kind
+        - value
+        - format
+        - spans
+      additionalProperties: false
+    KeyValueElement:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+        locations:
+          default: []
+          type: array
+          items:
+            $ref: '#/components/schemas/Geometry'
+        confidence:
+          $ref: '#/components/schemas/Confidence'
+        source:
+          $ref: '#/components/schemas/SourceProvenance'
+        kind:
+          type: string
+          const: key_value
+        key:
+          $ref: '#/components/schemas/StructuredValue'
+        value:
+          $ref: '#/components/schemas/StructuredValue'
+      required:
+        - id
+        - locations
+        - kind
+        - key
+        - value
+      additionalProperties: false
+    QueryAnswerElement:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+        locations:
+          default: []
+          type: array
+          items:
+            $ref: '#/components/schemas/Geometry'
+        confidence:
+          $ref: '#/components/schemas/Confidence'
+        source:
+          $ref: '#/components/schemas/SourceProvenance'
+        kind:
+          type: string
+          const: query_answer
+        query:
+          $ref: '#/components/schemas/StructuredValue'
+        answer:
+          anyOf:
+            - $ref: '#/components/schemas/StructuredValue'
+            - type: 'null'
+        alias:
+          type: string
+          minLength: 1
+      required:
+        - id
+        - locations
+        - kind
+        - query
+        - answer
+      additionalProperties: false
+    SectionElement:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+        locations:
+          default: []
+          type: array
+          items:
+            $ref: '#/components/schemas/Geometry'
+        confidence:
+          $ref: '#/components/schemas/Confidence'
+        source:
+          $ref: '#/components/schemas/SourceProvenance'
+        kind:
+          type: string
+          const: section
+        role:
+          default: section
+          $ref: '#/components/schemas/SectionRole'
+        title:
+          type: string
+        spans:
+          default: []
+          type: array
+          items:
+            $ref: '#/components/schemas/TextSpan'
+      required:
+        - id
+        - locations
+        - kind
+        - role
+        - spans
+      additionalProperties: false
+    SelectionMarkElement:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+        locations:
+          default: []
+          type: array
+          items:
+            $ref: '#/components/schemas/Geometry'
+        confidence:
+          $ref: '#/components/schemas/Confidence'
+        source:
+          $ref: '#/components/schemas/SourceProvenance'
+        kind:
+          type: string
+          const: selection_mark
+        state:
+          $ref: '#/components/schemas/SelectionState'
+        mark_type:
+          $ref: '#/components/schemas/SelectionMarkType'
+      required:
+        - id
+        - locations
+        - kind
+        - state
+        - mark_type
+      additionalProperties: false
+    SignatureElement:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+        locations:
+          default: []
+          type: array
+          items:
+            $ref: '#/components/schemas/Geometry'
+        confidence:
+          $ref: '#/components/schemas/Confidence'
+        source:
+          $ref: '#/components/schemas/SourceProvenance'
+        kind:
+          type: string
+          const: signature
+        text:
+          type: string
+      required:
+        - id
+        - locations
+        - kind
+      additionalProperties: false
+    BarcodeElement:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+        locations:
+          default: []
+          type: array
+          items:
+            $ref: '#/components/schemas/Geometry'
+        confidence:
+          $ref: '#/components/schemas/Confidence'
+        source:
+          $ref: '#/components/schemas/SourceProvenance'
+        kind:
+          type: string
+          const: barcode
+        value:
+          type: string
+        symbology:
+          type: string
+          minLength: 1
+      required:
+        - id
+        - locations
+        - kind
+        - value
+      additionalProperties: false
+    LinkElement:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+        locations:
+          default: []
+          type: array
+          items:
+            $ref: '#/components/schemas/Geometry'
+        confidence:
+          $ref: '#/components/schemas/Confidence'
+        source:
+          $ref: '#/components/schemas/SourceProvenance'
+        kind:
+          type: string
+          const: link
+        url:
+          type: string
+          minLength: 1
+        text:
+          type: string
+        spans:
+          default: []
+          type: array
+          items:
+            $ref: '#/components/schemas/TextSpan'
+      required:
+        - id
+        - locations
+        - kind
+        - url
+        - spans
+      additionalProperties: false
+    StampElement:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+        locations:
+          default: []
+          type: array
+          items:
+            $ref: '#/components/schemas/Geometry'
+        confidence:
+          $ref: '#/components/schemas/Confidence'
+        source:
+          $ref: '#/components/schemas/SourceProvenance'
+        kind:
+          type: string
+          const: stamp
+        text:
+          type: string
+      required:
+        - id
+        - locations
+        - kind
+      additionalProperties: false
+    OtherElement:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+        locations:
+          default: []
+          type: array
+          items:
+            $ref: '#/components/schemas/Geometry'
+        confidence:
+          $ref: '#/components/schemas/Confidence'
+        source:
+          $ref: '#/components/schemas/SourceProvenance'
+        kind:
+          type: string
+          const: other
+        label:
+          type: string
+          minLength: 1
+        text:
+          type: string
+      required:
+        - id
+        - locations
+        - kind
+        - label
+      additionalProperties: false
+    TextBreak:
+      type: string
+      enum:
+        - none
+        - space
+        - wide_space
+        - hyphen
+        - line_break
+    SectionRole:
+      type: string
+      enum:
+        - section
+        - chapter
+        - group
+        - other
+    DocumentElement:
+      oneOf:
+        - $ref: '#/components/schemas/TextElement'
+        - $ref: '#/components/schemas/TableElement'
+        - $ref: '#/components/schemas/FigureElement'
+        - $ref: '#/components/schemas/FormulaElement'
+        - $ref: '#/components/schemas/KeyValueElement'
+        - $ref: '#/components/schemas/QueryAnswerElement'
+        - $ref: '#/components/schemas/SectionElement'
+        - $ref: '#/components/schemas/SelectionMarkElement'
+        - $ref: '#/components/schemas/SignatureElement'
+        - $ref: '#/components/schemas/BarcodeElement'
+        - $ref: '#/components/schemas/LinkElement'
+        - $ref: '#/components/schemas/StampElement'
+        - $ref: '#/components/schemas/OtherElement'
+      description: "One semantic node in the `openparser@1` document graph. Elements carry typed payloads\n(text, table, figure, and other kinds), optional geometry in `locations`, and stable `id`\nvalues referenced by pages, relations, assets, and grounding citations.\n"
+    DocumentElementKind:
+      type: string
+      enum:
+        - text
+        - table
+        - figure
+        - formula
+        - key_value
+        - query_answer
+        - section
+        - selection_mark
+        - signature
+        - barcode
+        - link
+        - stamp
+        - other
+    TextAnnotation:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+        spans:
+          minItems: 1
+          type: array
+          items:
+            $ref: '#/components/schemas/TextSpan'
+        languages:
+          default: []
+          type: array
+          items:
+            $ref: '#/components/schemas/Language'
+        style:
+          $ref: '#/components/schemas/TextStyle'
+        confidence:
+          $ref: '#/components/schemas/Confidence'
+        source:
+          $ref: '#/components/schemas/SourceProvenance'
+      required:
+        - id
+        - spans
+        - languages
+      additionalProperties: false
+    RelationType:
+      type: string
+      enum:
+        - contains
+        - precedes
+        - continuation_of
+        - caption_of
+        - footnote_of
+        - refers_to
+        - overlaps
+    DocumentRelation:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/RelationType'
+        from_id:
+          type: string
+          minLength: 1
+        to_id:
+          type: string
+          minLength: 1
+      required:
+        - type
+        - from_id
+        - to_id
+      additionalProperties: false
+    CoordinateUnit:
+      type: string
+      enum:
+        - pixel
+        - point
+        - inch
+        - normalized
+    DocumentPage:
+      type: object
+      properties:
+        number:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+        source_page_number:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+        width:
+          type: number
+          exclusiveMinimum: 0
+        height:
+          type: number
+          exclusiveMinimum: 0
+        unit:
+          $ref: '#/components/schemas/CoordinateUnit'
+        rotation_degrees:
+          default: 0
+          type: number
+          minimum: -360
+          maximum: 360
+        languages:
+          default: []
+          type: array
+          items:
+            $ref: '#/components/schemas/Language'
+        confidence:
+          $ref: '#/components/schemas/Confidence'
+        quality:
+          type: object
+          properties:
+            score:
+              $ref: '#/components/schemas/Confidence'
+            defects:
+              default: []
+              type: array
+              items:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    minLength: 1
+                  confidence:
+                    $ref: '#/components/schemas/Confidence'
+                required:
+                  - type
+                additionalProperties: false
+            metrics:
+              default: []
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    minLength: 1
+                  value:
+                    anyOf:
+                      - type: number
+                      - type: string
+                      - type: boolean
+                required:
+                  - name
+                  - value
+                additionalProperties: false
+          required:
+            - defects
+            - metrics
+          additionalProperties: false
+        image_asset_id:
+          type: string
+          minLength: 1
+        element_ids:
+          default: []
+          type: array
+          items:
+            type: string
+            minLength: 1
+        reading_order:
+          default: []
+          type: array
+          items:
+            type: string
+            minLength: 1
+      required:
+        - number
+        - width
+        - height
+        - unit
+        - rotation_degrees
+        - languages
+        - element_ids
+        - reading_order
+      additionalProperties: false
+    AssetKind:
+      type: string
+      enum:
+        - page_image
+        - figure
+        - embedded_image
+        - other
+    DocumentAsset:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+        kind:
+          $ref: '#/components/schemas/AssetKind'
+        uri:
+          type: string
+          minLength: 1
+        data_base64:
+          type: string
+          minLength: 1
+        mime_type:
+          type: string
+          minLength: 1
+        page_number:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+        width:
+          type: number
+          exclusiveMinimum: 0
+        height:
+          type: number
+          exclusiveMinimum: 0
+        sha256:
+          type: string
+          pattern: '^[0-9a-f]{64}$'
+      required:
+        - id
+        - kind
+      additionalProperties: false
+    DocumentProvenance:
+      type: object
+      properties:
+        provider:
+          type: string
+          minLength: 1
+          maxLength: 128
+        model:
+          type: string
+          minLength: 1
+          maxLength: 128
+        version:
+          type: string
+          minLength: 1
+          maxLength: 256
+        operation:
+          type: string
+          minLength: 1
+          maxLength: 128
+      required:
+        - provider
+        - model
+      additionalProperties: false
+    FormulaFormat:
+      type: string
+      enum:
+        - latex
+        - mathml
+        - plain
+        - unknown
+    SelectionState:
+      type: string
+      enum:
+        - selected
+        - unselected
+        - indeterminate
+    SelectionMarkType:
+      type: string
+      enum:
+        - checkbox
+        - radio
+        - other
     ParsedDocument:
       type: object
       properties:
@@ -2338,45 +2974,53 @@ components:
         document_id:
           type: string
           minLength: 1
-        page_count:
-          type: integer
-          minimum: 0
-          maximum: 9007199254740991
-          description: "Authoritative successfully parsed page count from the HPS/parse result. Customer\npage billing uses this value only when a successful terminal result is published.\n"
+        provenance:
+          $ref: '#/components/schemas/DocumentProvenance'
+        text:
+          type: string
         markdown:
           type: string
-          description: Derived markdown rendered from ordered blocks.
-        blocks:
+          description: Canonical best-effort Markdown rendering derived from the document graph.
+        pages:
           minItems: 1
           type: array
           items:
-            $ref: '#/components/schemas/PageBlock'
-        regions:
+            $ref: '#/components/schemas/DocumentPage'
+          description: One-based contiguous page coordinate spaces with element membership and reading order.
+        elements:
           default: []
           type: array
           items:
-            $ref: '#/components/schemas/Region'
-        contents:
+            $ref: '#/components/schemas/DocumentElement'
+          description: 'Ordered semantic nodes referenced by page membership, relations, and grounding citations.'
+        text_annotations:
           default: []
           type: array
           items:
-            $ref: '#/components/schemas/RegionContent'
-        chunks:
+            $ref: '#/components/schemas/TextAnnotation'
+        relations:
           default: []
           type: array
           items:
-            $ref: '#/components/schemas/ExtractionChunk'
+            $ref: '#/components/schemas/DocumentRelation'
+        assets:
+          default: []
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentAsset'
       required:
         - output_format
         - document_id
-        - page_count
+        - provenance
+        - text
         - markdown
-        - blocks
-        - regions
-        - contents
-        - chunks
+        - pages
+        - elements
+        - text_annotations
+        - relations
+        - assets
       additionalProperties: false
-      description: "Versioned OpenParser `openparser@1` document representation. `blocks` is the primary\nstable interface; `regions`, `contents`, and `chunks` preserve provider-neutral geometry,\nconfidence, labels, provenance, and extraction views. Compatible optional fields may be\nadded within version 1; breaking representation changes create a new output-format version.\n"
+      description: "Versioned OpenParser `openparser@1` document graph. `pages` establish coordinate spaces;\n`elements` carry semantic payloads and geometry; `relations` preserve hierarchy and\ncross-element meaning; `assets` hold reusable binary references (for example figure URIs).\nCompatible optional fields may be added within version 1; breaking representation changes\ncreate a new output-format version.\n"
     ExtractionAttemptKind:
       type: string
       enum:
@@ -2441,21 +3085,21 @@ components:
       enum:
         - none
         - field
-      description: "Extraction grounding mode. `none` preserves ordinary extraction. `field` requests\nverified per-leaf source citations (citation v1 emits block-level citations only).\n"
+      description: "Extraction grounding mode. `none` preserves ordinary extraction. `field` requests\nverified per-leaf source citations (citation v1 emits element-level citations only).\n"
     ExtractionCitationGranularity:
       type: string
       enum:
-        - block
-        - region
-      description: "Citation geometry granularity. Citation v1 emits only `block`; `region` is reserved\nfor a later narrowing release.\n"
+        - element
+        - table_cell
+        - text_span
+      description: "Citation geometry granularity. Citation v1 emits `element` and `table_cell`;\n`text_span` is reserved for a later narrowing release.\n"
     ExtractionCitation:
       type: object
       properties:
-        block_index:
-          type: integer
-          minimum: 0
-          maximum: 9007199254740991
-        region_id:
+        element_id:
+          type: string
+          minLength: 1
+        table_cell_id:
           type: string
           minLength: 1
         page_number:
@@ -2464,45 +3108,22 @@ components:
           maximum: 9007199254740991
         bbox:
           $ref: '#/components/schemas/BoundingBox'
-        coordinate_width:
-          anyOf:
-            - type: integer
-              exclusiveMinimum: 0
-              maximum: 9007199254740991
-            - type: 'null'
-        coordinate_height:
-          anyOf:
-            - type: integer
-              exclusiveMinimum: 0
-              maximum: 9007199254740991
-            - type: 'null'
+        polygon:
+          $ref: '#/components/schemas/Polygon'
         source_type:
-          type: string
-          enum:
-            - text
-            - table
-            - figure
-            - heading
-            - key_value
-            - checkbox
-            - signature
-            - barcode
-            - formula
-            - header_footer
+          $ref: '#/components/schemas/DocumentElementKind'
         granularity:
           $ref: '#/components/schemas/ExtractionCitationGranularity'
         confidence:
-          type: number
-          minimum: 0
-          maximum: 1
+          $ref: '#/components/schemas/Confidence'
       required:
-        - block_index
+        - element_id
         - page_number
         - bbox
         - source_type
         - granularity
       additionalProperties: false
-      description: 'Verified provenance for one extracted leaf citation. Geometry comes from the parse, never the model.'
+      description: 'Verified provenance for one extracted leaf citation. Geometry comes from the parse graph element or table cell, never the model.'
     ExtractionGroundingField:
       type: object
       properties:
@@ -2966,6 +3587,78 @@ components:
           maxLength: 120
         is_default:
           type: boolean
+        provider:
+          type: object
+          properties:
+            key:
+              type: string
+              minLength: 1
+              maxLength: 64
+            label:
+              type: string
+              minLength: 1
+              maxLength: 64
+            logo:
+              type: string
+              minLength: 1
+              maxLength: 64
+          required:
+            - key
+            - label
+          additionalProperties: false
+        guidance:
+          type: object
+          properties:
+            summary:
+              type: string
+              minLength: 1
+              maxLength: 500
+            best_for:
+              type: string
+              minLength: 1
+              maxLength: 500
+            trade_off:
+              type: string
+              minLength: 1
+              maxLength: 500
+            output:
+              type: string
+              minLength: 1
+              maxLength: 500
+          required:
+            - summary
+            - best_for
+            - trade_off
+            - output
+          additionalProperties: false
+        benchmark:
+          anyOf:
+            - type: object
+              properties:
+                score:
+                  type: number
+                version:
+                  type: string
+                  minLength: 1
+                  maxLength: 120
+                qualification:
+                  type: string
+                  minLength: 1
+                  maxLength: 500
+                source_url:
+                  type: string
+                  format: uri
+              required:
+                - score
+                - version
+                - qualification
+                - source_url
+              additionalProperties: false
+            - type: 'null'
+        output_summary:
+          type: string
+          minLength: 1
+          maxLength: 200
         capabilities:
           type: object
           properties:
@@ -2979,18 +3672,12 @@ components:
               type: boolean
             options:
               type: object
-              properties:
-                image_block_ocr:
-                  type: boolean
-                chart_recognition:
-                  type: boolean
-                merge_layout_blocks:
-                  type: boolean
-              required:
-                - image_block_ocr
-                - chart_recognition
-                - merge_layout_blocks
-              additionalProperties: false
+              propertyNames:
+                type: string
+                minLength: 1
+                maxLength: 128
+              additionalProperties:
+                type: boolean
           required:
             - parse
             - extract_source
@@ -3000,18 +3687,66 @@ components:
           additionalProperties: false
         option_defaults:
           type: object
-          properties:
-            image_block_ocr:
-              type: boolean
-            chart_recognition:
-              type: boolean
-            merge_layout_blocks:
-              type: boolean
-          required:
-            - image_block_ocr
-            - chart_recognition
-            - merge_layout_blocks
-          additionalProperties: false
+          propertyNames:
+            type: string
+            minLength: 1
+            maxLength: 128
+          additionalProperties: {}
+        option_controls:
+          type: array
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+                minLength: 1
+                maxLength: 128
+              label:
+                type: string
+                minLength: 1
+                maxLength: 120
+              summary:
+                type: string
+                minLength: 1
+                maxLength: 500
+              kind:
+                type: string
+                enum:
+                  - boolean
+                  - enum
+                  - nullable-enum
+                  - nullable-string
+                  - nullable-string-list
+              choices:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    value:
+                      type: string
+                      minLength: 1
+                      maxLength: 128
+                    label:
+                      type: string
+                      minLength: 1
+                      maxLength: 120
+                  required:
+                    - value
+                    - label
+                  additionalProperties: false
+              placeholder:
+                type: string
+                maxLength: 120
+              nullable_sentinel:
+                type: string
+                minLength: 1
+                maxLength: 128
+            required:
+              - key
+              - label
+              - summary
+              - kind
+            additionalProperties: false
         pricing:
           type: object
           properties:
@@ -3021,6 +3756,35 @@ components:
             basis:
               type: string
               const: customer_retail
+            configurations:
+              type: array
+              items:
+                type: object
+                properties:
+                  label:
+                    type: string
+                    minLength: 1
+                    maxLength: 160
+                  usd_per_page:
+                    type: number
+                    minimum: 0
+                  options:
+                    type: object
+                    propertyNames:
+                      type: string
+                      minLength: 1
+                    additionalProperties:
+                      anyOf:
+                        - type: boolean
+                        - type: string
+                          const: set
+                        - type: string
+                          const: unset
+                required:
+                  - label
+                  - usd_per_page
+                  - options
+                additionalProperties: false
           required:
             - usd_per_page
             - basis
@@ -3035,12 +3799,17 @@ components:
         - id
         - label
         - is_default
+        - provider
+        - guidance
+        - benchmark
+        - output_summary
         - capabilities
         - option_defaults
+        - option_controls
         - pricing
         - availability
       additionalProperties: false
-      description: "Public OCR model registry entry. `pricing.usd_per_page` is the\ncustomer retail page price (`basis: customer_retail`)."
+      description: "Public OCR model registry entry. `pricing.usd_per_page` is the\ncustomer retail page price at option defaults (`basis: customer_retail`).\nOptional `pricing.configurations` lists exact named retail totals for\nprice-affecting option combinations — never additive surcharges."
     OcrModelsResponse:
       type: object
       properties:
@@ -3234,7 +4003,7 @@ paths:
       tags:
         - models
       summary: List OCR models
-      description: "Returns the public OCR model registry with capabilities and availability.\nCurrently exposes PaddleOCR-VL 1.6.\n"
+      description: "Returns the hosted OCR model registry with current capabilities, option defaults,\nretail page prices, and availability. Clients should discover this endpoint instead of\nhard-coding model IDs or provider-specific options.\n"
       responses:
         '200':
           description: Successful response
@@ -3279,7 +4048,7 @@ paths:
       tags:
         - parse
       summary: Parse a document synchronously
-      description: "Admit a parse job, wait up to the sync wait limit, and return the selected terminal parse\nrepresentation when ready. `output_format` defaults to the versioned provider-neutral\n`openparser@1`; `raw` returns a stable provider envelope around the untouched successful\nPaddle result. Terminal `failed` within the wait window returns `422` `ErrorResponse`;\nterminal `indeterminate` returns `504` `ErrorResponse`. Returns `202` with a durable job\nreference and `Location` if the wait limit expires first.\n\nExample (`multipart/form-data`):\n\n```bash\ncurl -X POST 'https://api.openparser.dev/parse' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H \"Idempotency-Key: $(uuidgen 2>/dev/null || openssl rand -hex 16)\" \\\n  -F 'request={\"ocr_model\":\"paddleocr-vl-1.6\",\"output_format\":\"openparser@1\"};type=application/json' \\\n  -F 'file=@./document.pdf'\n```\n"
+      description: "Admit a parse job, wait up to the sync wait limit, and return the selected terminal parse\nrepresentation when ready. `output_format` defaults to the versioned provider-neutral\n`openparser@1`; `raw` returns a stable provider envelope around the selected provider's\nuntouched successful result. Terminal `failed` within the wait window returns `422`\n`ErrorResponse`; terminal `indeterminate` returns `504` `ErrorResponse`. Returns `202`\nwith a durable job reference and `Location` if the wait limit expires first.\n\nExample (`multipart/form-data`):\n\n```bash\ncurl -X POST 'https://api.openparser.dev/parse' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H \"Idempotency-Key: $(uuidgen 2>/dev/null || openssl rand -hex 16)\" \\\n  -F 'request={\"ocr_model\":\"paddleocr-vl-1.6\",\"output_format\":\"openparser@1\"};type=application/json' \\\n  -F 'file=@./document.pdf'\n```\n"
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:

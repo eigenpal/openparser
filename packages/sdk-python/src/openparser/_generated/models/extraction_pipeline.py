@@ -49,7 +49,7 @@ class ExtractionPipeline:
             repair_attempts (int):
             grounding (ExtractionGroundingMode): Extraction grounding mode. `none` preserves ordinary extraction. `field`
                 requests
-                verified per-leaf source citations (citation v1 emits block-level citations only).
+                verified per-leaf source citations (citation v1 emits element-level citations only).
             created_at (datetime.datetime):
             updated_at (datetime.datetime):
      """

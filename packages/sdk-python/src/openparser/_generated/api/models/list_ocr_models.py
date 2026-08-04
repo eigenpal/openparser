@@ -84,8 +84,9 @@ def sync_detailed(
 ) -> Response[ErrorResponse | OcrModelsResponse]:
     """ List OCR models
 
-     Returns the public OCR model registry with capabilities and availability.
-    Currently exposes PaddleOCR-VL 1.6.
+     Returns the hosted OCR model registry with current capabilities, option defaults,
+    retail page prices, and availability. Clients should discover this endpoint instead of
+    hard-coding model IDs or provider-specific options.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -113,8 +114,9 @@ def sync(
 ) -> ErrorResponse | OcrModelsResponse | None:
     """ List OCR models
 
-     Returns the public OCR model registry with capabilities and availability.
-    Currently exposes PaddleOCR-VL 1.6.
+     Returns the hosted OCR model registry with current capabilities, option defaults,
+    retail page prices, and availability. Clients should discover this endpoint instead of
+    hard-coding model IDs or provider-specific options.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -137,8 +139,9 @@ async def asyncio_detailed(
 ) -> Response[ErrorResponse | OcrModelsResponse]:
     """ List OCR models
 
-     Returns the public OCR model registry with capabilities and availability.
-    Currently exposes PaddleOCR-VL 1.6.
+     Returns the hosted OCR model registry with current capabilities, option defaults,
+    retail page prices, and availability. Clients should discover this endpoint instead of
+    hard-coding model IDs or provider-specific options.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -166,8 +169,9 @@ async def asyncio(
 ) -> ErrorResponse | OcrModelsResponse | None:
     """ List OCR models
 
-     Returns the public OCR model registry with capabilities and availability.
-    Currently exposes PaddleOCR-VL 1.6.
+     Returns the hosted OCR model registry with current capabilities, option defaults,
+    retail page prices, and availability. Clients should discover this endpoint instead of
+    hard-coding model IDs or provider-specific options.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

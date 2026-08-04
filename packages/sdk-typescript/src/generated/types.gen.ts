@@ -19,16 +19,12 @@ export type PublicFile = {
 export type JobId = string;
 
 /**
- * Stable public OCR model registry name. `paddleocr-vl-1.6` locks
- * `formatBlockContent=true`, `visualize=false`, and `returnMarkdownImages=false`.
- * Public `ocr_options` (`image_block_ocr`, `chart_recognition`, `merge_layout_blocks`)
- * are admitted per model catalog. Layout-block merging defaults off so text remains
- * aligned with its detected geometry. Canonical output always retains figure and
- * empty-detection geometry in `regions`/`blocks`; binary figure crops are not
- * caller-configurable and are never embedded as base64 in canonical responses.
+ * Stable hosted OCR model registry name from `GET /models`. Each catalog entry declares
+ * its supported `ocr_options`, defaults, current availability, output capabilities, and
+ * retail page price. Unknown model names return `422 unsupported_ocr_model`.
  *
  */
-export type OcrModel = 'paddleocr-vl-1.6';
+export type OcrModel = string;
 
 /**
  * OpenRouter model slug from the compatible OCR extraction catalog
@@ -62,12 +58,7 @@ export type FileId = string;
 export type ParseRequest = {
   ocr_model: string;
   ocr_options?: {
-    image_block_ocr?: boolean;
-    chart_recognition?: boolean;
-    /**
-     * Merge nearby cross-column or staggered text regions before recognition. Defaults to false to preserve one-to-one text and bounding-box alignment.
-     */
-    merge_layout_blocks?: boolean;
+    [key: string]: unknown;
   };
   file_id?: string;
   output_format?: 'openparser@1' | 'raw';
@@ -91,12 +82,7 @@ export type ExtractRequest = {
   pipeline_id?: string;
   ocr_model?: string;
   ocr_options?: {
-    image_block_ocr?: boolean;
-    chart_recognition?: boolean;
-    /**
-     * Merge nearby cross-column or staggered text regions before recognition. Defaults to false to preserve one-to-one text and bounding-box alignment.
-     */
-    merge_layout_blocks?: boolean;
+    [key: string]: unknown;
   };
   llm_model?: string;
   llm_options?: {
@@ -147,12 +133,7 @@ export type CreateExtractionPipelineRequest = {
   slug?: string;
   ocr_model: string;
   ocr_options?: {
-    image_block_ocr?: boolean;
-    chart_recognition?: boolean;
-    /**
-     * Merge nearby cross-column or staggered text regions before recognition. Defaults to false to preserve one-to-one text and bounding-box alignment.
-     */
-    merge_layout_blocks?: boolean;
+    [key: string]: unknown;
   };
   llm_model: string;
   llm_options?: {
@@ -179,12 +160,7 @@ export type UpdateExtractionPipelineRequest = {
   slug?: string | null;
   ocr_model?: string;
   ocr_options?: {
-    image_block_ocr?: boolean;
-    chart_recognition?: boolean;
-    /**
-     * Merge nearby cross-column or staggered text regions before recognition. Defaults to false to preserve one-to-one text and bounding-box alignment.
-     */
-    merge_layout_blocks?: boolean;
+    [key: string]: unknown;
   } | null;
   llm_model?: string;
   llm_options?: {
@@ -212,9 +188,7 @@ export type ExtractionPipeline = {
   version: number;
   ocr_model: string;
   ocr_options: {
-    image_block_ocr: boolean;
-    chart_recognition: boolean;
-    merge_layout_blocks: boolean;
+    [key: string]: unknown;
   };
   llm_model: LlmModel;
   llm_options: {
@@ -277,12 +251,7 @@ export type ParseBatchItem = {
   file_id?: string;
   ocr_model: string;
   ocr_options?: {
-    image_block_ocr?: boolean;
-    chart_recognition?: boolean;
-    /**
-     * Merge nearby cross-column or staggered text regions before recognition. Defaults to false to preserve one-to-one text and bounding-box alignment.
-     */
-    merge_layout_blocks?: boolean;
+    [key: string]: unknown;
   };
 };
 
@@ -307,12 +276,7 @@ export type ExtractBatchItem = {
   pipeline_id?: string;
   ocr_model?: string;
   ocr_options?: {
-    image_block_ocr?: boolean;
-    chart_recognition?: boolean;
-    /**
-     * Merge nearby cross-column or staggered text regions before recognition. Defaults to false to preserve one-to-one text and bounding-box alignment.
-     */
-    merge_layout_blocks?: boolean;
+    [key: string]: unknown;
   };
   llm_model?: string;
   llm_options?: {
@@ -343,12 +307,7 @@ export type ParseBatchRequest = {
     file_id?: string;
     ocr_model: string;
     ocr_options?: {
-      image_block_ocr?: boolean;
-      chart_recognition?: boolean;
-      /**
-       * Merge nearby cross-column or staggered text regions before recognition. Defaults to false to preserve one-to-one text and bounding-box alignment.
-       */
-      merge_layout_blocks?: boolean;
+      [key: string]: unknown;
     };
   }>;
   output_format?: 'openparser@1' | 'raw';
@@ -367,12 +326,7 @@ export type ExtractBatchRequest = {
     pipeline_id?: string;
     ocr_model?: string;
     ocr_options?: {
-      image_block_ocr?: boolean;
-      chart_recognition?: boolean;
-      /**
-       * Merge nearby cross-column or staggered text regions before recognition. Defaults to false to preserve one-to-one text and bounding-box alignment.
-       */
-      merge_layout_blocks?: boolean;
+      [key: string]: unknown;
     };
     llm_model?: string;
     llm_options?: {
@@ -389,25 +343,16 @@ export type ExtractBatchRequest = {
 
 export type OcrOutputFormat = 'openparser@1' | 'raw';
 
-export type PaddleRawProfile = {
-  name: 'eigenpal-paddle-layout-v1';
-  options: {
-    format_block_content: true;
-    use_chart_recognition: boolean;
-    use_ocr_for_image_block: boolean;
-    return_markdown_images: boolean;
-    visualize: false;
-    image_block_ocr: boolean;
-    chart_recognition: boolean;
-    merge_layout_blocks?: boolean;
-  };
-};
-
 export type RawParseResult = {
   output_format: 'raw';
-  provider: 'paddle';
-  model: 'paddleocr-vl-1.6';
-  profile: PaddleRawProfile;
+  provider: string;
+  model: string;
+  profile: {
+    name: string;
+    options: {
+      [key: string]: unknown;
+    };
+  };
   result: {
     [key: string]: unknown;
   };
@@ -455,6 +400,11 @@ export type BatchJobAccepted = {
   child_count: number;
 };
 
+export type Point = {
+  x: number;
+  y: number;
+};
+
 /**
  * Axis-aligned integer page coordinates with exclusive right and bottom edges.
  */
@@ -465,134 +415,384 @@ export type BoundingBox = {
   bottom: number;
 };
 
-/**
- * Primary stable parse interface: one ordered page block in reading order. Optional core
- * fields are serialized as JSON `null` when absent.
- *
- */
-export type PageBlock = unknown & {
-  /**
-   * Zero-based reading-order index, contiguous from 0.
-   */
-  index: number;
+export type Polygon = Array<Point>;
+
+export type Geometry = {
   page_number: number;
-  kind: 'text' | 'table' | 'figure';
-  text?: string | null;
-  table_html?: string | null;
-  figure_uri?: string | null;
-  bbox?: BoundingBox | null;
-  polygon?: Array<{
-    x: number;
-    y: number;
-  }> | null;
-  confidence?: number | null;
-  source_label?: string | null;
-  region_id?: string | null;
-  coordinate_width?: number | null;
-  coordinate_height?: number | null;
+  bbox: BoundingBox;
+  polygon?: Polygon;
+  rotation_degrees?: number;
 };
 
-export type RegionType =
-  | 'text'
+export type Confidence = {
+  score: number;
+  scope: 'detection' | 'recognition' | 'classification' | 'geometry' | 'answer' | 'quality';
+  calibrated: boolean;
+  source_value?: number;
+  source_scale?: 'zero_to_one' | 'zero_to_hundred' | 'log_probability' | 'unknown';
+};
+
+export type TextSpan = {
+  start: number;
+  end: number;
+};
+
+export type Language = {
+  code: string;
+  confidence?: Confidence;
+};
+
+export type TextStyle = {
+  font_family?: string;
+  font_size?: number;
+  font_size_unit?: 'pixel' | 'point' | 'inch' | 'em' | 'unknown';
+  font_weight?: number;
+  bold?: boolean;
+  italic?: boolean;
+  underline?: boolean;
+  strikethrough?: boolean;
+  handwritten?: boolean;
+  monospace?: boolean;
+  small_caps?: boolean;
+  superscript?: boolean;
+  subscript?: boolean;
+  foreground_color?: string;
+  background_color?: string;
+};
+
+export type TextRole =
+  | 'document_title'
   | 'heading'
+  | 'paragraph'
+  | 'line'
+  | 'word'
+  | 'symbol'
+  | 'list'
+  | 'list_item'
+  | 'caption'
+  | 'footnote'
+  | 'page_header'
+  | 'page_footer'
+  | 'page_number'
+  | 'code'
+  | 'other';
+
+export type SourceProvenance = {
+  native_id?: string;
+  native_type?: string;
+  native_label?: string;
+};
+
+export type TableCell = {
+  id: string;
+  row_index: number;
+  column_index: number;
+  row_span: number;
+  column_span: number;
+  role: 'body' | 'column_header' | 'row_header' | 'stub' | 'title' | 'footer';
+  text: string;
+  spans: Array<TextSpan>;
+  locations: Array<Geometry>;
+  confidence?: Confidence;
+  source?: SourceProvenance;
+  element_ids: Array<string>;
+};
+
+export type StructuredValue = {
+  text: string;
+  spans: Array<TextSpan>;
+  element_ids: Array<string>;
+  locations: Array<Geometry>;
+  confidence?: Confidence;
+};
+
+export type TextElement = {
+  id: string;
+  locations: Array<Geometry>;
+  confidence?: Confidence;
+  source?: SourceProvenance;
+  kind: 'text';
+  role: TextRole;
+  text: string;
+  spans: Array<TextSpan>;
+  languages: Array<Language>;
+  style?: TextStyle;
+  break_after?: TextBreak;
+};
+
+export type TableElement = {
+  id: string;
+  locations: Array<Geometry>;
+  confidence?: Confidence;
+  source?: SourceProvenance;
+  kind: 'table';
+  row_count: number;
+  column_count: number;
+  cells: Array<TableCell>;
+  html?: string;
+  markdown?: string;
+};
+
+export type FigureElement = {
+  id: string;
+  locations: Array<Geometry>;
+  confidence?: Confidence;
+  source?: SourceProvenance;
+  kind: 'figure';
+  asset_id?: string;
+  caption?: string;
+  caption_spans: Array<TextSpan>;
+  alt_text?: string;
+};
+
+export type FormulaElement = {
+  id: string;
+  locations: Array<Geometry>;
+  confidence?: Confidence;
+  source?: SourceProvenance;
+  kind: 'formula';
+  value: string;
+  format: FormulaFormat;
+  spans: Array<TextSpan>;
+};
+
+export type KeyValueElement = {
+  id: string;
+  locations: Array<Geometry>;
+  confidence?: Confidence;
+  source?: SourceProvenance;
+  kind: 'key_value';
+  key: StructuredValue;
+  value: StructuredValue;
+};
+
+export type QueryAnswerElement = {
+  id: string;
+  locations: Array<Geometry>;
+  confidence?: Confidence;
+  source?: SourceProvenance;
+  kind: 'query_answer';
+  query: StructuredValue;
+  answer: StructuredValue | null;
+  alias?: string;
+};
+
+export type SectionElement = {
+  id: string;
+  locations: Array<Geometry>;
+  confidence?: Confidence;
+  source?: SourceProvenance;
+  kind: 'section';
+  role: SectionRole;
+  title?: string;
+  spans: Array<TextSpan>;
+};
+
+export type SelectionMarkElement = {
+  id: string;
+  locations: Array<Geometry>;
+  confidence?: Confidence;
+  source?: SourceProvenance;
+  kind: 'selection_mark';
+  state: SelectionState;
+  mark_type: SelectionMarkType;
+};
+
+export type SignatureElement = {
+  id: string;
+  locations: Array<Geometry>;
+  confidence?: Confidence;
+  source?: SourceProvenance;
+  kind: 'signature';
+  text?: string;
+};
+
+export type BarcodeElement = {
+  id: string;
+  locations: Array<Geometry>;
+  confidence?: Confidence;
+  source?: SourceProvenance;
+  kind: 'barcode';
+  value: string;
+  symbology?: string;
+};
+
+export type LinkElement = {
+  id: string;
+  locations: Array<Geometry>;
+  confidence?: Confidence;
+  source?: SourceProvenance;
+  kind: 'link';
+  url: string;
+  text?: string;
+  spans: Array<TextSpan>;
+};
+
+export type StampElement = {
+  id: string;
+  locations: Array<Geometry>;
+  confidence?: Confidence;
+  source?: SourceProvenance;
+  kind: 'stamp';
+  text?: string;
+};
+
+export type OtherElement = {
+  id: string;
+  locations: Array<Geometry>;
+  confidence?: Confidence;
+  source?: SourceProvenance;
+  kind: 'other';
+  label: string;
+  text?: string;
+};
+
+export type TextBreak = 'none' | 'space' | 'wide_space' | 'hyphen' | 'line_break';
+
+export type SectionRole = 'section' | 'chapter' | 'group' | 'other';
+
+/**
+ * One semantic node in the `openparser@1` document graph. Elements carry typed payloads
+ * (text, table, figure, and other kinds), optional geometry in `locations`, and stable `id`
+ * values referenced by pages, relations, assets, and grounding citations.
+ *
+ */
+export type DocumentElement =
+  | TextElement
+  | TableElement
+  | FigureElement
+  | FormulaElement
+  | KeyValueElement
+  | QueryAnswerElement
+  | SectionElement
+  | SelectionMarkElement
+  | SignatureElement
+  | BarcodeElement
+  | LinkElement
+  | StampElement
+  | OtherElement;
+
+export type DocumentElementKind =
+  | 'text'
   | 'table'
-  | 'key_value'
   | 'figure'
-  | 'checkbox'
+  | 'formula'
+  | 'key_value'
+  | 'query_answer'
+  | 'section'
+  | 'selection_mark'
   | 'signature'
   | 'barcode'
-  | 'formula'
-  | 'header_footer';
+  | 'link'
+  | 'stamp'
+  | 'other';
 
-export type Region = unknown & {
+export type TextAnnotation = {
   id: string;
-  page_number: number;
-  type: RegionType;
-  bbox: BoundingBox;
-  polygon?: Array<{
-    x: number;
-    y: number;
-  }> | null;
-  coordinate_width?: number | null;
-  coordinate_height?: number | null;
-  confidence?: number | null;
-  source_label?: string | null;
+  spans: Array<TextSpan>;
+  languages: Array<Language>;
+  style?: TextStyle;
+  confidence?: Confidence;
+  source?: SourceProvenance;
 };
 
-export type ContentKind = 'text' | 'table' | 'state' | 'figure';
+export type RelationType =
+  | 'contains'
+  | 'precedes'
+  | 'continuation_of'
+  | 'caption_of'
+  | 'footnote_of'
+  | 'refers_to'
+  | 'overlaps';
 
-export type RegionContent = (
-  | {
-      text: string;
-    }
-  | {
-      table_html: string;
-    }
-  | {
-      detected_state: boolean;
-    }
-) &
-  unknown & {
-    region_id: string;
-    kind: ContentKind;
-    text?: string | null;
-    table_html?: string | null;
-    detected_state?: boolean | null;
-    confidence?: number | null;
+export type DocumentRelation = {
+  type: RelationType;
+  from_id: string;
+  to_id: string;
+};
+
+export type CoordinateUnit = 'pixel' | 'point' | 'inch' | 'normalized';
+
+export type DocumentPage = {
+  number: number;
+  source_page_number?: number;
+  width: number;
+  height: number;
+  unit: CoordinateUnit;
+  rotation_degrees: number;
+  languages: Array<Language>;
+  confidence?: Confidence;
+  quality?: {
+    score?: Confidence;
+    defects: Array<{
+      type: string;
+      confidence?: Confidence;
+    }>;
+    metrics: Array<{
+      name: string;
+      value: number | string | boolean;
+    }>;
   };
-
-export type ChunkProvenanceSpan = {
-  start_char: number;
-  end_char: number;
-  page_number: number;
-  bbox: BoundingBox;
-  region_id: string;
+  image_asset_id?: string;
+  element_ids: Array<string>;
+  reading_order: Array<string>;
 };
 
-/**
- * Canonical extraction chunk. `id` and `content_sha256` are lowercase SHA-256 hashes;
- * `content_sha256` hashes `text`. Page numbers are sorted and unique. When present,
- * `page_start` and `page_end` equal the minimum and maximum `page_numbers`. Region IDs and
- * provenance spans must match the parent document's regions.
- *
- */
-export type ExtractionChunk = unknown & {
+export type AssetKind = 'page_image' | 'figure' | 'embedded_image' | 'other';
+
+export type DocumentAsset = {
   id: string;
-  index: number;
-  document_id: string;
-  text: string;
-  content_sha256: string;
-  page_numbers: Array<number>;
-  page_start?: number | null;
-  page_end?: number | null;
-  region_ids: Array<string>;
-  provenance_spans: Array<ChunkProvenanceSpan>;
+  kind: AssetKind;
+  uri?: string;
+  data_base64?: string;
+  mime_type?: string;
+  page_number?: number;
+  width?: number;
+  height?: number;
+  sha256?: string;
 };
 
+export type DocumentProvenance = {
+  provider: string;
+  model: string;
+  version?: string;
+  operation?: string;
+};
+
+export type FormulaFormat = 'latex' | 'mathml' | 'plain' | 'unknown';
+
+export type SelectionState = 'selected' | 'unselected' | 'indeterminate';
+
+export type SelectionMarkType = 'checkbox' | 'radio' | 'other';
+
 /**
- * Versioned OpenParser `openparser@1` document representation. `blocks` is the primary
- * stable interface; `regions`, `contents`, and `chunks` preserve provider-neutral geometry,
- * confidence, labels, provenance, and extraction views. Compatible optional fields may be
- * added within version 1; breaking representation changes create a new output-format version.
+ * Versioned OpenParser `openparser@1` document graph. `pages` establish coordinate spaces;
+ * `elements` carry semantic payloads and geometry; `relations` preserve hierarchy and
+ * cross-element meaning; `assets` hold reusable binary references (for example figure URIs).
+ * Compatible optional fields may be added within version 1; breaking representation changes
+ * create a new output-format version.
  *
  */
 export type ParsedDocument = {
   output_format: 'openparser@1';
   document_id: string;
+  provenance: DocumentProvenance;
+  text: string;
   /**
-   * Authoritative successfully parsed page count from the HPS/parse result. Customer
-   * page billing uses this value only when a successful terminal result is published.
-   *
-   */
-  page_count: number;
-  /**
-   * Derived markdown rendered from ordered blocks.
+   * Canonical best-effort Markdown rendering derived from the document graph.
    */
   markdown: string;
-  blocks: Array<PageBlock>;
-  regions: Array<Region>;
-  contents: Array<RegionContent>;
-  chunks: Array<ExtractionChunk>;
+  /**
+   * One-based contiguous page coordinate spaces with element membership and reading order.
+   */
+  pages: Array<DocumentPage>;
+  /**
+   * Ordered semantic nodes referenced by page membership, relations, and grounding citations.
+   */
+  elements: Array<DocumentElement>;
+  text_annotations: Array<TextAnnotation>;
+  relations: Array<DocumentRelation>;
+  assets: Array<DocumentAsset>;
 };
 
 export type ExtractionAttemptKind = 'primary' | 'repair';
@@ -631,41 +831,30 @@ export type ExtractionUsageTotals = {
 
 /**
  * Extraction grounding mode. `none` preserves ordinary extraction. `field` requests
- * verified per-leaf source citations (citation v1 emits block-level citations only).
+ * verified per-leaf source citations (citation v1 emits element-level citations only).
  *
  */
 export type ExtractionGroundingMode = 'none' | 'field';
 
 /**
- * Citation geometry granularity. Citation v1 emits only `block`; `region` is reserved
- * for a later narrowing release.
+ * Citation geometry granularity. Citation v1 emits `element` and `table_cell`;
+ * `text_span` is reserved for a later narrowing release.
  *
  */
-export type ExtractionCitationGranularity = 'block' | 'region';
+export type ExtractionCitationGranularity = 'element' | 'table_cell' | 'text_span';
 
 /**
- * Verified provenance for one extracted leaf citation. Geometry comes from the parse, never the model.
+ * Verified provenance for one extracted leaf citation. Geometry comes from the parse graph element or table cell, never the model.
  */
 export type ExtractionCitation = {
-  block_index: number;
-  region_id?: string;
+  element_id: string;
+  table_cell_id?: string;
   page_number: number;
   bbox: BoundingBox;
-  coordinate_width?: number | null;
-  coordinate_height?: number | null;
-  source_type:
-    | 'text'
-    | 'table'
-    | 'figure'
-    | 'heading'
-    | 'key_value'
-    | 'checkbox'
-    | 'signature'
-    | 'barcode'
-    | 'formula'
-    | 'header_footer';
+  polygon?: Polygon;
+  source_type: DocumentElementKind;
   granularity: ExtractionCitationGranularity;
-  confidence?: number;
+  confidence?: Confidence;
 };
 
 /**
@@ -895,31 +1084,66 @@ export type DeleteFileResponse = {
 
 /**
  * Public OCR model registry entry. `pricing.usd_per_page` is the
- * customer retail page price (`basis: customer_retail`).
+ * customer retail page price at option defaults (`basis: customer_retail`).
+ * Optional `pricing.configurations` lists exact named retail totals for
+ * price-affecting option combinations — never additive surcharges.
  */
 export type OcrModelCatalogEntry = {
   id: string;
   label: string;
   is_default: boolean;
+  provider: {
+    key: string;
+    label: string;
+    logo?: string;
+  };
+  guidance: {
+    summary: string;
+    best_for: string;
+    trade_off: string;
+    output: string;
+  };
+  benchmark: {
+    score: number;
+    version: string;
+    qualification: string;
+    source_url: string;
+  } | null;
+  output_summary: string;
   capabilities: {
     parse: boolean;
     extract_source: boolean;
     markdown: boolean;
     regions: boolean;
     options: {
-      image_block_ocr: boolean;
-      chart_recognition: boolean;
-      merge_layout_blocks: boolean;
+      [key: string]: boolean;
     };
   };
   option_defaults: {
-    image_block_ocr: boolean;
-    chart_recognition: boolean;
-    merge_layout_blocks: boolean;
+    [key: string]: unknown;
   };
+  option_controls: Array<{
+    key: string;
+    label: string;
+    summary: string;
+    kind: 'boolean' | 'enum' | 'nullable-enum' | 'nullable-string' | 'nullable-string-list';
+    choices?: Array<{
+      value: string;
+      label: string;
+    }>;
+    placeholder?: string;
+    nullable_sentinel?: string;
+  }>;
   pricing: {
     usd_per_page: number;
     basis: 'customer_retail';
+    configurations?: Array<{
+      label: string;
+      usd_per_page: number;
+      options: {
+        [key: string]: boolean | 'set' | 'unset';
+      };
+    }>;
   };
   availability: 'available' | 'degraded' | 'unavailable';
 };

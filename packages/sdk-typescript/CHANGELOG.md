@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.0
+
+### Minor Changes
+
+- 34c31bd: OpenParser's `openparser@1` response now uses one provider-neutral document graph for text, pages, tables, figures, formulas, key-values, geometry, confidence, and provenance. UTF-16 spans and canonical Markdown make responses predictable across providers, while the updated SDK types expose the complete graph directly.
+- 34c31bd: `@openparser/schema` is now document-only: `openparser@1` graph types plus the generic raw OCR envelope. Hosted API request/job/catalog/extraction wire schemas moved out of the published package (private Eigenpal workspace surface). Install `@openparser/schema` for document validation; use the SDKs for the hosted HTTP API.
+
 ## 0.1.0
 
 ### Patch Changes

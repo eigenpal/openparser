@@ -32,11 +32,12 @@ class ExtractionTerminalResult:
 
         Attributes:
             output (Any): Validated extraction output JSON matching the requested schema (wrappers never leak).
-            parsed_document (ParsedDocument): Versioned OpenParser `openparser@1` document representation. `blocks` is the
-                primary
-                stable interface; `regions`, `contents`, and `chunks` preserve provider-neutral geometry,
-                confidence, labels, provenance, and extraction views. Compatible optional fields may be
-                added within version 1; breaking representation changes create a new output-format version.
+            parsed_document (ParsedDocument): Versioned OpenParser `openparser@1` document graph. `pages` establish
+                coordinate spaces;
+                `elements` carry semantic payloads and geometry; `relations` preserve hierarchy and
+                cross-element meaning; `assets` hold reusable binary references (for example figure URIs).
+                Compatible optional fields may be added within version 1; breaking representation changes
+                create a new output-format version.
             llm_model (str): OpenRouter model slug from the compatible OCR extraction catalog
                 (`GET /models/llm`). Unknown or deprecated values return `422 unsupported_llm_model`.
                 Ordinary extract may use any currently compatible model; field grounding requires a

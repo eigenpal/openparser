@@ -21,35 +21,18 @@ T = TypeVar("T", bound="ExtractionPipelineOcrOptions")
 @_attrs_define
 class ExtractionPipelineOcrOptions:
     """
-        Attributes:
-            image_block_ocr (bool):
-            chart_recognition (bool):
-            merge_layout_blocks (bool):
      """
 
-    image_block_ocr: bool
-    chart_recognition: bool
-    merge_layout_blocks: bool
+    additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
 
 
 
 
     def to_dict(self) -> dict[str, Any]:
-        image_block_ocr = self.image_block_ocr
-
-        chart_recognition = self.chart_recognition
-
-        merge_layout_blocks = self.merge_layout_blocks
-
 
         field_dict: dict[str, Any] = {}
-
-        field_dict.update({
-            "image_block_ocr": image_block_ocr,
-            "chart_recognition": chart_recognition,
-            "merge_layout_blocks": merge_layout_blocks,
-        })
+        field_dict.update(self.additional_properties)
 
         return field_dict
 
@@ -58,16 +41,25 @@ class ExtractionPipelineOcrOptions:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        image_block_ocr = d.pop("image_block_ocr")
-
-        chart_recognition = d.pop("chart_recognition")
-
-        merge_layout_blocks = d.pop("merge_layout_blocks")
-
         extraction_pipeline_ocr_options = cls(
-            image_block_ocr=image_block_ocr,
-            chart_recognition=chart_recognition,
-            merge_layout_blocks=merge_layout_blocks,
         )
 
+
+        extraction_pipeline_ocr_options.additional_properties = d
         return extraction_pipeline_ocr_options
+
+    @property
+    def additional_keys(self) -> list[str]:
+        return list(self.additional_properties.keys())
+
+    def __getitem__(self, key: str) -> Any:
+        return self.additional_properties[key]
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        self.additional_properties[key] = value
+
+    def __delitem__(self, key: str) -> None:
+        del self.additional_properties[key]
+
+    def __contains__(self, key: str) -> bool:
+        return key in self.additional_properties

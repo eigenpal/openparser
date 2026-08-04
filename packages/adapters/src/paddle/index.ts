@@ -24,5 +24,9 @@ export {
   resolveBlockConfidence,
   type LayoutDetBox,
 } from './layout-confidence';
+export {
+  PADDLE_LAYOUT_OUTPUT_CAPABILITIES,
+  type PaddleLayoutParsedDocument,
+  type PaddleLayoutPossibleElementKind,
+} from './output';
 export { simplifyLatex, simplifyMarkdownArtifacts, simplifyTableHtml } from './simplify-latex';
-export { OCR_PARSE_CONVERTER_VERSION } from './version';

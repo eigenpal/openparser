@@ -1,0 +1,25 @@
+{
+  "documentId": "mistral-page-header",
+  "expectedPages": 1,
+  "model": "mistral-ocr-2512",
+  "payload": {
+    "model": "mistral-ocr-2512",
+    "pages": [
+      {
+        "index": 1,
+        "markdown": "# Článok II.\nPredmet zmluvy\n\n1. Predmetom tejto Kúpnej zmluvy je odplatný prevod vlastníckeho práva k Predmetu prevodu, evidovaného Okresným úradom Bratislava, katastrálny odbor pre okres Bratislava I, obec Bratislava - m. č. Staré Mesto, k",
+        "dimensions": {
+          "dpi": 87,
+          "height": 1018,
+          "width": 719
+        },
+        "header": "Strana 2 z 12",
+        "footer": null,
+        "blocks": [],
+        "tables": [],
+        "images": [],
+        "hyperlinks": []
+      }
+    ]
+  }
+}

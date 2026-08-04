@@ -1,0 +1,43 @@
+{
+  "documentId": "omni-0001",
+  "response": {
+    "page_count": 1,
+    "blocks": [
+      {
+        "Id": "line-1",
+        "BlockType": "LINE",
+        "Text": "Invoice total",
+        "Page": 1,
+        "Confidence": 99.0,
+        "Geometry": {
+          "BoundingBox": { "Left": 0.1, "Top": 0.1, "Width": 0.4, "Height": 0.05 }
+        }
+      },
+      {
+        "Id": "line-2",
+        "BlockType": "LINE",
+        "Text": "$1,234.56",
+        "Page": 1,
+        "Confidence": 98.0,
+        "Geometry": {
+          "BoundingBox": { "Left": 0.1, "Top": 0.2, "Width": 0.3, "Height": 0.05 }
+        }
+      },
+      {
+        "Id": "word-orphan",
+        "BlockType": "WORD",
+        "Text": "ignored",
+        "Page": 1,
+        "Geometry": {
+          "BoundingBox": { "Left": 0.5, "Top": 0.5, "Width": 0.1, "Height": 0.02 }
+        }
+      },
+      {
+        "Id": "no-geometry",
+        "BlockType": "LINE",
+        "Text": "skipped",
+        "Page": 1
+      }
+    ]
+  }
+}

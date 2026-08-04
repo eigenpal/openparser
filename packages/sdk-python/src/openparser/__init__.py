@@ -3,12 +3,12 @@
 Example
 -------
 
-    from openparser import OpenParserClient
+    from openparser import OpenParserClient, hosted_parse_request
 
     client = OpenParserClient(api_key=os.environ["OPENPARSER_API_KEY"])
 
     result = client.parse.sync(
-        {"ocr_model": "paddleocr-vl-1.6", "output_format": "openparser@1"},
+        hosted_parse_request("paddleocr-vl-1.6", output_format="openparser@1"),
         file=Path("invoice.pdf"),
     )
 
@@ -33,6 +33,8 @@ from openparser.errors import (
     OpenParserUnsupportedMediaError,
     OpenParserValidationError,
 )
+from openparser.hosted_models import *  # noqa: F403
+from openparser.hosted_models import __all__ as _HOSTED_MODELS_ALL
 
 __all__ = [
     "OpenParserClient",
@@ -51,4 +53,5 @@ __all__ = [
     "OpenParserGatewayTimeoutError",
     "OpenParserServerError",
     "OpenParserTimeoutError",
+    *_HOSTED_MODELS_ALL,
 ]

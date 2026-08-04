@@ -1,0 +1,47 @@
+{
+  "documentId": "mistral-ocr4-footer-page-confidence",
+  "expectedPages": 1,
+  "model": "mistral-ocr-2505",
+  "payload": {
+    "model": "mistral-ocr-2505",
+    "pages": [
+      {
+        "index": 0,
+        "markdown": "uzatvorená podľa ust. § 588 a nasl. zák. č. 40/1964 Zb., Občianskeho zákonníka (ďalej len „Občiansky zákonník“) a ust. § 5 a nasl. zákona č. 182/1993 Z. z. o vlastníctve bytov a nebytových priestorov v znení neskorších predpisov (ďalej len „Zákon o vlastníctve bytov“)\n\nStrana 1 z 12",
+        "dimensions": {
+          "dpi": 87,
+          "height": 1018,
+          "width": 719
+        },
+        "blocks": [
+          {
+            "top_left_x": 75,
+            "top_left_y": 69,
+            "bottom_right_x": 572,
+            "bottom_right_y": 116,
+            "content": "uzatvorená podľa ust. § 588 a nasl. zák. č. 40/1964 Zb., Občianskeho zákonníka (ďalej len „Občiansky zákonník“) a ust. § 5 a nasl. zákona č. 182/1993 Z. z. o vlastníctve bytov a nebytových priestorov v znení neskorších predpisov (ďalej len „Zákon o vlastníctve bytov“)",
+            "confidence_scores": null,
+            "type": "text"
+          },
+          {
+            "top_left_x": 550,
+            "top_left_y": 954,
+            "bottom_right_x": 604,
+            "bottom_right_y": 966,
+            "content": "Strana 1 z 12",
+            "confidence_scores": null,
+            "type": "footer"
+          }
+        ],
+        "tables": [],
+        "images": [],
+        "hyperlinks": [],
+        "confidence_scores": {
+          "average_page_confidence_score": 0.9871948773987812,
+          "minimum_page_confidence_score": 0.24861354966824153,
+          "word_confidence_scores": []
+        }
+      }
+    ]
+  }
+}

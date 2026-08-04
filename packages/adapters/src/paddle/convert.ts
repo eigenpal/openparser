@@ -1,10 +1,15 @@
 import type {
-  PageBlock,
-  ParsedDocument,
+  Confidence,
+  DocumentAsset,
+  DocumentElement,
+  DocumentPage,
+  Geometry,
   Point,
-  Region,
-  RegionContent,
-} from '@openparser/schema/document';
+  TextRole,
+} from '@openparser/schema';
+import { parseCanonicalWithCapabilities } from '../shared/parse-canonical';
+import { renderCanonicalMarkdown } from '../shared/render';
+import { tableCellsFromHtml } from '../shared/table';
 import { PaddleAdapterError } from './errors';
 import {
   assertPublicFigureUri,
@@ -15,26 +20,21 @@ import {
   type FigureUriValidator,
 } from './figure-uris';
 import { readLayoutDetBoxes, resolveBlockConfidence } from './layout-confidence';
-import { simplifyLatex, simplifyMarkdownArtifacts, simplifyTableHtml } from './simplify-latex';
+import { PADDLE_LAYOUT_OUTPUT_CAPABILITIES, type PaddleLayoutParsedDocument } from './output';
+import { simplifyLatex, simplifyTableHtml } from './simplify-latex';
 
 export type PageDims = { number: number; width: number; height: number };
 
-const LABEL_TO_REGION: Record<string, Region['type']> = {
-  text: 'text',
-  paragraph: 'text',
+const TEXT_ROLE_BY_LABEL: Record<string, TextRole> = {
+  text: 'paragraph',
+  paragraph: 'paragraph',
+  doc_title: 'document_title',
   title: 'heading',
+  paragraph_title: 'heading',
   heading: 'heading',
-  table: 'table',
-  chart: 'table',
-  figure: 'figure',
-  image: 'figure',
-  formula: 'formula',
-  header: 'header_footer',
-  footer: 'header_footer',
-  seal: 'figure',
-  number: 'text',
-  footnote: 'text',
-  content: 'text',
+  number: 'page_number',
+  footnote: 'footnote',
+  content: 'paragraph',
 };
 
 export type MapLayoutResultsInput = {
@@ -47,13 +47,16 @@ export type MapLayoutResultsInput = {
   figureUriMap?: FigureAssetUriMap;
   /** When set, stored figure URIs must satisfy this host policy. */
   isPublicFigureUri?: FigureUriValidator;
+  model?: string;
+  version?: string;
 };
 
 /**
- * Pure Paddle HPS `layoutParsingResults` → `openparser@1` ParsedDocument.
- * Host supplies page fallbacks and any materialized figure URI map.
+ * Pure Paddle HPS `layoutParsingResults` → `openparser@1` document graph.
  */
-export function mapLayoutResultsToParsedDocument(input: MapLayoutResultsInput): ParsedDocument {
+export function mapLayoutResultsToParsedDocument(
+  input: MapLayoutResultsInput
+): PaddleLayoutParsedDocument {
   const figureAssetsMode = input.figureAssets ?? 'none';
   const figureUriMap = input.figureUriMap ?? new Map();
   const isPublicFigureUri = input.isPublicFigureUri;
@@ -63,14 +66,14 @@ export function mapLayoutResultsToParsedDocument(input: MapLayoutResultsInput): 
     );
   }
 
-  const regions: Region[] = [];
-  const contents: RegionContent[] = [];
-  const blocks: PageBlock[] = [];
-  let blockIndex = 0;
+  const pages: DocumentPage[] = [];
+  const elements: DocumentElement[] = [];
+  const assets: DocumentAsset[] = [];
+  const plainTextParts: string[] = [];
 
-  for (let pageIdx = 0; pageIdx < input.pages.length; pageIdx++) {
-    const pageFallback = input.pages[pageIdx]!;
-    const layoutResult = input.layoutResults[pageIdx]!;
+  for (let pageIndex = 0; pageIndex < input.pages.length; pageIndex++) {
+    const pageFallback = input.pages[pageIndex]!;
+    const layoutResult = input.layoutResults[pageIndex]!;
     const pruned = layoutResult.prunedResult;
     if (!pruned || typeof pruned !== 'object') {
       throw new PaddleAdapterError('layout result missing prunedResult');
@@ -81,83 +84,86 @@ export function mapLayoutResultsToParsedDocument(input: MapLayoutResultsInput): 
       throw new PaddleAdapterError('layout result missing parsing_res_list');
     }
 
-    // Paddle bboxes/polygons are in page-raster space. Prefer prunedResult
-    // width/height, then dataInfo.pages, then media fallback (image pixels /
-    // PDF points). Never clamp raster coords into a different space.
-    const page = resolveCoordinateDims(prunedRecord, pageFallback, input.dataInfoPages?.[pageIdx]);
+    const dimensions = resolveCoordinateDims(
+      prunedRecord,
+      pageFallback,
+      input.dataInfoPages?.[pageIndex]
+    );
     const layoutDetBoxes = readLayoutDetBoxes(prunedRecord);
+    const pageElementIds: string[] = [];
 
-    for (let i = 0; i < parsingResList.length; i++) {
-      const block = parsingResList[i];
+    for (let index = 0; index < parsingResList.length; index++) {
+      const block = parsingResList[index];
       if (!block || typeof block !== 'object') continue;
       const entry = block as Record<string, unknown>;
       const label = String(entry.block_label ?? 'text').trim() || 'text';
-      // Preserve empty detections (geometry/type/confidence) — do not drop
-      // entries whose block_content is blank (e.g. misplaced title boxes).
+      const normalizedLabel = label.toLowerCase();
       const rawContent = String(entry.block_content ?? '').trim();
       const bboxRaw = entry.block_bbox;
       if (!Array.isArray(bboxRaw) || bboxRaw.length !== 4) {
         throw new PaddleAdapterError('block_bbox must contain four coordinates');
       }
-      const blockId = entry.block_id ?? i;
-      let regionType = LABEL_TO_REGION[label.toLowerCase()] ?? 'text';
-      if (label.toLowerCase() === 'chart' && rawContent.startsWith('<')) {
-        regionType = 'table';
-      }
-      const isTable = regionType === 'table' && rawContent.startsWith('<');
-      const isFigure = regionType === 'figure';
-      const blockContent = isFigure
-        ? rawContent
-        : isTable
-          ? simplifyTableHtml(rawContent)
-          : simplifyLatex(rawContent);
-      const bbox = clampBbox(bboxRaw as number[], page.width, page.height);
-      const confidence = resolveBlockConfidence(entry, layoutDetBoxes);
-      const polygon = readPolygon(entry, page.width, page.height);
-      const regionId = `${input.documentId}-${label}-${page.number}-${blockId}`;
-      regions.push({
-        id: regionId,
-        page_number: page.number,
-        type: regionType,
-        bbox,
-        coordinate_width: page.width,
-        coordinate_height: page.height,
-        ...(confidence === undefined ? {} : { confidence }),
-        source_label: label,
-        ...(polygon === undefined ? {} : { polygon }),
-      });
 
-      if (isTable) {
-        contents.push({
-          region_id: regionId,
-          kind: 'table',
-          table_html: blockContent,
-          ...(confidence === undefined ? {} : { confidence }),
-        });
-        blocks.push({
-          index: blockIndex++,
-          page_number: page.number,
-          kind: 'table',
-          table_html: blockContent,
+      const nativeId = String(entry.block_id ?? index);
+      const elementId = `${input.documentId}-paddle-${dimensions.number}-${nativeId}`;
+      const bbox = clampBbox(bboxRaw as number[], dimensions.width, dimensions.height);
+      const polygon = readPolygon(entry, dimensions.width, dimensions.height);
+      const locations: Geometry[] = [
+        {
+          page_number: dimensions.number,
           bbox,
-          region_id: regionId,
-          coordinate_width: page.width,
-          coordinate_height: page.height,
-          ...(confidence === undefined ? {} : { confidence }),
-          source_label: label,
           ...(polygon === undefined ? {} : { polygon }),
-        });
-      } else if (isFigure) {
+        },
+      ];
+      const confidence = canonicalConfidence(resolveBlockConfidence(entry, layoutDetBoxes));
+      const source = {
+        native_id: nativeId,
+        native_type: 'layout_block',
+        native_label: label,
+      };
+      const common = {
+        id: elementId,
+        locations,
+        ...(confidence === undefined ? {} : { confidence }),
+        source,
+      };
+
+      let element: DocumentElement;
+      if (normalizedLabel === 'table' || normalizedLabel === 'chart') {
+        const html = rawContent.startsWith('<') ? simplifyTableHtml(rawContent) : undefined;
+        if (html !== undefined) {
+          const table = tableCellsFromHtml(html, elementId);
+          element = {
+            ...common,
+            kind: 'table',
+            row_count: table.rowCount,
+            column_count: table.columnCount,
+            cells: table.cells,
+            html,
+          };
+          plainTextParts.push(stripMarkup(html));
+        } else {
+          element = {
+            ...common,
+            kind: 'figure',
+            caption_spans: [],
+            ...(rawContent ? { caption: simplifyLatex(rawContent) } : {}),
+          };
+          if (rawContent) plainTextParts.push(simplifyLatex(rawContent));
+        }
+      } else if (
+        normalizedLabel === 'figure' ||
+        normalizedLabel === 'image' ||
+        normalizedLabel === 'seal'
+      ) {
         const resolvedUri = resolveFigureBlockUri({
-          blockContent,
+          blockContent: rawContent,
           figureAssets: figureAssetsMode,
           uriMap: figureUriMap,
         });
-        // When crops are being materialised, non-empty figure refs must resolve.
-        // Empty detections still keep geometry with a null figure_uri.
         if (figureAssetsMode === 'stored' && rawContent && !resolvedUri) {
           throw new PaddleAdapterError(
-            `figure_assets=stored could not resolve a public URI for figure block ${regionId}`,
+            `figure_assets=stored could not resolve a public URI for figure block ${elementId}`,
             false
           );
         }
@@ -165,79 +171,79 @@ export function mapLayoutResultsToParsedDocument(input: MapLayoutResultsInput): 
           assertPublicFigureUri({
             uri: resolvedUri,
             isPublicFigureUri,
-            failureMessage: `figure_assets=stored could not resolve a public URI for figure block ${regionId}`,
+            failureMessage: `figure_assets=stored could not resolve a public URI for figure block ${elementId}`,
           });
         }
-        contents.push({
-          region_id: regionId,
-          kind: 'figure',
-          // Prefer the public URI; never surface provider crop paths as content.
-          text: resolvedUri ?? '',
-          ...(confidence === undefined ? {} : { confidence }),
-        });
-        blocks.push({
-          index: blockIndex++,
-          page_number: page.number,
-          kind: 'figure',
-          figure_uri: resolvedUri,
-          bbox,
-          region_id: regionId,
-          coordinate_width: page.width,
-          coordinate_height: page.height,
-          ...(confidence === undefined ? {} : { confidence }),
-          source_label: label,
-          ...(polygon === undefined ? {} : { polygon }),
-        });
+        if (normalizedLabel === 'seal') {
+          element = {
+            ...common,
+            kind: 'stamp',
+            ...(rawContent ? { text: simplifyLatex(rawContent) } : {}),
+          };
+        } else {
+          const assetId = resolvedUri ? `${elementId}-asset` : undefined;
+          if (assetId && resolvedUri) {
+            assets.push({
+              id: assetId,
+              kind: 'figure',
+              uri: resolvedUri,
+              page_number: dimensions.number,
+            });
+          }
+          element = {
+            ...common,
+            kind: 'figure',
+            caption_spans: [],
+            ...(assetId === undefined ? {} : { asset_id: assetId }),
+            ...(rawContent && !resolvedUri ? { alt_text: simplifyLatex(rawContent) } : {}),
+          };
+        }
+      } else if (normalizedLabel === 'formula') {
+        const value = simplifyLatex(rawContent);
+        element = {
+          ...common,
+          kind: 'formula',
+          value,
+          format: 'latex',
+          spans: [],
+        };
+        if (value) plainTextParts.push(value);
       } else {
-        contents.push({
-          region_id: regionId,
+        const text = simplifyLatex(rawContent);
+        element = {
+          ...common,
           kind: 'text',
-          text: blockContent,
-          ...(confidence === undefined ? {} : { confidence }),
-        });
-        blocks.push({
-          index: blockIndex++,
-          page_number: page.number,
-          kind: 'text',
-          text: blockContent,
-          bbox,
-          region_id: regionId,
-          coordinate_width: page.width,
-          coordinate_height: page.height,
-          ...(confidence === undefined ? {} : { confidence }),
-          source_label: label,
-          ...(polygon === undefined ? {} : { polygon }),
-        });
+          role:
+            normalizedLabel === 'header'
+              ? 'page_header'
+              : normalizedLabel === 'footer'
+                ? 'page_footer'
+                : (TEXT_ROLE_BY_LABEL[normalizedLabel] ?? 'other'),
+          text,
+          spans: [],
+          languages: [],
+        };
+        if (text) plainTextParts.push(text);
       }
-    }
-  }
 
-  if (blocks.length === 0) {
-    blocks.push({
-      index: 0,
-      page_number: 1,
-      kind: 'text',
-      text: '',
+      elements.push(element);
+      pageElementIds.push(elementId);
+    }
+
+    pages.push({
+      number: dimensions.number,
+      source_page_number: pageFallback.number,
+      width: dimensions.width,
+      height: dimensions.height,
+      unit: 'pixel',
+      rotation_degrees: 0,
+      languages: [],
+      element_ids: pageElementIds,
+      reading_order: [...pageElementIds],
     });
   }
 
-  let markdown = deriveMarkdown(blocks);
-  // Prefer provider markdown when present, then rewrite crop paths to public URIs.
-  const providerMarkdownParts: string[] = [];
-  for (const layoutResult of input.layoutResults) {
-    const md = layoutResult.markdown;
-    if (typeof md === 'string' && md.trim()) {
-      providerMarkdownParts.push(simplifyMarkdownArtifacts(md));
-    } else if (md && typeof md === 'object') {
-      const text = (md as Record<string, unknown>).text;
-      if (typeof text === 'string' && text.trim()) {
-        providerMarkdownParts.push(simplifyMarkdownArtifacts(text));
-      }
-    }
-  }
-  if (providerMarkdownParts.length > 0) {
-    markdown = providerMarkdownParts.join('\n\n');
-  }
+  let markdown = renderCanonicalMarkdown({ pages, elements, assets });
   markdown =
     canonicalizeMarkdownFigureUris({
       markdown,
@@ -245,15 +251,37 @@ export function mapLayoutResultsToParsedDocument(input: MapLayoutResultsInput): 
       uriMap: figureUriMap,
       isPublicFigureUri,
     }) ?? markdown;
+
+  return parseCanonicalWithCapabilities(
+    {
+      output_format: 'openparser@1',
+      document_id: input.documentId,
+      provenance: {
+        provider: 'baidu',
+        model: input.model ?? 'paddleocr-vl',
+        ...(input.version === undefined ? {} : { version: input.version }),
+        operation: 'layout_parsing',
+      },
+      text: plainTextParts.join('\n\n'),
+      markdown,
+      pages,
+      elements,
+      text_annotations: [],
+      relations: [],
+      assets,
+    },
+    PADDLE_LAYOUT_OUTPUT_CAPABILITIES
+  );
+}
+
+function canonicalConfidence(value: number | undefined): Confidence | undefined {
+  if (value === undefined) return undefined;
   return {
-    output_format: 'openparser@1',
-    document_id: input.documentId,
-    page_count: input.pages.length,
-    markdown,
-    blocks,
-    regions,
-    contents,
-    chunks: [],
+    score: Math.min(1, Math.max(0, value)),
+    scope: 'detection',
+    calibrated: false,
+    source_value: value,
+    source_scale: 'zero_to_one',
   };
 }
 
@@ -287,16 +315,11 @@ function readPolygon(
   return points;
 }
 
-function deriveMarkdown(blocks: PageBlock[]): string {
-  const parts: string[] = [];
-  for (const block of blocks) {
-    if (block.kind === 'text' && block.text) parts.push(block.text);
-    else if (block.kind === 'table' && block.table_html) parts.push(block.table_html);
-    else if (block.kind === 'figure' && block.figure_uri) {
-      parts.push(`![figure](${block.figure_uri})`);
-    }
-  }
-  return parts.join('\n\n');
+function stripMarkup(value: string): string {
+  return value
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 function clampBbox(
@@ -304,7 +327,7 @@ function clampBbox(
   pageWidth: number,
   pageHeight: number
 ): { left: number; top: number; right: number; bottom: number } {
-  const [rawLeft, rawTop, rawRight, rawBottom] = bbox.map((v) => Math.round(Number(v)));
+  const [rawLeft, rawTop, rawRight, rawBottom] = bbox.map((value) => Math.round(Number(value)));
   const left = Math.max(0, Math.min(pageWidth - 1, rawLeft ?? 0));
   const top = Math.max(0, Math.min(pageHeight - 1, rawTop ?? 0));
   const right = Math.max(left + 1, Math.min(pageWidth, rawRight ?? left + 1));
@@ -313,31 +336,26 @@ function clampBbox(
 }
 
 function readPositiveInt(value: unknown): number | undefined {
-  const n = typeof value === 'number' ? value : Number(value);
-  if (!Number.isFinite(n) || n <= 0) return undefined;
-  return Math.max(1, Math.round(n));
+  const number = typeof value === 'number' ? value : Number(value);
+  if (!Number.isFinite(number) || number <= 0) return undefined;
+  return Math.max(1, Math.round(number));
 }
 
-/**
- * Coordinate space for Paddle geometry: prunedResult raster dims first,
- * then dataInfo.pages raster dims, then media fallback (image pixels or
- * PDF points as last resort). Boxes stay in that same space — no scaling.
- */
 function resolveCoordinateDims(
   pruned: Record<string, unknown>,
   fallback: PageDims,
   dataInfoPage?: PageDims
 ): PageDims {
-  const prunedW = readPositiveInt(pruned.width);
-  const prunedH = readPositiveInt(pruned.height);
-  if (prunedW !== undefined && prunedH !== undefined) {
-    return { number: fallback.number, width: prunedW, height: prunedH };
+  const prunedWidth = readPositiveInt(pruned.width);
+  const prunedHeight = readPositiveInt(pruned.height);
+  if (prunedWidth !== undefined && prunedHeight !== undefined) {
+    return { number: fallback.number, width: prunedWidth, height: prunedHeight };
   }
   if (dataInfoPage) {
-    const infoW = readPositiveInt(dataInfoPage.width);
-    const infoH = readPositiveInt(dataInfoPage.height);
-    if (infoW !== undefined && infoH !== undefined) {
-      return { number: fallback.number, width: infoW, height: infoH };
+    const infoWidth = readPositiveInt(dataInfoPage.width);
+    const infoHeight = readPositiveInt(dataInfoPage.height);
+    if (infoWidth !== undefined && infoHeight !== undefined) {
+      return { number: fallback.number, width: infoWidth, height: infoHeight };
     }
   }
   return fallback;
@@ -351,11 +369,11 @@ export function readDataInfoPages(
   if (!dataInfo || typeof dataInfo !== 'object') return undefined;
   const pages = (dataInfo as { pages?: unknown }).pages;
   if (!Array.isArray(pages) || pages.length === 0) return undefined;
-  return pages.map((entry, i) => {
+  return pages.map((entry, index) => {
     if (!entry || typeof entry !== 'object') return undefined;
     const width = readPositiveInt((entry as { width?: unknown }).width);
     const height = readPositiveInt((entry as { height?: unknown }).height);
     if (width === undefined || height === undefined) return undefined;
-    return { number: i + 1, width, height };
+    return { number: index + 1, width, height };
   });
 }

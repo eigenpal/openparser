@@ -1,0 +1,33 @@
+{
+  "documentId": "omni-0001",
+  "pageCount": 1,
+  "analyzeResult": {
+    "pages": [
+      {
+        "pageNumber": 1,
+        "width": 1000,
+        "height": 1000,
+        "lines": [
+          {
+            "content": "Line one",
+            "polygon": [
+              { "x": 10, "y": 10 },
+              { "x": 200, "y": 10 },
+              { "x": 200, "y": 40 },
+              { "x": 10, "y": 40 }
+            ]
+          },
+          {
+            "content": "Line two",
+            "polygon": [
+              { "x": 10, "y": 50 },
+              { "x": 200, "y": 50 },
+              { "x": 200, "y": 80 },
+              { "x": 10, "y": 80 }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

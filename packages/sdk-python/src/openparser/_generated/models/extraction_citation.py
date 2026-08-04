@@ -8,13 +8,15 @@ from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
+from ..models.document_element_kind import DocumentElementKind
 from ..models.extraction_citation_granularity import ExtractionCitationGranularity
-from ..models.extraction_citation_source_type import ExtractionCitationSourceType
 from ..types import UNSET, Unset
 from typing import cast
 
 if TYPE_CHECKING:
   from ..models.bounding_box import BoundingBox
+  from ..models.confidence import Confidence
+  from ..models.point import Point
 
 
 
@@ -26,31 +28,30 @@ T = TypeVar("T", bound="ExtractionCitation")
 
 @_attrs_define
 class ExtractionCitation:
-    """ Verified provenance for one extracted leaf citation. Geometry comes from the parse, never the model.
+    """ Verified provenance for one extracted leaf citation. Geometry comes from the parse graph element or table cell,
+    never the model.
 
         Attributes:
-            block_index (int):
+            element_id (str):
             page_number (int):
             bbox (BoundingBox): Axis-aligned integer page coordinates with exclusive right and bottom edges.
-            source_type (ExtractionCitationSourceType):
-            granularity (ExtractionCitationGranularity): Citation geometry granularity. Citation v1 emits only `block`;
-                `region` is reserved
-                for a later narrowing release.
-            region_id (str | Unset):
-            coordinate_width (int | None | Unset):
-            coordinate_height (int | None | Unset):
-            confidence (float | Unset):
+            source_type (DocumentElementKind):
+            granularity (ExtractionCitationGranularity): Citation geometry granularity. Citation v1 emits `element` and
+                `table_cell`;
+                `text_span` is reserved for a later narrowing release.
+            table_cell_id (str | Unset):
+            polygon (list[Point] | Unset):
+            confidence (Confidence | Unset):
      """
 
-    block_index: int
+    element_id: str
     page_number: int
     bbox: BoundingBox
-    source_type: ExtractionCitationSourceType
+    source_type: DocumentElementKind
     granularity: ExtractionCitationGranularity
-    region_id: str | Unset = UNSET
-    coordinate_width: int | None | Unset = UNSET
-    coordinate_height: int | None | Unset = UNSET
-    confidence: float | Unset = UNSET
+    table_cell_id: str | Unset = UNSET
+    polygon: list[Point] | Unset = UNSET
+    confidence: Confidence | Unset = UNSET
 
 
 
@@ -58,7 +59,9 @@ class ExtractionCitation:
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.bounding_box import BoundingBox
-        block_index = self.block_index
+        from ..models.confidence import Confidence
+        from ..models.point import Point
+        element_id = self.element_id
 
         page_number = self.page_number
 
@@ -68,38 +71,35 @@ class ExtractionCitation:
 
         granularity = self.granularity.value
 
-        region_id = self.region_id
+        table_cell_id = self.table_cell_id
 
-        coordinate_width: int | None | Unset
-        if isinstance(self.coordinate_width, Unset):
-            coordinate_width = UNSET
-        else:
-            coordinate_width = self.coordinate_width
+        polygon: list[dict[str, Any]] | Unset = UNSET
+        if not isinstance(self.polygon, Unset):
+            polygon = []
+            for componentsschemas_polygon_item_data in self.polygon:
+                componentsschemas_polygon_item = componentsschemas_polygon_item_data.to_dict()
+                polygon.append(componentsschemas_polygon_item)
 
-        coordinate_height: int | None | Unset
-        if isinstance(self.coordinate_height, Unset):
-            coordinate_height = UNSET
-        else:
-            coordinate_height = self.coordinate_height
 
-        confidence = self.confidence
+
+        confidence: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.confidence, Unset):
+            confidence = self.confidence.to_dict()
 
 
         field_dict: dict[str, Any] = {}
 
         field_dict.update({
-            "block_index": block_index,
+            "element_id": element_id,
             "page_number": page_number,
             "bbox": bbox,
             "source_type": source_type,
             "granularity": granularity,
         })
-        if region_id is not UNSET:
-            field_dict["region_id"] = region_id
-        if coordinate_width is not UNSET:
-            field_dict["coordinate_width"] = coordinate_width
-        if coordinate_height is not UNSET:
-            field_dict["coordinate_height"] = coordinate_height
+        if table_cell_id is not UNSET:
+            field_dict["table_cell_id"] = table_cell_id
+        if polygon is not UNSET:
+            field_dict["polygon"] = polygon
         if confidence is not UNSET:
             field_dict["confidence"] = confidence
 
@@ -110,8 +110,10 @@ class ExtractionCitation:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.bounding_box import BoundingBox
+        from ..models.confidence import Confidence
+        from ..models.point import Point
         d = dict(src_dict)
-        block_index = d.pop("block_index")
+        element_id = d.pop("element_id")
 
         page_number = d.pop("page_number")
 
@@ -120,7 +122,7 @@ class ExtractionCitation:
 
 
 
-        source_type = ExtractionCitationSourceType(d.pop("source_type"))
+        source_type = DocumentElementKind(d.pop("source_type"))
 
 
 
@@ -130,39 +132,38 @@ class ExtractionCitation:
 
 
 
-        region_id = d.pop("region_id", UNSET)
+        table_cell_id = d.pop("table_cell_id", UNSET)
 
-        def _parse_coordinate_width(data: object) -> int | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(int | None | Unset, data)
-
-        coordinate_width = _parse_coordinate_width(d.pop("coordinate_width", UNSET))
+        _polygon = d.pop("polygon", UNSET)
+        polygon: list[Point] | Unset = UNSET
+        if _polygon is not UNSET:
+            polygon = []
+            for componentsschemas_polygon_item_data in _polygon:
+                componentsschemas_polygon_item = Point.from_dict(componentsschemas_polygon_item_data)
 
 
-        def _parse_coordinate_height(data: object) -> int | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(int | None | Unset, data)
 
-        coordinate_height = _parse_coordinate_height(d.pop("coordinate_height", UNSET))
+                polygon.append(componentsschemas_polygon_item)
 
 
-        confidence = d.pop("confidence", UNSET)
+        _confidence = d.pop("confidence", UNSET)
+        confidence: Confidence | Unset
+        if isinstance(_confidence,  Unset):
+            confidence = UNSET
+        else:
+            confidence = Confidence.from_dict(_confidence)
+
+
+
 
         extraction_citation = cls(
-            block_index=block_index,
+            element_id=element_id,
             page_number=page_number,
             bbox=bbox,
             source_type=source_type,
             granularity=granularity,
-            region_id=region_id,
-            coordinate_width=coordinate_width,
-            coordinate_height=coordinate_height,
+            table_cell_id=table_cell_id,
+            polygon=polygon,
             confidence=confidence,
         )
 

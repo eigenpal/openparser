@@ -1,0 +1,25 @@
+{
+  "documentId": "mistral-page-footer",
+  "expectedPages": 1,
+  "model": "mistral-ocr-2512",
+  "payload": {
+    "model": "mistral-ocr-2512",
+    "pages": [
+      {
+        "index": 0,
+        "markdown": "# Kúpna zmluva č. 4-3\n\nuzatvorená podľa ust. § 588 a nasl. zák. č. 40/1964 Zb., Občianskeho zákonníka (ďalej len „Občiansky zákonník“) a ust. § 5 a nasl. zákona č. 182/1993 Z. z. o vlastníctve bytov a nebytových priestorov v znení neskoršíc",
+        "dimensions": {
+          "dpi": 87,
+          "height": 1018,
+          "width": 719
+        },
+        "header": null,
+        "footer": "Strana 1 z 12",
+        "blocks": [],
+        "tables": [],
+        "images": [],
+        "hyperlinks": []
+      }
+    ]
+  }
+}

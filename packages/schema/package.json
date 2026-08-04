@@ -1,7 +1,7 @@
 {
   "name": "@openparser/schema",
-  "version": "0.1.0",
-  "description": "Zod schemas and TypeScript types for OpenParser and openparser@1 documents",
+  "version": "1.0.0",
+  "description": "Zod schemas and TypeScript types for openparser@1 documents and raw OCR envelopes",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./src/index.ts",
@@ -15,24 +15,6 @@
       "bun": "./src/index.ts",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
-    },
-    "./document": {
-      "types": "./src/document/index.ts",
-      "bun": "./src/document/index.ts",
-      "import": "./dist/document/index.js",
-      "default": "./dist/document/index.js"
-    },
-    "./http": {
-      "types": "./src/http/index.ts",
-      "bun": "./src/http/index.ts",
-      "import": "./dist/http/index.js",
-      "default": "./dist/http/index.js"
-    },
-    "./openapi-server": {
-      "types": "./src/openapi-generate.ts",
-      "bun": "./src/openapi-generate.ts",
-      "import": "./dist/openapi-generate.js",
-      "default": "./dist/openapi-generate.js"
     }
   },
   "files": [
@@ -52,7 +34,6 @@
     "pack:smoke": "bun scripts/pack-smoke.ts"
   },
   "dependencies": {
-    "yaml": "^2.7.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
@@ -78,7 +59,6 @@
     "openparser",
     "ocr",
     "schema",
-    "openapi",
     "zod",
     "document-understanding"
   ],

@@ -1,0 +1,58 @@
+{
+  "documentId": "omni-0001",
+  "response": {
+    "page_count": 1,
+    "blocks": [
+      {
+        "Id": "outside",
+        "BlockType": "LINE",
+        "Text": "Quarterly report",
+        "Page": 1,
+        "Confidence": 99.0,
+        "Geometry": {
+          "BoundingBox": { "Left": 0.1, "Top": 0.1, "Width": 0.4, "Height": 0.05 }
+        }
+      },
+      {
+        "Id": "inside",
+        "BlockType": "LINE",
+        "Text": "Revenue 42",
+        "Page": 1,
+        "Confidence": 98.0,
+        "Geometry": {
+          "BoundingBox": { "Left": 0.1, "Top": 0.55, "Width": 0.5, "Height": 0.05 }
+        }
+      },
+      {
+        "Id": "table",
+        "BlockType": "TABLE",
+        "Page": 1,
+        "Confidence": 97.0,
+        "Geometry": {
+          "BoundingBox": { "Left": 0.05, "Top": 0.5, "Width": 0.8, "Height": 0.3 }
+        },
+        "Relationships": [{ "Type": "CHILD", "Ids": ["cell-1", "cell-2"] }]
+      },
+      {
+        "Id": "cell-1",
+        "BlockType": "CELL",
+        "RowIndex": 1,
+        "ColumnIndex": 1,
+        "RowSpan": 1,
+        "ColumnSpan": 1,
+        "Relationships": [{ "Type": "CHILD", "Ids": ["word-1"] }]
+      },
+      {
+        "Id": "cell-2",
+        "BlockType": "CELL",
+        "RowIndex": 1,
+        "ColumnIndex": 2,
+        "RowSpan": 1,
+        "ColumnSpan": 1,
+        "Relationships": [{ "Type": "CHILD", "Ids": ["word-2"] }]
+      },
+      { "Id": "word-1", "BlockType": "WORD", "Text": "Revenue" },
+      { "Id": "word-2", "BlockType": "WORD", "Text": "42" }
+    ]
+  }
+}

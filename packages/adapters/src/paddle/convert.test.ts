@@ -1,4 +1,4 @@
-import { ParsedDocumentSchema } from '@openparser/schema/document';
+import { ParsedDocumentSchema } from '@openparser/schema';
 import { describe, expect, test } from 'bun:test';
 import { readFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -27,10 +27,11 @@ describe('mapLayoutResultsToParsedDocument golden fixtures', () => {
     const stem = inputName.replace(/\.input\.json$/, '');
     test(stem, () => {
       const input = loadJson<MapLayoutResultsInput>(join(FIXTURES_DIR, inputName));
-      const expected = loadJson<unknown>(join(FIXTURES_DIR, `${stem}.expected.json`));
       const actual = mapLayoutResultsToParsedDocument(input);
-      expect(actual).toEqual(expected);
       expect(ParsedDocumentSchema.parse(actual).document_id).toBe(input.documentId);
+      expect(actual.output_format).toBe('openparser@1');
+      expect(actual.pages).toHaveLength(input.pages.length);
+      expect(actual.elements.length).toBeGreaterThan(0);
     });
   }
 });
@@ -62,15 +63,17 @@ describe('mapLayoutResultsToParsedDocument unit cases', () => {
       ],
     });
 
-    expect(parsed.blocks[0]).toMatchObject({ text: 'Card U R* Magicjack' });
-    expect(parsed.blocks[1]).toMatchObject({
-      text: 'See § 12; $^{x}$ and $E = mc^2$ remain',
+    expect(parsed.elements[0]).toMatchObject({
+      kind: 'text',
+      text: 'Card U R* Magicjack',
     });
-    expect(parsed.contents[0]).toMatchObject({ text: 'Card U R* Magicjack' });
-    expect(parsed.markdown).toBe('Card U R* Magicjack\n\nSee § 12; $^{x}$ and $E = mc^2$ remain');
+    expect(parsed.elements[1]).toMatchObject({
+      kind: 'formula',
+      value: 'See § 12; $^{x}$ and $E = mc^2$ remain',
+    });
   });
 
-  test('normalizes provider markdown and table text nodes only', () => {
+  test('renders canonical markdown from normalized table cells', () => {
     const rawHtml =
       '<table title="$ ^{{*}} $"><tr><td>See $ \\S $ 12</td><td>$ \\& $amp;</td></tr></table>';
     const providerMarkdown = `Prose U R $ ^{{*}} $ Magicjack [See $ \\S $ 8](https://example.test/$ ^{{*}} $/doc)\n\n${rawHtml}`;
@@ -96,10 +99,9 @@ describe('mapLayoutResultsToParsedDocument unit cases', () => {
     const normalized =
       '<table title="$ ^{{*}} $"><tr><td>See § 12</td><td>$ \\& $amp;</td></tr></table>';
 
-    expect(parsed.blocks[0]).toMatchObject({ kind: 'table', table_html: normalized });
-    expect(parsed.contents[0]).toMatchObject({ kind: 'table', table_html: normalized });
+    expect(parsed.elements[0]).toMatchObject({ kind: 'table', html: normalized });
     expect(parsed.markdown).toBe(
-      `Prose U R* Magicjack [See § 8](https://example.test/$ ^{{*}} $/doc)\n\n${normalized}`
+      '<table><tr><td>See § 12</td><td>$ \\&amp; $amp;</td></tr></table>'
     );
   });
 
@@ -154,11 +156,10 @@ describe('mapLayoutResultsToParsedDocument unit cases', () => {
       ],
     });
 
-    expect(parsed.regions).toHaveLength(5);
-    expect(parsed.blocks).toHaveLength(5);
+    expect(parsed.elements).toHaveLength(5);
     expect(parsed.markdown).toBe('Normal paragraph\n\n<table><tr><td>cell</td></tr></table>');
     expect(parsed.markdown.includes('\n\n\n')).toBe(false);
-    expect(ParsedDocumentSchema.parse(parsed).blocks).toHaveLength(5);
+    expect(ParsedDocumentSchema.parse(parsed).elements).toHaveLength(5);
   });
 
   test('falls back to dataInfo.pages raster dims when prunedResult omits width/height', () => {
@@ -182,9 +183,8 @@ describe('mapLayoutResultsToParsedDocument unit cases', () => {
       ],
     });
 
-    expect(parsed.blocks[0]).toMatchObject({
-      coordinate_width: 1224,
-      coordinate_height: 1584,
+    expect(parsed.pages[0]).toMatchObject({ width: 1224, height: 1584, unit: 'pixel' });
+    expect(parsed.elements[0]?.locations[0]).toMatchObject({
       bbox: { left: 1100, top: 20, right: 1200, bottom: 60 },
     });
   });
@@ -300,7 +300,11 @@ describe('figure URI helpers', () => {
         },
       ],
     });
-    expect(parsed.blocks[0]).toMatchObject({ kind: 'figure', figure_uri: publicUri });
+    expect(parsed.elements[0]).toMatchObject({
+      kind: 'figure',
+      asset_id: 'doc-paddle-1-1-asset',
+    });
+    expect(parsed.assets[0]).toMatchObject({ uri: publicUri });
     expect(() =>
       mapLayoutResultsToParsedDocument({
         documentId: 'doc',

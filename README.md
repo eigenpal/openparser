@@ -19,11 +19,11 @@ Choose the [TypeScript SDK](packages/sdk-typescript),
 
 | Package | Use for | Source |
 | ------- | ------- | ------ |
-| [`@openparser/sdk`](https://www.npmjs.com/package/@openparser/sdk) | TypeScript applications | [`packages/sdk-typescript`](packages/sdk-typescript) |
-| [`openparser-sdk`](https://pypi.org/project/openparser-sdk/) | Python applications (import `openparser`) | [`packages/sdk-python`](packages/sdk-python) |
-| [`@openparser/cli`](https://www.npmjs.com/package/@openparser/cli) | Terminals, CI jobs, and agent tools | [`packages/cli`](packages/cli) |
 | [`@openparser/schema`](https://www.npmjs.com/package/@openparser/schema) | Runtime validation and generated types | [`packages/schema`](packages/schema) |
 | [`@openparser/adapters`](https://www.npmjs.com/package/@openparser/adapters) | Provider response conversion | [`packages/adapters`](packages/adapters) |
+| [`@openparser/cli`](https://www.npmjs.com/package/@openparser/cli) | Terminals, CI jobs, and agent tools | [`packages/cli`](packages/cli) |
+| [`@openparser/sdk`](https://www.npmjs.com/package/@openparser/sdk) | TypeScript applications | [`packages/sdk-typescript`](packages/sdk-typescript) |
+| [`openparser-sdk`](https://pypi.org/project/openparser-sdk/) | Python applications (import `openparser`) | [`packages/sdk-python`](packages/sdk-python) |
 
 ## Development
 

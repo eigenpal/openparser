@@ -1,5 +1,18 @@
 # @openparser/adapters
 
+## 1.0.0
+
+### Minor Changes
+
+- 34c31bd: `@openparser/adapters` now ships production clients and canonical `openparser@1` converters for PaddleOCR, Mistral OCR, Azure Document Intelligence, Google Document AI, and AWS Textract. Applications can switch OCR providers while retaining the same document graph, text-span, geometry, table, asset, and confidence semantics.
+- 34c31bd: `@openparser/schema` is now document-only: `openparser@1` graph types plus the generic raw OCR envelope. Hosted API request/job/catalog/extraction wire schemas moved out of the published package (private Eigenpal workspace surface). Install `@openparser/schema` for document validation; use the SDKs for the hosted HTTP API.
+
+### Patch Changes
+
+- Updated dependencies [34c31bd]
+- Updated dependencies [34c31bd]
+  - @openparser/schema@1.0.0
+
 ## 0.1.0
 
 ### Patch Changes

@@ -181,10 +181,10 @@ def sync_detailed(
 
      Admit a parse job, wait up to the sync wait limit, and return the selected terminal parse
     representation when ready. `output_format` defaults to the versioned provider-neutral
-    `openparser@1`; `raw` returns a stable provider envelope around the untouched successful
-    Paddle result. Terminal `failed` within the wait window returns `422` `ErrorResponse`;
-    terminal `indeterminate` returns `504` `ErrorResponse`. Returns `202` with a durable job
-    reference and `Location` if the wait limit expires first.
+    `openparser@1`; `raw` returns a stable provider envelope around the selected provider's
+    untouched successful result. Terminal `failed` within the wait window returns `422`
+    `ErrorResponse`; terminal `indeterminate` returns `504` `ErrorResponse`. Returns `202`
+    with a durable job reference and `Location` if the wait limit expires first.
 
     Example (`multipart/form-data`):
 
@@ -233,10 +233,10 @@ def sync(
 
      Admit a parse job, wait up to the sync wait limit, and return the selected terminal parse
     representation when ready. `output_format` defaults to the versioned provider-neutral
-    `openparser@1`; `raw` returns a stable provider envelope around the untouched successful
-    Paddle result. Terminal `failed` within the wait window returns `422` `ErrorResponse`;
-    terminal `indeterminate` returns `504` `ErrorResponse`. Returns `202` with a durable job
-    reference and `Location` if the wait limit expires first.
+    `openparser@1`; `raw` returns a stable provider envelope around the selected provider's
+    untouched successful result. Terminal `failed` within the wait window returns `422`
+    `ErrorResponse`; terminal `indeterminate` returns `504` `ErrorResponse`. Returns `202`
+    with a durable job reference and `Location` if the wait limit expires first.
 
     Example (`multipart/form-data`):
 
@@ -280,10 +280,10 @@ async def asyncio_detailed(
 
      Admit a parse job, wait up to the sync wait limit, and return the selected terminal parse
     representation when ready. `output_format` defaults to the versioned provider-neutral
-    `openparser@1`; `raw` returns a stable provider envelope around the untouched successful
-    Paddle result. Terminal `failed` within the wait window returns `422` `ErrorResponse`;
-    terminal `indeterminate` returns `504` `ErrorResponse`. Returns `202` with a durable job
-    reference and `Location` if the wait limit expires first.
+    `openparser@1`; `raw` returns a stable provider envelope around the selected provider's
+    untouched successful result. Terminal `failed` within the wait window returns `422`
+    `ErrorResponse`; terminal `indeterminate` returns `504` `ErrorResponse`. Returns `202`
+    with a durable job reference and `Location` if the wait limit expires first.
 
     Example (`multipart/form-data`):
 
@@ -332,10 +332,10 @@ async def asyncio(
 
      Admit a parse job, wait up to the sync wait limit, and return the selected terminal parse
     representation when ready. `output_format` defaults to the versioned provider-neutral
-    `openparser@1`; `raw` returns a stable provider envelope around the untouched successful
-    Paddle result. Terminal `failed` within the wait window returns `422` `ErrorResponse`;
-    terminal `indeterminate` returns `504` `ErrorResponse`. Returns `202` with a durable job
-    reference and `Location` if the wait limit expires first.
+    `openparser@1`; `raw` returns a stable provider envelope around the selected provider's
+    untouched successful result. Terminal `failed` within the wait window returns `422`
+    `ErrorResponse`; terminal `indeterminate` returns `504` `ErrorResponse`. Returns `202`
+    with a durable job reference and `Location` if the wait limit expires first.
 
     Example (`multipart/form-data`):
 

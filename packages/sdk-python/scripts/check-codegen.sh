@@ -16,7 +16,7 @@ trap 'rm -rf "$BACKUP"' EXIT
 
 "$PKG_DIR/scripts/codegen.sh"
 
-if ! diff -ru "$BACKUP" "$OUT_DIR"; then
+if ! diff -ru -x '__pycache__' -x '*.pyc' "$BACKUP" "$OUT_DIR"; then
   echo "✗ Generated client is out of date. Run packages/sdk-python/scripts/codegen.sh"
   exit 1
 fi

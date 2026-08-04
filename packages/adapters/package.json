@@ -1,6 +1,6 @@
 {
   "name": "@openparser/adapters",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Convert provider OCR responses into openparser@1 documents",
   "type": "module",
   "main": "./dist/index.js",
@@ -21,12 +21,37 @@
       "bun": "./src/paddle/index.ts",
       "import": "./dist/paddle/index.js",
       "default": "./dist/paddle/index.js"
+    },
+    "./mistral": {
+      "types": "./src/mistral/index.ts",
+      "bun": "./src/mistral/index.ts",
+      "import": "./dist/mistral/index.js",
+      "default": "./dist/mistral/index.js"
+    },
+    "./azure-document-intelligence": {
+      "types": "./src/azure-document-intelligence/index.ts",
+      "bun": "./src/azure-document-intelligence/index.ts",
+      "import": "./dist/azure-document-intelligence/index.js",
+      "default": "./dist/azure-document-intelligence/index.js"
+    },
+    "./google-document-ai": {
+      "types": "./src/google-document-ai/index.ts",
+      "bun": "./src/google-document-ai/index.ts",
+      "import": "./dist/google-document-ai/index.js",
+      "default": "./dist/google-document-ai/index.js"
+    },
+    "./aws-textract": {
+      "types": "./src/aws-textract/index.ts",
+      "bun": "./src/aws-textract/index.ts",
+      "import": "./dist/aws-textract/index.js",
+      "default": "./dist/aws-textract/index.js"
     }
   },
   "files": [
     "dist",
     "src",
     "!src/**/*.test.ts",
+    "!src/test-fixtures/**",
     "CHANGELOG.md",
     "README.md",
     "LICENSE"
@@ -40,7 +65,11 @@
     "pack:smoke": "bun scripts/pack-smoke.ts"
   },
   "dependencies": {
-    "@openparser/schema": "0.1.0"
+    "@aws-sdk/client-textract": "3.1093.0",
+    "@openparser/schema": "1.0.0",
+    "google-auth-library": "10.9.0",
+    "pdf-lib": "1.17.1",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "esbuild": "^0.25.12",

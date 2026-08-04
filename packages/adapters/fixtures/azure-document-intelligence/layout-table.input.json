@@ -1,0 +1,61 @@
+{
+  "documentId": "omni-0001",
+  "pageCount": 1,
+  "analyzeResult": {
+    "pages": [{ "pageNumber": 1, "width": 1000, "height": 1000 }],
+    "paragraphs": [
+      {
+        "content": "Quarterly report",
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              { "x": 100, "y": 100 },
+              { "x": 500, "y": 100 },
+              { "x": 500, "y": 150 },
+              { "x": 100, "y": 150 }
+            ]
+          }
+        ]
+      },
+      {
+        "content": "Revenue 42",
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              { "x": 100, "y": 550 },
+              { "x": 500, "y": 550 },
+              { "x": 500, "y": 600 },
+              { "x": 100, "y": 600 }
+            ]
+          }
+        ]
+      }
+    ],
+    "tables": [
+      {
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              { "x": 50, "y": 500 },
+              { "x": 850, "y": 500 },
+              { "x": 850, "y": 800 },
+              { "x": 50, "y": 800 }
+            ]
+          }
+        ],
+        "cells": [
+          {
+            "rowIndex": 0,
+            "columnIndex": 0,
+            "kind": "columnHeader",
+            "content": "Revenue"
+          },
+          { "rowIndex": 0, "columnIndex": 1, "content": "42" }
+        ]
+      }
+    ]
+  }
+}

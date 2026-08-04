@@ -1,0 +1,32 @@
+{
+  "documentId": "omni-0001",
+  "expectedPages": 1,
+  "payload": {
+    "model": "mistral-ocr-4-0",
+    "pages": [
+      {
+        "index": 0,
+        "markdown": "# Report\n\n[tbl-0.html](tbl-0.html)",
+        "dimensions": { "width": 1000, "height": 1200 },
+        "blocks": [
+          {
+            "type": "table",
+            "content": "<table><tr><th>Revenue</th></tr><tr><td>42</td></tr></table>",
+            "top_left_x": 100,
+            "top_left_y": 200,
+            "bottom_right_x": 900,
+            "bottom_right_y": 1000
+          }
+        ],
+        "tables": [
+          {
+            "id": "tbl-0.html",
+            "format": "html",
+            "content": "<table><tr><th>Revenue</th></tr><tr><td>42</td></tr></table>"
+          }
+        ]
+      }
+    ],
+    "usage_info": { "pages_processed": 1 }
+  }
+}

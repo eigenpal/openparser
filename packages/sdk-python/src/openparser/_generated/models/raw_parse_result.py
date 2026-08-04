@@ -12,7 +12,7 @@ from typing import cast
 from typing import Literal, cast
 
 if TYPE_CHECKING:
-  from ..models.paddle_raw_profile import PaddleRawProfile
+  from ..models.raw_parse_result_profile import RawParseResultProfile
   from ..models.raw_parse_result_result import RawParseResultResult
 
 
@@ -28,16 +28,16 @@ class RawParseResult:
     """
         Attributes:
             output_format (Literal['raw']):
-            provider (Literal['paddle']):
-            model (Literal['paddleocr-vl-1.6']):
-            profile (PaddleRawProfile):
+            provider (str):
+            model (str):
+            profile (RawParseResultProfile):
             result (RawParseResultResult):
      """
 
     output_format: Literal['raw']
-    provider: Literal['paddle']
-    model: Literal['paddleocr-vl-1.6']
-    profile: PaddleRawProfile
+    provider: str
+    model: str
+    profile: RawParseResultProfile
     result: RawParseResultResult
 
 
@@ -45,7 +45,7 @@ class RawParseResult:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.paddle_raw_profile import PaddleRawProfile
+        from ..models.raw_parse_result_profile import RawParseResultProfile
         from ..models.raw_parse_result_result import RawParseResultResult
         output_format = self.output_format
 
@@ -74,22 +74,18 @@ class RawParseResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.paddle_raw_profile import PaddleRawProfile
+        from ..models.raw_parse_result_profile import RawParseResultProfile
         from ..models.raw_parse_result_result import RawParseResultResult
         d = dict(src_dict)
         output_format = cast(Literal['raw'] , d.pop("output_format"))
         if output_format != 'raw':
             raise ValueError(f"output_format must match const 'raw', got '{output_format}'")
 
-        provider = cast(Literal['paddle'] , d.pop("provider"))
-        if provider != 'paddle':
-            raise ValueError(f"provider must match const 'paddle', got '{provider}'")
+        provider = d.pop("provider")
 
-        model = cast(Literal['paddleocr-vl-1.6'] , d.pop("model"))
-        if model != 'paddleocr-vl-1.6':
-            raise ValueError(f"model must match const 'paddleocr-vl-1.6', got '{model}'")
+        model = d.pop("model")
 
-        profile = PaddleRawProfile.from_dict(d.pop("profile"))
+        profile = RawParseResultProfile.from_dict(d.pop("profile"))
 
 
 

@@ -1,0 +1,94 @@
+{
+  "documentId": "omni-0001",
+  "response": {
+    "processor_type": "LAYOUT_PARSER_PROCESSOR",
+    "page_count": 1,
+    "document": {
+      "text": "Quarterly report\nRevenue 42\n",
+      "pages": [{ "pageNumber": 1, "dimension": { "width": 1000, "height": 1000 } }],
+      "documentLayout": {
+        "blocks": [
+          {
+            "blockId": "text-1",
+            "pageSpan": { "pageStart": 1, "pageEnd": 1 },
+            "boundingBox": {
+              "normalizedVertices": [
+                { "x": 0.1, "y": 0.1 },
+                { "x": 0.5, "y": 0.1 },
+                { "x": 0.5, "y": 0.15 },
+                { "x": 0.1, "y": 0.15 }
+              ]
+            },
+            "textBlock": { "text": "Quarterly report", "type": "heading-1" }
+          },
+          {
+            "blockId": "table-1",
+            "pageSpan": { "pageStart": 1, "pageEnd": 1 },
+            "boundingBox": {
+              "normalizedVertices": [
+                { "x": 0.1, "y": 0.2 },
+                { "x": 0.6, "y": 0.2 },
+                { "x": 0.6, "y": 0.4 },
+                { "x": 0.1, "y": 0.4 }
+              ]
+            },
+            "tableBlock": {
+              "headerRows": [
+                {
+                  "cells": [
+                    {
+                      "blocks": [
+                        {
+                          "textBlock": {
+                            "text": "Metric",
+                            "type": "paragraph"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "blocks": [
+                        {
+                          "textBlock": {
+                            "text": "Value",
+                            "type": "paragraph"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "bodyRows": [
+                {
+                  "cells": [
+                    {
+                      "blocks": [
+                        {
+                          "textBlock": {
+                            "text": "Revenue",
+                            "type": "paragraph"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "blocks": [
+                        {
+                          "textBlock": {
+                            "text": "42",
+                            "type": "paragraph"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}
