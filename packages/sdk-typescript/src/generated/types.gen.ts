@@ -1096,6 +1096,15 @@ export type OcrModelCatalogEntry = {
     key: string;
     label: string;
     logo?: string;
+    logo_data?: {
+      title: string;
+      view_box: string;
+      paths: Array<{
+        d: string;
+        clip_rule?: 'evenodd' | 'nonzero';
+        fill_opacity?: string;
+      }>;
+    };
   };
   guidance: {
     summary: string;

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1
+
+### Minor Changes
+
+- dc94fcc: `GET /models/ocr` now includes portable SVG logo data for every provider, allowing model pickers to use OpenParser-managed branding without bundling their own provider-logo map.
+
 ## 1.0.0
 
 ### Minor Changes

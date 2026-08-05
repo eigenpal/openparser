@@ -3602,6 +3602,43 @@ components:
               type: string
               minLength: 1
               maxLength: 64
+            logo_data:
+              type: object
+              properties:
+                title:
+                  type: string
+                  minLength: 1
+                  maxLength: 64
+                view_box:
+                  type: string
+                  minLength: 1
+                  maxLength: 64
+                paths:
+                  minItems: 1
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      d:
+                        type: string
+                        minLength: 1
+                      clip_rule:
+                        type: string
+                        enum:
+                          - evenodd
+                          - nonzero
+                      fill_opacity:
+                        type: string
+                        minLength: 1
+                        maxLength: 16
+                    required:
+                      - d
+                    additionalProperties: false
+              required:
+                - title
+                - view_box
+                - paths
+              additionalProperties: false
           required:
             - key
             - label

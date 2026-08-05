@@ -116,6 +116,9 @@ from .ocr_model_catalog_entry_pricing import OcrModelCatalogEntryPricing
 from .ocr_model_catalog_entry_pricing_configurations_item import OcrModelCatalogEntryPricingConfigurationsItem
 from .ocr_model_catalog_entry_pricing_configurations_item_options import OcrModelCatalogEntryPricingConfigurationsItemOptions
 from .ocr_model_catalog_entry_provider import OcrModelCatalogEntryProvider
+from .ocr_model_catalog_entry_provider_logo_data import OcrModelCatalogEntryProviderLogoData
+from .ocr_model_catalog_entry_provider_logo_data_paths_item import OcrModelCatalogEntryProviderLogoDataPathsItem
+from .ocr_model_catalog_entry_provider_logo_data_paths_item_clip_rule import OcrModelCatalogEntryProviderLogoDataPathsItemClipRule
 from .ocr_models_response import OcrModelsResponse
 from .ocr_output_format import OcrOutputFormat
 from .other_element import OtherElement
@@ -286,6 +289,9 @@ __all__ = (
     "OcrModelCatalogEntryPricingConfigurationsItem",
     "OcrModelCatalogEntryPricingConfigurationsItemOptions",
     "OcrModelCatalogEntryProvider",
+    "OcrModelCatalogEntryProviderLogoData",
+    "OcrModelCatalogEntryProviderLogoDataPathsItem",
+    "OcrModelCatalogEntryProviderLogoDataPathsItemClipRule",
     "OcrModelsResponse",
     "OcrOutputFormat",
     "OtherElement",
