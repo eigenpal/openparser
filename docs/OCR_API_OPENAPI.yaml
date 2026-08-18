@@ -267,6 +267,24 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/UpdateExtractionPipelineRequest'
+    UpdateExtractionReviewRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UpdateExtractionReviewRequest'
+    CompleteExtractionReviewRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CompleteExtractionReviewRequest'
+    ReopenExtractionReviewRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ReopenExtractionReviewRequest'
     CreateFileUpload:
       required: true
       content:
@@ -484,18 +502,6 @@ components:
                       - openai/gpt-5.6-terra
                       - openai/gpt-4.1-mini
                       - openai/gpt-4.1
-            groundingUnsupportedModel:
-              value:
-                error:
-                  code: grounding_unsupported_model
-                  message: LLM model does not support field grounding
-                  request_id: req_01h2example
-                  retryable: false
-                  details:
-                    llm_model: vendor/legacy-extract
-                    valid_models:
-                      - openai/gpt-5.6-terra
-                      - openai/gpt-4.1-mini
             encryptedPdf:
               value:
                 error:
@@ -910,14 +916,15 @@ components:
         output:
           status: paid
           total_due: null
+          signed_on: 2025-05-20
         parsed_document:
           output_format: openparser@1
           document_id: doc_01h2grounded
           provenance:
             provider: paddle
             model: paddleocr-vl-1.6
-          text: 'Status: paid'
-          markdown: 'Status: paid'
+          text: 'Status: paid. Signed this 20 day of May 2025'
+          markdown: 'Status: paid. Signed this 20 day of May 2025'
           pages:
             - number: 1
               width: 1700
@@ -925,8 +932,10 @@ components:
               unit: pixel
               element_ids:
                 - e0
+                - e1
               reading_order:
                 - e0
+                - e1
           elements:
             - id: e0
               kind: text
@@ -941,6 +950,19 @@ components:
                     top: 180
                     right: 420
                     bottom: 220
+            - id: e1
+              kind: text
+              role: paragraph
+              text: Signed this 20 day of May 2025
+              spans: []
+              languages: []
+              locations:
+                - page_number: 1
+                  bbox:
+                    left: 72
+                    top: 240
+                    right: 520
+                    bottom: 280
           text_annotations: []
           relations: []
           assets: []
@@ -971,6 +993,260 @@ components:
               citations: []
               dropped_source_ids:
                 - elem-missing
+            - path: signed_on
+              quote: 20 day of May 2025
+              confidence: 0.92
+              citations:
+                - element_id: e1
+                  page_number: 1
+                  bbox:
+                    left: 72
+                    top: 240
+                    right: 520
+                    bottom: 280
+                  source_type: text
+                  granularity: element
+        lineage:
+          format: lineage@1
+          profiles:
+            - https://docs.openparser.dev/lineage/openparser
+          entities:
+            document:source:
+              kind: artifact
+              locator:
+                uri: urn:openparser:source:doc_01h2example
+            document:parsed:
+              kind: artifact
+              locator:
+                uri: urn:openparser:document:doc_01h2example
+                mediaType: application/vnd.openparser.document+json
+              attributes:
+                openparser:outputFormat: openparser@1
+            source-element:e0:
+              kind: collection
+              value: 'Status: paid'
+              locator:
+                uri: urn:openparser:document:doc_01h2example
+                mediaType: application/vnd.openparser.document+json
+              selector:
+                type: openparser.document-region
+                value:
+                  elementId: e0
+                  pageNumber: 1
+                  bbox:
+                    left: 72
+                    top: 180
+                    right: 420
+                    bottom: 220
+                  sourceType: text
+                  geometryGranularity: element
+              confidence:
+                - score: 0.91
+                  scale:
+                    min: 0
+                    max: 1
+                  kind: derived
+                  scope: recognition_source_region
+                  granularity: word
+                  calibrated: false
+                  method: region_word_minimum
+                  sampleCount: 2
+                  sources:
+                    - type: activity
+                      id: activity:ocr
+                  attributes:
+                    minimum: 0.91
+                    maximum: 0.99
+                    regionMean: 0.95
+            field:/status:
+              kind: decision
+              path: /status
+              value: paid
+              confidence:
+                - score: 0.97
+                  scale:
+                    min: 0
+                    max: 1
+                  kind: derived
+                  scope: extraction
+                  calibrated: false
+                  method: source_text_alignment
+                  sources:
+                    - type: activity
+                      id: activity:extract
+                  attributes:
+                    openparser:alignmentStatus: match_exact
+            field:/total_due:
+              kind: decision
+              path: /total_due
+              value: null
+            source-element:e1:
+              kind: collection
+              value: Signed this 20 day of May 2025
+              locator:
+                uri: urn:openparser:document:doc_01h2example
+                mediaType: application/vnd.openparser.document+json
+              selector:
+                type: openparser.document-region
+                value:
+                  elementId: e1
+                  pageNumber: 1
+                  bbox:
+                    left: 72
+                    top: 240
+                    right: 520
+                    bottom: 280
+                  sourceType: text
+                  geometryGranularity: element
+            source-text:/signed_on:
+              kind: value
+              value: 20 day of May 2025
+              confidence:
+                - score: 0.94
+                  scale:
+                    min: 0
+                    max: 1
+                  kind: derived
+                  scope: extraction
+                  calibrated: false
+                  method: source_text_alignment
+                  sources:
+                    - type: activity
+                      id: activity:extract
+                  attributes:
+                    openparser:alignmentStatus: match_exact
+            field:/signed_on:
+              kind: decision
+              path: /signed_on
+              value: 2025-05-20
+              confidence:
+                - score: 0.92
+                  scale:
+                    min: 0
+                    max: 1
+                  kind: reported
+                  scope: extraction
+                  calibrated: false
+                  sources:
+                    - type: activity
+                      id: activity:transform
+          activities:
+            activity:ocr:
+              type: ocr
+              status: ended
+              associations:
+                - agent: agent:ocr-model
+                  role: model
+            activity:extract:
+              type: extract
+              status: ended
+              associations:
+                - agent: agent:extraction-model
+                  role: model
+            activity:transform:
+              type: transform
+              status: ended
+              associations:
+                - agent: agent:extraction-model
+                  role: model
+              attributes:
+                openparser:implicit: true
+          agents:
+            agent:ocr-model:
+              type: model
+              name: paddleocr-vl-1.6
+            agent:extraction-model:
+              type: model
+              name: openai/gpt-5.6-terra
+          derivations:
+            - output: document:parsed
+              activity: activity:ocr
+              inputs:
+                - entity: document:source
+                  role: document
+                  effect: direct
+              transformation:
+                type: transformation
+            - output: source-element:e0
+              activity: activity:ocr
+              inputs:
+                - entity: document:parsed
+                  role: parsed_document
+                  effect: direct
+              transformation:
+                type: filter
+            - output: field:/status
+              activity: activity:extract
+              inputs:
+                - entity: document:parsed
+                  role: parsed_document
+                  effect: direct
+                - entity: source-element:e0
+                  role: resolved_source_evidence
+                  effect: direct
+                  confidence:
+                    score: 0.98
+                    scale:
+                      min: 0
+                      max: 1
+                    kind: derived
+                    scope: recognition_source_region
+                    granularity: word
+                    calibrated: false
+                    method: cited_minimum_context_downblend
+                    sampleCount: 1
+                    sources:
+                      - type: activity
+                        id: activity:ocr
+                    attributes:
+                      minimum: 0.99
+                      maximum: 0.99
+                      contextMean: 0.91
+                      contextSampleCount: 1
+              transformation:
+                type: transformation
+            - output: field:/total_due
+              activity: activity:extract
+              inputs:
+                - entity: document:parsed
+                  role: parsed_document
+                  effect: direct
+              transformation:
+                type: transformation
+              attributes:
+                openparser:droppedSourceIds:
+                  - elem-missing
+            - output: source-element:e1
+              activity: activity:ocr
+              inputs:
+                - entity: document:parsed
+                  role: parsed_document
+                  effect: direct
+              transformation:
+                type: filter
+            - output: source-text:/signed_on
+              activity: activity:extract
+              inputs:
+                - entity: document:parsed
+                  role: parsed_document
+                  effect: direct
+                - entity: source-element:e1
+                  role: resolved_source_evidence
+                  effect: direct
+              transformation:
+                type: transformation
+            - output: field:/signed_on
+              activity: activity:transform
+              inputs:
+                - entity: source-text:/signed_on
+                  role: source_text
+                  effect: direct
+              transformation:
+                type: transformation
+          outputs:
+            - field:/status
+            - field:/total_due
+            - field:/signed_on
     JobParseSucceeded:
       value:
         id: opj_7f9f2f3d0f8a4f0a9a2b2f6f0a7d2c11
@@ -979,6 +1255,7 @@ components:
         output_format: openparser@1
         created_at: 2026-07-17T12:00:00Z
         updated_at: 2026-07-17T12:00:15Z
+        completed_at: 2026-07-17T12:00:15Z
         pipeline_id: null
         pipeline_version: null
         result:
@@ -1023,6 +1300,7 @@ components:
         output_format: openparser@1
         created_at: 2026-07-17T12:00:00Z
         updated_at: 2026-07-17T12:00:05Z
+        completed_at: null
         pipeline_id: null
         pipeline_version: null
         summary:
@@ -1087,6 +1365,7 @@ components:
         output_format: openparser@1
         created_at: 2026-07-17T12:00:00Z
         updated_at: 2026-07-17T12:00:20Z
+        completed_at: 2026-07-17T12:00:20Z
         pipeline_id: null
         pipeline_version: null
         summary:
@@ -1194,7 +1473,7 @@ components:
       type: string
       minLength: 1
       maxLength: 200
-      description: "OpenRouter model slug from the compatible OCR extraction catalog\n(`GET /models/llm`). Unknown or deprecated values return `422 unsupported_llm_model`.\nOrdinary extract may use any currently compatible model; field grounding requires a\ncertified model.\n"
+      description: "OpenRouter model slug from the compatible OCR extraction catalog\n(`GET /models/llm`). Unknown or deprecated values return `422 unsupported_llm_model`.\nAny currently compatible model may be used for extract and field grounding.\n"
       example: openai/gpt-5.6-terra
     RepairAttempts:
       default: 0
@@ -3140,6 +3419,62 @@ components:
           items:
             type: string
             minLength: 1
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: "The model's own confidence in this value, 0 to 1, when it reported one. This is a\nself-report, not a calibrated probability, and lineage keeps it labelled as such.\nOmitted when the model reported nothing.\n"
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 2000
+          description: "One or two sentences from the model explaining why the quote is the source for this\nvalue: what in the document identifies it. This covers the read only; a rewrite is\nreported separately in `transform_claim`. Omitted when none was recorded.\n"
+        quote:
+          type: string
+          minLength: 1
+          maxLength: 4096
+          description: "The span of document text the model says this value was read from, copied verbatim.\nUseful when the value was reformatted and so cannot be found in the document as\nwritten. Like `reason` this is the model's own report. Omitted when none was recorded.\n"
+        transform_claim:
+          type: object
+          properties:
+            operation:
+              type: string
+              enum:
+                - date_time_format
+                - numeric_format
+                - quantity_magnitude
+                - unit_conversion
+                - currency_code
+                - boolean_alias
+                - text_normalization
+                - enum_alias
+            parameters:
+              type: object
+              propertyNames:
+                type: string
+                maxLength: 64
+              additionalProperties:
+                anyOf:
+                  - type: string
+                    maxLength: 128
+                  - type: number
+                  - type: boolean
+            reason:
+              type: string
+              minLength: 1
+              maxLength: 2000
+            confidence:
+              type: string
+              enum:
+                - low
+                - medium
+                - high
+          required:
+            - operation
+            - parameters
+            - reason
+          additionalProperties: false
+          description: "The model's bounded report of a rewrite: operation, parameters, reason, and optional\nlow/medium/high ordinal confidence. The claim is untrusted and never authorizes a\ndeterministic validator; only explicit request/schema intent can do that.\n"
       required:
         - path
         - citations
@@ -3160,6 +3495,551 @@ components:
         - fields
       additionalProperties: false
       description: 'Optional terminal grounding envelope present only when `grounding: field` succeeded.'
+    LineageConfidenceScale:
+      type: object
+      properties:
+        min:
+          type: number
+        max:
+          type: number
+      required:
+        - min
+        - max
+      additionalProperties: false
+    LineageConfidenceAssertion:
+      type: object
+      properties:
+        score:
+          type: number
+        scale:
+          $ref: '#/components/schemas/LineageConfidenceScale'
+        kind:
+          type: string
+          enum:
+            - reported
+            - derived
+            - assessed
+        scope:
+          type: string
+          minLength: 1
+          maxLength: 128
+        granularity:
+          type: string
+          minLength: 1
+          maxLength: 128
+        calibrated:
+          default: false
+          type: boolean
+        sources:
+          maxItems: 256
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                  - entity
+                  - activity
+                  - agent
+              id:
+                type: string
+                minLength: 1
+                maxLength: 512
+            required:
+              - type
+              - id
+            additionalProperties: false
+        method:
+          type: string
+          minLength: 1
+          maxLength: 256
+        sampleCount:
+          type: integer
+          exclusiveMinimum: 0
+          maximum: 9007199254740991
+        attributes:
+          type: object
+          propertyNames:
+            type: string
+            minLength: 1
+          additionalProperties: {}
+      required:
+        - score
+        - scale
+        - kind
+        - scope
+        - calibrated
+      additionalProperties: false
+      description: 'A score with an explicit numeric scale, scope, granularity, calibration status, and provenance. Scores from different scopes or providers are not interchangeable probabilities.'
+    LineageAttribution:
+      type: object
+      properties:
+        agent:
+          type: string
+          minLength: 1
+          maxLength: 512
+        role:
+          type: string
+          minLength: 1
+          maxLength: 128
+        attributes:
+          type: object
+          propertyNames:
+            type: string
+            minLength: 1
+          additionalProperties: {}
+      required:
+        - agent
+      additionalProperties: false
+    LineageDigest:
+      type: object
+      properties:
+        algorithm:
+          type: string
+          minLength: 1
+          maxLength: 64
+        value:
+          type: string
+          minLength: 1
+          maxLength: 512
+      required:
+        - algorithm
+        - value
+      additionalProperties: false
+    LineageLocator:
+      type: object
+      properties:
+        uri:
+          type: string
+          minLength: 1
+          maxLength: 4096
+        mediaType:
+          type: string
+          minLength: 1
+          maxLength: 256
+        digest:
+          $ref: '#/components/schemas/LineageDigest'
+        attributes:
+          type: object
+          propertyNames:
+            type: string
+            minLength: 1
+          additionalProperties: {}
+      required:
+        - uri
+      additionalProperties: false
+    LineageSelector:
+      type: object
+      properties:
+        type:
+          type: string
+          minLength: 1
+          maxLength: 128
+        value: {}
+        attributes:
+          type: object
+          propertyNames:
+            type: string
+            minLength: 1
+          additionalProperties: {}
+      required:
+        - type
+        - value
+      additionalProperties: false
+    LineageEntity:
+      type: object
+      properties:
+        kind:
+          type: string
+          enum:
+            - value
+            - artifact
+            - evidence
+            - decision
+            - collection
+        name:
+          type: string
+          minLength: 1
+          maxLength: 512
+        value: {}
+        path:
+          type: string
+          maxLength: 2048
+          pattern: "^(?:\\/(?:[^~/]|~0|~1)*)*$"
+        schema:
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties: {}
+        locator:
+          $ref: '#/components/schemas/LineageLocator'
+        selector:
+          $ref: '#/components/schemas/LineageSelector'
+        digest:
+          $ref: '#/components/schemas/LineageDigest'
+        confidence:
+          maxItems: 64
+          type: array
+          items:
+            $ref: '#/components/schemas/LineageConfidenceAssertion'
+        approvals:
+          maxItems: 64
+          type: array
+          items:
+            type: object
+            properties:
+              agent:
+                type: string
+                minLength: 1
+                maxLength: 512
+              at:
+                type: string
+                format: date-time
+                pattern: "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+              note:
+                type: string
+                minLength: 1
+                maxLength: 2000
+              attributes:
+                type: object
+                propertyNames:
+                  type: string
+                  minLength: 1
+                additionalProperties: {}
+            required:
+              - agent
+              - at
+            additionalProperties: false
+        attributions:
+          maxItems: 64
+          type: array
+          items:
+            $ref: '#/components/schemas/LineageAttribution'
+        attributes:
+          type: object
+          propertyNames:
+            type: string
+            minLength: 1
+          additionalProperties: {}
+      required:
+        - kind
+      additionalProperties: false
+      description: 'An immutable value, artifact, evidence item, decision, or collection in a `lineage@1` derivation DAG. `path` is an RFC 6901 JSON Pointer.'
+    LineageAssociation:
+      type: object
+      properties:
+        agent:
+          type: string
+          minLength: 1
+          maxLength: 512
+        role:
+          type: string
+          minLength: 1
+          maxLength: 128
+        attributes:
+          type: object
+          propertyNames:
+            type: string
+            minLength: 1
+          additionalProperties: {}
+      required:
+        - agent
+      additionalProperties: false
+    LineageImplementation:
+      type: object
+      properties:
+        type:
+          type: string
+          minLength: 1
+          maxLength: 128
+        name:
+          type: string
+          minLength: 1
+          maxLength: 512
+        version:
+          type: string
+          minLength: 1
+          maxLength: 128
+        uri:
+          type: string
+          minLength: 1
+          maxLength: 4096
+        attributes:
+          type: object
+          propertyNames:
+            type: string
+            minLength: 1
+          additionalProperties: {}
+      additionalProperties: false
+    LineageActivity:
+      type: object
+      properties:
+        type:
+          type: string
+          minLength: 1
+          maxLength: 256
+        name:
+          type: string
+          minLength: 1
+          maxLength: 512
+        status:
+          type: string
+          enum:
+            - scheduled
+            - started
+            - ended
+            - failed
+            - cancelled
+        startedAt:
+          type: string
+          maxLength: 64
+          format: date-time
+          pattern: "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+        endedAt:
+          type: string
+          maxLength: 64
+          format: date-time
+          pattern: "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+        implementation:
+          $ref: '#/components/schemas/LineageImplementation'
+        parameters:
+          type: object
+          propertyNames:
+            type: string
+            minLength: 1
+          additionalProperties: {}
+        associations:
+          maxItems: 64
+          type: array
+          items:
+            $ref: '#/components/schemas/LineageAssociation'
+        attributes:
+          type: object
+          propertyNames:
+            type: string
+            minLength: 1
+          additionalProperties: {}
+      required:
+        - type
+      additionalProperties: false
+      description: 'An operation that used entities and generated new ones, with implementation, timing, parameters, and responsible agents when known.'
+    LineageAgent:
+      type: object
+      properties:
+        type:
+          type: string
+          minLength: 1
+          maxLength: 128
+        name:
+          type: string
+          minLength: 1
+          maxLength: 512
+        attributes:
+          type: object
+          propertyNames:
+            type: string
+            minLength: 1
+          additionalProperties: {}
+      additionalProperties: false
+    LineageDerivationInput:
+      type: object
+      properties:
+        entity:
+          type: string
+          minLength: 1
+          maxLength: 512
+        role:
+          type: string
+          minLength: 1
+          maxLength: 128
+        effect:
+          default: direct
+          type: string
+          enum:
+            - direct
+            - indirect
+        confidence:
+          $ref: '#/components/schemas/LineageConfidenceAssertion'
+        attributes:
+          type: object
+          propertyNames:
+            type: string
+            minLength: 1
+          additionalProperties: {}
+      required:
+        - entity
+        - effect
+      additionalProperties: false
+    LineageTransformation:
+      type: object
+      properties:
+        type:
+          type: string
+          minLength: 1
+          maxLength: 128
+        description:
+          type: string
+          minLength: 1
+          maxLength: 4096
+        expression:
+          type: string
+          minLength: 1
+          maxLength: 8192
+        masking:
+          type: boolean
+        attributes:
+          type: object
+          propertyNames:
+            type: string
+            minLength: 1
+          additionalProperties: {}
+      additionalProperties: false
+    LineageDerivation:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 512
+        output:
+          type: string
+          minLength: 1
+          maxLength: 512
+        activity:
+          type: string
+          minLength: 1
+          maxLength: 512
+        inputs:
+          default: []
+          maxItems: 1024
+          type: array
+          items:
+            $ref: '#/components/schemas/LineageDerivationInput'
+        transformation:
+          $ref: '#/components/schemas/LineageTransformation'
+        confidence:
+          $ref: '#/components/schemas/LineageConfidenceAssertion'
+        attributes:
+          type: object
+          propertyNames:
+            type: string
+            minLength: 1
+          additionalProperties: {}
+      required:
+        - output
+        - activity
+        - inputs
+      additionalProperties: false
+      description: 'One explicit hyperedge: an activity generated exactly one output entity from zero or more typed input entities.'
+    LineageRelation:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - member_of
+            - specialization_of
+            - alternate_of
+        source:
+          type: string
+          minLength: 1
+          maxLength: 512
+        target:
+          type: string
+          minLength: 1
+          maxLength: 512
+        attributes:
+          type: object
+          propertyNames:
+            type: string
+            minLength: 1
+          additionalProperties: {}
+      required:
+        - type
+        - source
+        - target
+      additionalProperties: false
+    LineageDocument:
+      type: object
+      properties:
+        format:
+          type: string
+          const: lineage@1
+        id:
+          type: string
+          minLength: 1
+          maxLength: 512
+        profiles:
+          maxItems: 64
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 1024
+        entities:
+          default: {}
+          type: object
+          propertyNames:
+            type: string
+            minLength: 1
+            maxLength: 512
+          additionalProperties:
+            $ref: '#/components/schemas/LineageEntity'
+        activities:
+          default: {}
+          type: object
+          propertyNames:
+            type: string
+            minLength: 1
+            maxLength: 512
+          additionalProperties:
+            $ref: '#/components/schemas/LineageActivity'
+        agents:
+          default: {}
+          type: object
+          propertyNames:
+            type: string
+            minLength: 1
+            maxLength: 512
+          additionalProperties:
+            $ref: '#/components/schemas/LineageAgent'
+        derivations:
+          default: []
+          maxItems: 100000
+          type: array
+          items:
+            $ref: '#/components/schemas/LineageDerivation'
+        relations:
+          default: []
+          maxItems: 100000
+          type: array
+          items:
+            $ref: '#/components/schemas/LineageRelation'
+        outputs:
+          default: []
+          maxItems: 10000
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 512
+        attributes:
+          type: object
+          propertyNames:
+            type: string
+            minLength: 1
+          additionalProperties: {}
+      required:
+        - format
+        - entities
+        - activities
+        - agents
+        - derivations
+        - relations
+        - outputs
+      additionalProperties: false
+      description: 'A complete, acyclic `lineage@1` data-derivation graph grounded in W3C PROV semantics. Downstream systems can append entities, activities, agents, and derivations.'
     ExtractionTerminalResult:
       type: object
       properties:
@@ -3194,6 +4074,9 @@ components:
         grounding:
           $ref: '#/components/schemas/ExtractionGroundingResult'
           description: "Present only for successful `grounding: field` jobs. Omitted for ordinary extraction.\n"
+        lineage:
+          $ref: '#/components/schemas/LineageDocument'
+          description: "Portable `lineage@1` derivation DAG present with successful field grounding. It connects every output value to document evidence and the OCR/extraction activities that produced it.\n"
       required:
         - output
         - parsed_document
@@ -3201,6 +4084,288 @@ components:
         - attempts
       additionalProperties: false
       description: 'Terminal extraction result returned by sync `200` and embedded in succeeded jobs.'
+    ExtractionReviewStatus:
+      type: string
+      enum:
+        - pending
+        - approved
+        - rejected
+    ExtractionReviewConfirmation:
+      type: object
+      properties:
+        path:
+          type: string
+          minLength: 1
+          maxLength: 2048
+          pattern: "^(?:\\/(?:[^~/]|~0|~1)*)*$"
+        value: {}
+        note:
+          type: string
+          maxLength: 2000
+      required:
+        - path
+        - value
+      additionalProperties: false
+      description: 'This field should say `value`, signed by the caller. Editing and approving are the same act.'
+    ExtractionReviewRetraction:
+      type: object
+      properties:
+        path:
+          type: string
+          minLength: 1
+          maxLength: 2048
+          pattern: "^(?:\\/(?:[^~/]|~0|~1)*)*$"
+      required:
+        - path
+      additionalProperties: false
+      description: 'Take back the caller own current tip on this path. Only a path is accepted: the tip is unambiguous once eligibility has been checked.'
+    ExtractionReviewEvent:
+      oneOf:
+        - type: object
+          properties:
+            version:
+              type: integer
+              exclusiveMinimum: 0
+              maximum: 9007199254740991
+            actor_id:
+              type: string
+              minLength: 1
+            created_at:
+              type: string
+              format: date-time
+              pattern: "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+            type:
+              type: string
+              const: field_confirmed
+            path:
+              type: string
+              minLength: 1
+              maxLength: 2048
+              pattern: "^(?:\\/(?:[^~/]|~0|~1)*)*$"
+            previous_value: {}
+            value: {}
+            note:
+              type: string
+              maxLength: 2000
+          required:
+            - version
+            - actor_id
+            - created_at
+            - type
+            - path
+            - value
+          additionalProperties: false
+        - type: object
+          properties:
+            version:
+              type: integer
+              exclusiveMinimum: 0
+              maximum: 9007199254740991
+            actor_id:
+              type: string
+              minLength: 1
+            created_at:
+              type: string
+              format: date-time
+              pattern: "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+            type:
+              type: string
+              const: field_confirmation_retracted
+            path:
+              type: string
+              minLength: 1
+              maxLength: 2048
+              pattern: "^(?:\\/(?:[^~/]|~0|~1)*)*$"
+          required:
+            - version
+            - actor_id
+            - created_at
+            - type
+            - path
+          additionalProperties: false
+        - type: object
+          properties:
+            version:
+              type: integer
+              exclusiveMinimum: 0
+              maximum: 9007199254740991
+            actor_id:
+              type: string
+              minLength: 1
+            created_at:
+              type: string
+              format: date-time
+              pattern: "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+            type:
+              type: string
+              enum:
+                - approved
+                - rejected
+            note:
+              type: string
+              maxLength: 2000
+          required:
+            - version
+            - actor_id
+            - created_at
+            - type
+          additionalProperties: false
+        - type: object
+          properties:
+            version:
+              type: integer
+              exclusiveMinimum: 0
+              maximum: 9007199254740991
+            actor_id:
+              type: string
+              minLength: 1
+            created_at:
+              type: string
+              format: date-time
+              pattern: "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+            type:
+              type: string
+              const: completion_retracted
+          required:
+            - version
+            - actor_id
+            - created_at
+            - type
+          additionalProperties: false
+    ExtractionReview:
+      type: object
+      properties:
+        job_id:
+          $ref: '#/components/schemas/JobId'
+        status:
+          $ref: '#/components/schemas/ExtractionReviewStatus'
+        machine_output: {}
+        corrected_output: {}
+        lineage:
+          $ref: '#/components/schemas/LineageDocument'
+        version:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExtractionReviewEvent'
+        created_at:
+          anyOf:
+            - type: string
+              format: date-time
+              pattern: "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+            - type: 'null'
+        updated_at:
+          anyOf:
+            - type: string
+              format: date-time
+              pattern: "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+            - type: 'null'
+        completed_at:
+          anyOf:
+            - type: string
+              format: date-time
+              pattern: "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+            - type: 'null'
+        reviewed_by_actor_id:
+          anyOf:
+            - type: string
+            - type: 'null'
+        viewer_actor_id:
+          type: string
+      required:
+        - job_id
+        - status
+        - machine_output
+        - corrected_output
+        - version
+        - events
+        - created_at
+        - updated_at
+        - completed_at
+        - reviewed_by_actor_id
+        - viewer_actor_id
+      additionalProperties: false
+      description: 'Versioned review state that preserves immutable machine output beside corrected output and append-only attributed events. Grounded reviews also extend the machine `lineage@1` graph with confirm and completion activities. Retracting a tip removes that confirmation from the projected graph while the event log keeps the retraction.'
+    UpdateExtractionReviewRequest:
+      type: object
+      properties:
+        expected_version:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        confirmations:
+          default: []
+          maxItems: 100
+          type: array
+          items:
+            type: object
+            properties:
+              path:
+                type: string
+                minLength: 1
+                maxLength: 2048
+                pattern: "^(?:\\/(?:[^~/]|~0|~1)*)*$"
+              value: {}
+              note:
+                type: string
+                maxLength: 2000
+            required:
+              - path
+              - value
+            additionalProperties: false
+          description: Fields the caller is signing. A value that matches the standing field is a sign-off; a different value also corrects it.
+        retractions:
+          default: []
+          maxItems: 100
+          type: array
+          items:
+            type: object
+            properties:
+              path:
+                type: string
+                minLength: 1
+                maxLength: 2048
+                pattern: "^(?:\\/(?:[^~/]|~0|~1)*)*$"
+            required:
+              - path
+            additionalProperties: false
+          description: JSON Pointers whose current tip the caller is taking back. Each entry peels one confirmation. The restored value is the one recorded on that confirmation.
+      required:
+        - expected_version
+      additionalProperties: false
+      description: 'Optimistic review update. Retractions peel one current tip each, in order, then confirmations apply. A retraction and a confirmation that overlap are rejected. At least one confirmation or retraction is required.'
+    CompleteExtractionReviewRequest:
+      type: object
+      properties:
+        expected_version:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        status:
+          type: string
+          enum:
+            - approved
+            - rejected
+        note:
+          type: string
+          maxLength: 2000
+      required:
+        - expected_version
+        - status
+      additionalProperties: false
+    ReopenExtractionReviewRequest:
+      type: object
+      properties:
+        expected_version:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+      required:
+        - expected_version
+      additionalProperties: false
     SuggestSchemaResponse:
       type: object
       properties:
@@ -3342,6 +4507,12 @@ components:
           type: string
           format: date-time
           pattern: "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+        completed_at:
+          anyOf:
+            - type: string
+              format: date-time
+              pattern: "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+            - type: 'null'
         progress:
           type: object
           properties:
@@ -3435,6 +4606,8 @@ components:
               maximum: 9007199254740991
             - type: 'null'
           description: "Snapshot of the saved extraction pipeline version at admit time, or `null` when\n`pipeline_id` is `null`.\n"
+        review_status:
+          $ref: '#/components/schemas/ExtractionReviewStatus'
       required:
         - id
         - operation
@@ -3442,6 +4615,7 @@ components:
         - output_format
         - created_at
         - updated_at
+        - completed_at
         - pipeline_id
         - pipeline_version
       additionalProperties: false
@@ -3501,6 +4675,8 @@ components:
               maximum: 9007199254740991
             - type: 'null'
           description: "Snapshot of the saved extraction pipeline version at admit time, or `null` when\n`pipeline_id` is `null`.\n"
+        review_status:
+          $ref: '#/components/schemas/ExtractionReviewStatus'
       required:
         - id
         - operation
@@ -3985,7 +5161,7 @@ components:
         - deprecated_at
         - pricing
       additionalProperties: false
-      description: "One compatible extraction LLM. `recommendation` is `suggested` or `compatible`.\n`certified_grounding` / `certified_suggest` (and compatibility aliases\n`supports_grounding` / `supports_suggest`) gate heavier schemas. `pricing` is customer retail USD per 1M tokens\n(`basis: customer_retail`) — the rates customers are charged, not raw provider list cost.\n"
+      description: "One compatible extraction LLM. `recommendation` is `suggested` or `compatible`.\n`certified_grounding` / `certified_suggest` mark Eigenpal-tested quality tiers;\n`supports_grounding` is true for every compatible model while `supports_suggest`\nmatches certification. `pricing` is customer retail USD per 1M tokens\n(`basis: customer_retail`) — the rates customers are charged, not raw provider list cost.\n"
     OcrLlmModelsResponse:
       type: object
       properties:
@@ -4397,6 +5573,161 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/JobNotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+  '/jobs/{id}/review':
+    get:
+      operationId: getExtractionReview
+      tags:
+        - jobs
+      summary: Get an extraction review
+      description: "Return the immutable machine output beside the current corrected output and append-only\nreview events. A succeeded extraction with no confirmations returns a synthesized pending review\nat version 0. Cross-tenant and unknown jobs return `404`.\n"
+      parameters:
+        - $ref: '#/components/parameters/JobId'
+      responses:
+        '200':
+          description: Current extraction review
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtractionReview'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/JobNotFound'
+        '409':
+          description: Job is not a succeeded extraction with reviewable output
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+    patch:
+      operationId: updateExtractionReview
+      tags:
+        - jobs
+      summary: Confirm extraction field values
+      description: "Confirm that a field should say a given value, signed by the caller, without mutating the\nmachine result. `expected_version` provides optimistic concurrency; stale writes return `409`.\nEvery confirmation and retraction appends an actor- and timestamp-attributed event.\n\nA confirmation whose value matches what extraction produced is a plain sign-off; one that\ndiffers also corrects the field. There is no separate approval: who stands behind a value is\nderived from live confirmations. Retractions are applied first, then confirmations.\n\nA retraction peels the caller's own current tip on that path and restores the value the\nconfirmation replaced. Two retractions of the same path undo two confirmations, in order. A\nretraction cannot be combined with a confirmation on the same or overlapping path. The tip is\nnot retractable when someone else made it, or when a later overlapping confirmation named a\ndifferent value. A co-signature of the same value becomes the tip, so only that co-signer can\ntake it back. Completing the review still freezes everything. Provide at least one\nconfirmation or retraction.\n"
+      parameters:
+        - $ref: '#/components/parameters/JobId'
+      requestBody:
+        $ref: '#/components/requestBodies/UpdateExtractionReviewRequest'
+      responses:
+        '200':
+          description: Updated extraction review
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtractionReview'
+        '400':
+          $ref: '#/components/responses/MalformedRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/JobNotFound'
+        '409':
+          description: Review is completed or the expected version is stale
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 'A path is invalid, a retraction is not eligible, or no confirmation or retraction was provided'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+  '/jobs/{id}/review/complete':
+    post:
+      operationId: completeExtractionReview
+      tags:
+        - jobs
+      summary: Approve or reject an extraction review
+      description: "Finalize a pending review as approved or rejected. A completed review is frozen: field\nconfirmations are rejected until it is reopened. Uses the same optimistic version check as\nfield confirmations.\n"
+      parameters:
+        - $ref: '#/components/parameters/JobId'
+      requestBody:
+        $ref: '#/components/requestBodies/CompleteExtractionReviewRequest'
+      responses:
+        '200':
+          description: Completed extraction review
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtractionReview'
+        '400':
+          $ref: '#/components/responses/MalformedRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/JobNotFound'
+        '409':
+          description: Review is already completed or the expected version is stale
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+  '/jobs/{id}/review/reopen':
+    post:
+      operationId: reopenExtractionReview
+      tags:
+        - jobs
+      summary: Reopen a completed extraction review
+      description: "Take a sign-off back so the run returns to `pending` and its fields can be reviewed again.\nOnly the reviewer who completed the run may reopen it. Both events stay in the log, so the\ntrail shows the run was signed off and then reopened, while the review status and the\nlineage decision follow the live completion. Uses the same optimistic version check as\nfield confirmations.\n"
+      parameters:
+        - $ref: '#/components/parameters/JobId'
+      requestBody:
+        $ref: '#/components/requestBodies/ReopenExtractionReviewRequest'
+      responses:
+        '200':
+          description: 'Reopened extraction review, now pending'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtractionReview'
+        '400':
+          $ref: '#/components/responses/MalformedRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/JobNotFound'
+        '409':
+          description: "Review is not signed off (`review_not_completed`), was signed off by another reviewer\n(`review_reopen_not_author`), or the expected version is stale\n"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '429':
           $ref: '#/components/responses/RateLimited'
   '/jobs/{id}/result':

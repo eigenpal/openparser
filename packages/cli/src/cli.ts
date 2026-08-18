@@ -6,7 +6,16 @@ import pkg from '../package.json' with { type: 'json' };
 import { authList, authLogin, authLogout, authUse } from './commands/auth';
 import { extractAsync, extractBatch, extractSync, suggestSchema } from './commands/extract';
 import { filesDelete, filesDownload, filesGet, filesUpload } from './commands/files';
-import { jobsGet, jobsList, jobsResult, jobsSource } from './commands/jobs';
+import {
+  jobsGet,
+  jobsList,
+  jobsResult,
+  jobsReview,
+  jobsReviewComplete,
+  jobsReviewReopen,
+  jobsReviewUpdate,
+  jobsSource,
+} from './commands/jobs';
 import { modelsLlm, modelsOcr } from './commands/models';
 import { parseAsync, parseBatch, parseSync } from './commands/parse';
 import {
@@ -319,6 +328,99 @@ withBaseUrl(
   action(async (jobId: string, opts: { baseUrl?: string; output?: string }) => {
     await jobsSource(jobId, opts);
   })
+);
+
+withBaseUrl(
+  addJsonFlag(
+    jobsCmd
+      .command('review <jobId>')
+      .description('Fetch the extraction review for a succeeded extract job.')
+  )
+).action(
+  action(async (jobId: string, opts: { baseUrl?: string; json?: boolean }) => {
+    await jobsReview(jobId, opts);
+  })
+);
+
+withBaseUrl(
+  addJsonFlag(
+    jobsCmd
+      .command('review-update <jobId>')
+      .description('Confirm field values on an extraction review, by JSON Pointer.')
+      .option('--body <json>', 'Full UpdateExtractionReviewRequest JSON')
+      .option('--expected-version <n>', 'Optimistic concurrency version', intArg)
+      .option(
+        '--confirm-json <json>',
+        'JSON array of { path, value } confirmations; a value that differs from the current one also corrects the field'
+      )
+  )
+).action(
+  action(
+    async (
+      jobId: string,
+      opts: {
+        baseUrl?: string;
+        json?: boolean;
+        body?: string;
+        expectedVersion?: number;
+        confirmJson?: string;
+      }
+    ) => {
+      await jobsReviewUpdate(jobId, opts);
+    }
+  )
+);
+
+withBaseUrl(
+  addJsonFlag(
+    jobsCmd
+      .command('review-complete <jobId>')
+      .description('Approve or reject a pending extraction review.')
+      .option('--body <json>', 'Full CompleteExtractionReviewRequest JSON')
+      .option('--expected-version <n>', 'Optimistic concurrency version', intArg)
+      .option('--status <status>', 'approved or rejected')
+      .option('--note <text>', 'Optional reviewer note')
+  )
+).action(
+  action(
+    async (
+      jobId: string,
+      opts: {
+        baseUrl?: string;
+        json?: boolean;
+        body?: string;
+        expectedVersion?: number;
+        status?: string;
+        note?: string;
+      }
+    ) => {
+      await jobsReviewComplete(jobId, opts);
+    }
+  )
+);
+
+withBaseUrl(
+  addJsonFlag(
+    jobsCmd
+      .command('review-reopen <jobId>')
+      .description('Reopen a completed extraction review so it returns to pending.')
+      .option('--body <json>', 'Full ReopenExtractionReviewRequest JSON')
+      .option('--expected-version <n>', 'Optimistic concurrency version', intArg)
+  )
+).action(
+  action(
+    async (
+      jobId: string,
+      opts: {
+        baseUrl?: string;
+        json?: boolean;
+        body?: string;
+        expectedVersion?: number;
+      }
+    ) => {
+      await jobsReviewReopen(jobId, opts);
+    }
+  )
 );
 
 const filesCmd = program.command('files').description('Manage reusable uploaded files.');

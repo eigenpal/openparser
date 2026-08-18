@@ -1,5 +1,23 @@
 # @openparser/adapters
 
+## 1.0.2
+
+### Minor Changes
+
+- e7bd767: Grounded extraction now makes every output field explainable. The extraction API can return a portable `lineage@1` derivation DAG connecting values to source text, page geometry, the closest recognition confidence supplied by the OCR model, and every operation that produced them. Downstream systems can append normalization, calculation, inference, and review activities without losing the original evidence.
+
+  The new `@openparser/lineage` package provides runtime schemas, graph validation, traversal and builder helpers, and W3C PROV interoperability for using the same lineage protocol beyond document extraction. `fields()` and `fieldTrace()` return an output field, its confidence, and its supporting evidence directly, so per-field explanations do not require walking the graph.
+
+  Lineage documents stay small enough to return with every extraction. Each field points back to the passage it came from and a single confidence for that passage, without repeating the word-by-word parse that already ships beside it. A typical multi-field result is now a few kilobytes per field, so full evidence arrives with the result rather than being dropped when it grows too large.
+
+  `fields()` and `fieldTrace()` fill in the rest on demand — a field's display path, whether its confidence was reported or derived, and whether it is grounded — so consumers do not have to reconstruct those answers themselves. The document names the model behind each step and keeps the original evidence, not presentation strings.
+
+  OpenParser Studio starts new Playground sessions with field grounding, so clicking a value immediately reveals where it came from. New review endpoints, SDK helpers, and `openparser jobs review` commands let teams confirm field values, or approve or reject a whole extraction, while preserving the original machine output and an attributed event history.
+
+### Patch Changes
+
+- @openparser/schema@1.0.2
+
 ## 1.0.1
 
 ### Patch Changes

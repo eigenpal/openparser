@@ -475,6 +475,32 @@ class JobsResource:
             "GET", f"/jobs/{quote(job_id, safe='')}/source"
         )
 
+    def review(self, job_id: str) -> Any:
+        return self._root._request(
+            "GET", f"/jobs/{quote(job_id, safe='')}/review"
+        )
+
+    def update_review(self, job_id: str, body: dict[str, Any]) -> Any:
+        return self._root._request(
+            "PATCH",
+            f"/jobs/{quote(job_id, safe='')}/review",
+            json=body,
+        )
+
+    def complete_review(self, job_id: str, body: dict[str, Any]) -> Any:
+        return self._root._request(
+            "POST",
+            f"/jobs/{quote(job_id, safe='')}/review/complete",
+            json=body,
+        )
+
+    def reopen_review(self, job_id: str, body: dict[str, Any]) -> Any:
+        return self._root._request(
+            "POST",
+            f"/jobs/{quote(job_id, safe='')}/review/reopen",
+            json=body,
+        )
+
 
 class FilesResource:
     def __init__(self, root: OpenParserClient) -> None:

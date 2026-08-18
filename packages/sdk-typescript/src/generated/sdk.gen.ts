@@ -8,6 +8,9 @@ import {
 } from './client';
 import { client } from './client.gen';
 import type {
+  CompleteExtractionReviewData,
+  CompleteExtractionReviewErrors,
+  CompleteExtractionReviewResponses,
   CreateExtractionPipelineData,
   CreateExtractionPipelineErrors,
   CreateExtractionPipelineResponses,
@@ -32,6 +35,9 @@ import type {
   GetExtractionPipelineData,
   GetExtractionPipelineErrors,
   GetExtractionPipelineResponses,
+  GetExtractionReviewData,
+  GetExtractionReviewErrors,
+  GetExtractionReviewResponses,
   GetFileContentData,
   GetFileContentErrors,
   GetFileContentResponses,
@@ -68,12 +74,18 @@ import type {
   ParseSyncData,
   ParseSyncErrors,
   ParseSyncResponses,
+  ReopenExtractionReviewData,
+  ReopenExtractionReviewErrors,
+  ReopenExtractionReviewResponses,
   SuggestSchemaData,
   SuggestSchemaErrors,
   SuggestSchemaResponses,
   UpdateExtractionPipelineData,
   UpdateExtractionPipelineErrors,
   UpdateExtractionPipelineResponses,
+  UpdateExtractionReviewData,
+  UpdateExtractionReviewErrors,
+  UpdateExtractionReviewResponses,
 } from './types.gen';
 
 export type Options<
@@ -347,6 +359,116 @@ export const getJob = <ThrowOnError extends boolean = false>(
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/jobs/{id}',
     ...options,
+  });
+
+/**
+ * Get an extraction review
+ *
+ * Return the immutable machine output beside the current corrected output and append-only
+ * review events. A succeeded extraction with no confirmations returns a synthesized pending review
+ * at version 0. Cross-tenant and unknown jobs return `404`.
+ *
+ */
+export const getExtractionReview = <ThrowOnError extends boolean = false>(
+  options: Options<GetExtractionReviewData, ThrowOnError>
+) =>
+  (options.client ?? client).get<
+    GetExtractionReviewResponses,
+    GetExtractionReviewErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/jobs/{id}/review',
+    ...options,
+  });
+
+/**
+ * Confirm extraction field values
+ *
+ * Confirm that a field should say a given value, signed by the caller, without mutating the
+ * machine result. `expected_version` provides optimistic concurrency; stale writes return `409`.
+ * Every confirmation and retraction appends an actor- and timestamp-attributed event.
+ *
+ * A confirmation whose value matches what extraction produced is a plain sign-off; one that
+ * differs also corrects the field. There is no separate approval: who stands behind a value is
+ * derived from live confirmations. Retractions are applied first, then confirmations.
+ *
+ * A retraction peels the caller's own current tip on that path and restores the value the
+ * confirmation replaced. Two retractions of the same path undo two confirmations, in order. A
+ * retraction cannot be combined with a confirmation on the same or overlapping path. The tip is
+ * not retractable when someone else made it, or when a later overlapping confirmation named a
+ * different value. A co-signature of the same value becomes the tip, so only that co-signer can
+ * take it back. Completing the review still freezes everything. Provide at least one
+ * confirmation or retraction.
+ *
+ */
+export const updateExtractionReview = <ThrowOnError extends boolean = false>(
+  options: Options<UpdateExtractionReviewData, ThrowOnError>
+) =>
+  (options.client ?? client).patch<
+    UpdateExtractionReviewResponses,
+    UpdateExtractionReviewErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/jobs/{id}/review',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Approve or reject an extraction review
+ *
+ * Finalize a pending review as approved or rejected. A completed review is frozen: field
+ * confirmations are rejected until it is reopened. Uses the same optimistic version check as
+ * field confirmations.
+ *
+ */
+export const completeExtractionReview = <ThrowOnError extends boolean = false>(
+  options: Options<CompleteExtractionReviewData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    CompleteExtractionReviewResponses,
+    CompleteExtractionReviewErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/jobs/{id}/review/complete',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Reopen a completed extraction review
+ *
+ * Take a sign-off back so the run returns to `pending` and its fields can be reviewed again.
+ * Only the reviewer who completed the run may reopen it. Both events stay in the log, so the
+ * trail shows the run was signed off and then reopened, while the review status and the
+ * lineage decision follow the live completion. Uses the same optimistic version check as
+ * field confirmations.
+ *
+ */
+export const reopenExtractionReview = <ThrowOnError extends boolean = false>(
+  options: Options<ReopenExtractionReviewData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    ReopenExtractionReviewResponses,
+    ReopenExtractionReviewErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/jobs/{id}/review/reopen',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
   });
 
 /**

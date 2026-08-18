@@ -20,6 +20,7 @@ Choose the [TypeScript SDK](packages/sdk-typescript),
 | Package | Use for | Source |
 | ------- | ------- | ------ |
 | [`@openparser/schema`](https://www.npmjs.com/package/@openparser/schema) | Runtime validation and generated types | [`packages/schema`](packages/schema) |
+| [`@openparser/lineage`](https://www.npmjs.com/package/@openparser/lineage) | Complete data derivation DAGs | [`packages/lineage`](packages/lineage) |
 | [`@openparser/adapters`](https://www.npmjs.com/package/@openparser/adapters) | Provider response conversion | [`packages/adapters`](packages/adapters) |
 | [`@openparser/cli`](https://www.npmjs.com/package/@openparser/cli) | Terminals, CI jobs, and agent tools | [`packages/cli`](packages/cli) |
 | [`@openparser/sdk`](https://www.npmjs.com/package/@openparser/sdk) | TypeScript applications | [`packages/sdk-typescript`](packages/sdk-typescript) |

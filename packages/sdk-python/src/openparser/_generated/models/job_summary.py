@@ -8,6 +8,7 @@ from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
+from ..models.extraction_review_status import ExtractionReviewStatus
 from ..models.job_operation import JobOperation
 from ..models.job_status import JobStatus
 from ..models.ocr_output_format import OcrOutputFormat
@@ -63,6 +64,7 @@ class JobSummary:
             llm_model (None | str | Unset):
             error (JobFailure | Unset):
             has_source (bool | Unset):
+            review_status (ExtractionReviewStatus | Unset):
      """
 
     id: str
@@ -80,6 +82,7 @@ class JobSummary:
     llm_model: None | str | Unset = UNSET
     error: JobFailure | Unset = UNSET
     has_source: bool | Unset = UNSET
+    review_status: ExtractionReviewStatus | Unset = UNSET
 
 
 
@@ -129,6 +132,11 @@ class JobSummary:
 
         has_source = self.has_source
 
+        review_status: str | Unset = UNSET
+        if not isinstance(self.review_status, Unset):
+            review_status = self.review_status.value
+
+
 
         field_dict: dict[str, Any] = {}
 
@@ -153,6 +161,8 @@ class JobSummary:
             field_dict["error"] = error
         if has_source is not UNSET:
             field_dict["has_source"] = has_source
+        if review_status is not UNSET:
+            field_dict["review_status"] = review_status
 
         return field_dict
 
@@ -243,6 +253,16 @@ class JobSummary:
 
         has_source = d.pop("has_source", UNSET)
 
+        _review_status = d.pop("review_status", UNSET)
+        review_status: ExtractionReviewStatus | Unset
+        if isinstance(_review_status,  Unset):
+            review_status = UNSET
+        else:
+            review_status = ExtractionReviewStatus(_review_status)
+
+
+
+
         job_summary = cls(
             id=id,
             operation=operation,
@@ -259,6 +279,7 @@ class JobSummary:
             llm_model=llm_model,
             error=error,
             has_source=has_source,
+            review_status=review_status,
         )
 
         return job_summary

@@ -29,8 +29,7 @@ export type OcrModel = string;
 /**
  * OpenRouter model slug from the compatible OCR extraction catalog
  * (`GET /models/llm`). Unknown or deprecated values return `422 unsupported_llm_model`.
- * Ordinary extract may use any currently compatible model; field grounding requires a
- * certified model.
+ * Any currently compatible model may be used for extract and field grounding.
  *
  */
 export type LlmModel = string;
@@ -872,6 +871,49 @@ export type ExtractionGroundingField = {
   path: string;
   citations: Array<ExtractionCitation>;
   dropped_source_ids?: Array<string>;
+  /**
+   * The model's own confidence in this value, 0 to 1, when it reported one. This is a
+   * self-report, not a calibrated probability, and lineage keeps it labelled as such.
+   * Omitted when the model reported nothing.
+   *
+   */
+  confidence?: number;
+  /**
+   * One or two sentences from the model explaining why the quote is the source for this
+   * value: what in the document identifies it. This covers the read only; a rewrite is
+   * reported separately in `transform_claim`. Omitted when none was recorded.
+   *
+   */
+  reason?: string;
+  /**
+   * The span of document text the model says this value was read from, copied verbatim.
+   * Useful when the value was reformatted and so cannot be found in the document as
+   * written. Like `reason` this is the model's own report. Omitted when none was recorded.
+   *
+   */
+  quote?: string;
+  /**
+   * The model's bounded report of a rewrite: operation, parameters, reason, and optional
+   * low/medium/high ordinal confidence. The claim is untrusted and never authorizes a
+   * deterministic validator; only explicit request/schema intent can do that.
+   *
+   */
+  transform_claim?: {
+    operation:
+      | 'date_time_format'
+      | 'numeric_format'
+      | 'quantity_magnitude'
+      | 'unit_conversion'
+      | 'currency_code'
+      | 'boolean_alias'
+      | 'text_normalization'
+      | 'enum_alias';
+    parameters: {
+      [key: string]: string | number | boolean;
+    };
+    reason: string;
+    confidence?: 'low' | 'medium' | 'high';
+  };
 };
 
 /**
@@ -880,6 +922,204 @@ export type ExtractionGroundingField = {
 export type ExtractionGroundingResult = {
   mode: 'field';
   fields: Array<ExtractionGroundingField>;
+};
+
+export type LineageConfidenceScale = {
+  min: number;
+  max: number;
+};
+
+/**
+ * A score with an explicit numeric scale, scope, granularity, calibration status, and provenance. Scores from different scopes or providers are not interchangeable probabilities.
+ */
+export type LineageConfidenceAssertion = {
+  score: number;
+  scale: LineageConfidenceScale;
+  kind: 'reported' | 'derived' | 'assessed';
+  scope: string;
+  granularity?: string;
+  calibrated: boolean;
+  sources?: Array<{
+    type: 'entity' | 'activity' | 'agent';
+    id: string;
+  }>;
+  method?: string;
+  sampleCount?: number;
+  attributes?: {
+    [key: string]: unknown;
+  };
+};
+
+export type LineageAttribution = {
+  agent: string;
+  role?: string;
+  attributes?: {
+    [key: string]: unknown;
+  };
+};
+
+export type LineageDigest = {
+  algorithm: string;
+  value: string;
+};
+
+export type LineageLocator = {
+  uri: string;
+  mediaType?: string;
+  digest?: LineageDigest;
+  attributes?: {
+    [key: string]: unknown;
+  };
+};
+
+export type LineageSelector = {
+  type: string;
+  value: unknown;
+  attributes?: {
+    [key: string]: unknown;
+  };
+};
+
+/**
+ * An immutable value, artifact, evidence item, decision, or collection in a `lineage@1` derivation DAG. `path` is an RFC 6901 JSON Pointer.
+ */
+export type LineageEntity = {
+  kind: 'value' | 'artifact' | 'evidence' | 'decision' | 'collection';
+  name?: string;
+  value?: unknown;
+  path?: string;
+  schema?: {
+    [key: string]: unknown;
+  };
+  locator?: LineageLocator;
+  selector?: LineageSelector;
+  digest?: LineageDigest;
+  confidence?: Array<LineageConfidenceAssertion>;
+  approvals?: Array<{
+    agent: string;
+    at: string;
+    note?: string;
+    attributes?: {
+      [key: string]: unknown;
+    };
+  }>;
+  attributions?: Array<LineageAttribution>;
+  attributes?: {
+    [key: string]: unknown;
+  };
+};
+
+export type LineageAssociation = {
+  agent: string;
+  role?: string;
+  attributes?: {
+    [key: string]: unknown;
+  };
+};
+
+export type LineageImplementation = {
+  type?: string;
+  name?: string;
+  version?: string;
+  uri?: string;
+  attributes?: {
+    [key: string]: unknown;
+  };
+};
+
+/**
+ * An operation that used entities and generated new ones, with implementation, timing, parameters, and responsible agents when known.
+ */
+export type LineageActivity = {
+  type: string;
+  name?: string;
+  status?: 'scheduled' | 'started' | 'ended' | 'failed' | 'cancelled';
+  startedAt?: string;
+  endedAt?: string;
+  implementation?: LineageImplementation;
+  parameters?: {
+    [key: string]: unknown;
+  };
+  associations?: Array<LineageAssociation>;
+  attributes?: {
+    [key: string]: unknown;
+  };
+};
+
+export type LineageAgent = {
+  type?: string;
+  name?: string;
+  attributes?: {
+    [key: string]: unknown;
+  };
+};
+
+export type LineageDerivationInput = {
+  entity: string;
+  role?: string;
+  effect: 'direct' | 'indirect';
+  confidence?: LineageConfidenceAssertion;
+  attributes?: {
+    [key: string]: unknown;
+  };
+};
+
+export type LineageTransformation = {
+  type?: string;
+  description?: string;
+  expression?: string;
+  masking?: boolean;
+  attributes?: {
+    [key: string]: unknown;
+  };
+};
+
+/**
+ * One explicit hyperedge: an activity generated exactly one output entity from zero or more typed input entities.
+ */
+export type LineageDerivation = {
+  id?: string;
+  output: string;
+  activity: string;
+  inputs: Array<LineageDerivationInput>;
+  transformation?: LineageTransformation;
+  confidence?: LineageConfidenceAssertion;
+  attributes?: {
+    [key: string]: unknown;
+  };
+};
+
+export type LineageRelation = {
+  type: 'member_of' | 'specialization_of' | 'alternate_of';
+  source: string;
+  target: string;
+  attributes?: {
+    [key: string]: unknown;
+  };
+};
+
+/**
+ * A complete, acyclic `lineage@1` data-derivation graph grounded in W3C PROV semantics. Downstream systems can append entities, activities, agents, and derivations.
+ */
+export type LineageDocument = {
+  format: 'lineage@1';
+  id?: string;
+  profiles?: Array<string>;
+  entities: {
+    [key: string]: LineageEntity;
+  };
+  activities: {
+    [key: string]: LineageActivity;
+  };
+  agents: {
+    [key: string]: LineageAgent;
+  };
+  derivations: Array<LineageDerivation>;
+  relations: Array<LineageRelation>;
+  outputs: Array<string>;
+  attributes?: {
+    [key: string]: unknown;
+  };
 };
 
 /**
@@ -904,6 +1144,110 @@ export type ExtractionTerminalResult = {
    *
    */
   grounding?: ExtractionGroundingResult;
+  /**
+   * Portable `lineage@1` derivation DAG present with successful field grounding. It connects every output value to document evidence and the OCR/extraction activities that produced it.
+   *
+   */
+  lineage?: LineageDocument;
+};
+
+export type ExtractionReviewStatus = 'pending' | 'approved' | 'rejected';
+
+/**
+ * This field should say `value`, signed by the caller. Editing and approving are the same act.
+ */
+export type ExtractionReviewConfirmation = {
+  path: string;
+  value: unknown;
+  note?: string;
+};
+
+/**
+ * Take back the caller own current tip on this path. Only a path is accepted: the tip is unambiguous once eligibility has been checked.
+ */
+export type ExtractionReviewRetraction = {
+  path: string;
+};
+
+export type ExtractionReviewEvent =
+  | {
+      version: number;
+      actor_id: string;
+      created_at: string;
+      type: 'field_confirmed';
+      path: string;
+      previous_value?: unknown;
+      value: unknown;
+      note?: string;
+    }
+  | {
+      version: number;
+      actor_id: string;
+      created_at: string;
+      type: 'field_confirmation_retracted';
+      path: string;
+    }
+  | {
+      version: number;
+      actor_id: string;
+      created_at: string;
+      type: 'approved' | 'rejected';
+      note?: string;
+    }
+  | {
+      version: number;
+      actor_id: string;
+      created_at: string;
+      type: 'completion_retracted';
+    };
+
+/**
+ * Versioned review state that preserves immutable machine output beside corrected output and append-only attributed events. Grounded reviews also extend the machine `lineage@1` graph with confirm and completion activities. Retracting a tip removes that confirmation from the projected graph while the event log keeps the retraction.
+ */
+export type ExtractionReview = {
+  job_id: JobId;
+  status: ExtractionReviewStatus;
+  machine_output: unknown;
+  corrected_output: unknown;
+  lineage?: LineageDocument;
+  version: number;
+  events: Array<ExtractionReviewEvent>;
+  created_at: string | null;
+  updated_at: string | null;
+  completed_at: string | null;
+  reviewed_by_actor_id: string | null;
+  viewer_actor_id: string;
+};
+
+/**
+ * Optimistic review update. Retractions peel one current tip each, in order, then confirmations apply. A retraction and a confirmation that overlap are rejected. At least one confirmation or retraction is required.
+ */
+export type UpdateExtractionReviewRequest = {
+  expected_version: number;
+  /**
+   * Fields the caller is signing. A value that matches the standing field is a sign-off; a different value also corrects it.
+   */
+  confirmations?: Array<{
+    path: string;
+    value: unknown;
+    note?: string;
+  }>;
+  /**
+   * JSON Pointers whose current tip the caller is taking back. Each entry peels one confirmation. The restored value is the one recorded on that confirmation.
+   */
+  retractions?: Array<{
+    path: string;
+  }>;
+};
+
+export type CompleteExtractionReviewRequest = {
+  expected_version: number;
+  status: 'approved' | 'rejected';
+  note?: string;
+};
+
+export type ReopenExtractionReviewRequest = {
+  expected_version: number;
 };
 
 /**
@@ -968,6 +1312,7 @@ export type Job = {
   output_format: OcrOutputFormat;
   created_at: string;
   updated_at: string;
+  completed_at: string | null;
   progress?: {
     completed?: number;
     total?: number;
@@ -1012,6 +1357,7 @@ export type Job = {
    *
    */
   pipeline_version: number | null;
+  review_status?: ExtractionReviewStatus;
 };
 
 /**
@@ -1051,6 +1397,7 @@ export type JobSummary = {
    *
    */
   pipeline_version: number | null;
+  review_status?: ExtractionReviewStatus;
 };
 
 /**
@@ -1166,8 +1513,9 @@ export type OcrModelsResponse = {
 
 /**
  * One compatible extraction LLM. `recommendation` is `suggested` or `compatible`.
- * `certified_grounding` / `certified_suggest` (and compatibility aliases
- * `supports_grounding` / `supports_suggest`) gate heavier schemas. `pricing` is customer retail USD per 1M tokens
+ * `certified_grounding` / `certified_suggest` mark Eigenpal-tested quality tiers;
+ * `supports_grounding` is true for every compatible model while `supports_suggest`
+ * matches certification. `pricing` is customer retail USD per 1M tokens
  * (`basis: customer_retail`) — the rates customers are charged, not raw provider list cost.
  *
  */
@@ -1352,6 +1700,12 @@ export type SuggestSchemaRequest2 = SuggestSchemaRequest;
 export type CreateExtractionPipelineRequest2 = CreateExtractionPipelineRequest;
 
 export type UpdateExtractionPipelineRequest2 = UpdateExtractionPipelineRequest;
+
+export type UpdateExtractionReviewRequest2 = UpdateExtractionReviewRequest;
+
+export type CompleteExtractionReviewRequest2 = CompleteExtractionReviewRequest;
+
+export type ReopenExtractionReviewRequest2 = ReopenExtractionReviewRequest;
 
 export type CreateFileUpload = {
   file: Blob | File;
@@ -2150,6 +2504,247 @@ export type GetJobResponses = {
 };
 
 export type GetJobResponse = GetJobResponses[keyof GetJobResponses];
+
+export type GetExtractionReviewData = {
+  body?: never;
+  path: {
+    /**
+     * Durable OCR job identifier (`opj_…`).
+     */
+    id: JobId;
+  };
+  query?: never;
+  url: '/jobs/{id}/review';
+};
+
+export type GetExtractionReviewErrors = {
+  /**
+   * Missing or invalid API key
+   */
+  401: ErrorResponse;
+  /**
+   * API key lacks required OCR scope (`*` or `ocr:full`)
+   */
+  403: ErrorResponse;
+  /**
+   * Job not found for the authenticated tenant
+   */
+  404: ErrorResponse;
+  /**
+   * Job is not a succeeded extraction with reviewable output
+   */
+  409: ErrorResponse;
+  /**
+   * Rate or tenant concurrency limit exceeded. Tenant capacity uses
+   * `tenant_limit_exceeded` when the caller already holds the configured maximum
+   * of executable non-terminal jobs (`admitting`/`queued`/`running` singles and
+   * batch children; batch parents do not count). Idempotent replays of an
+   * existing equivalent job are still admitted.
+   *
+   */
+  429: ErrorResponse;
+};
+
+export type GetExtractionReviewError = GetExtractionReviewErrors[keyof GetExtractionReviewErrors];
+
+export type GetExtractionReviewResponses = {
+  /**
+   * Current extraction review
+   */
+  200: ExtractionReview;
+};
+
+export type GetExtractionReviewResponse =
+  GetExtractionReviewResponses[keyof GetExtractionReviewResponses];
+
+export type UpdateExtractionReviewData = {
+  body: UpdateExtractionReviewRequest2;
+  path: {
+    /**
+     * Durable OCR job identifier (`opj_…`).
+     */
+    id: JobId;
+  };
+  query?: never;
+  url: '/jobs/{id}/review';
+};
+
+export type UpdateExtractionReviewErrors = {
+  /**
+   * Malformed request
+   */
+  400: ErrorResponse;
+  /**
+   * Missing or invalid API key
+   */
+  401: ErrorResponse;
+  /**
+   * API key lacks required OCR scope (`*` or `ocr:full`)
+   */
+  403: ErrorResponse;
+  /**
+   * Job not found for the authenticated tenant
+   */
+  404: ErrorResponse;
+  /**
+   * Review is completed or the expected version is stale
+   */
+  409: ErrorResponse;
+  /**
+   * Successful response
+   */
+  413: ErrorResponse;
+  /**
+   * A path is invalid, a retraction is not eligible, or no confirmation or retraction was provided
+   */
+  422: ErrorResponse;
+  /**
+   * Rate or tenant concurrency limit exceeded. Tenant capacity uses
+   * `tenant_limit_exceeded` when the caller already holds the configured maximum
+   * of executable non-terminal jobs (`admitting`/`queued`/`running` singles and
+   * batch children; batch parents do not count). Idempotent replays of an
+   * existing equivalent job are still admitted.
+   *
+   */
+  429: ErrorResponse;
+};
+
+export type UpdateExtractionReviewError =
+  UpdateExtractionReviewErrors[keyof UpdateExtractionReviewErrors];
+
+export type UpdateExtractionReviewResponses = {
+  /**
+   * Updated extraction review
+   */
+  200: ExtractionReview;
+};
+
+export type UpdateExtractionReviewResponse =
+  UpdateExtractionReviewResponses[keyof UpdateExtractionReviewResponses];
+
+export type CompleteExtractionReviewData = {
+  body: CompleteExtractionReviewRequest2;
+  path: {
+    /**
+     * Durable OCR job identifier (`opj_…`).
+     */
+    id: JobId;
+  };
+  query?: never;
+  url: '/jobs/{id}/review/complete';
+};
+
+export type CompleteExtractionReviewErrors = {
+  /**
+   * Malformed request
+   */
+  400: ErrorResponse;
+  /**
+   * Missing or invalid API key
+   */
+  401: ErrorResponse;
+  /**
+   * API key lacks required OCR scope (`*` or `ocr:full`)
+   */
+  403: ErrorResponse;
+  /**
+   * Job not found for the authenticated tenant
+   */
+  404: ErrorResponse;
+  /**
+   * Review is already completed or the expected version is stale
+   */
+  409: ErrorResponse;
+  /**
+   * Successful response
+   */
+  413: ErrorResponse;
+  /**
+   * Rate or tenant concurrency limit exceeded. Tenant capacity uses
+   * `tenant_limit_exceeded` when the caller already holds the configured maximum
+   * of executable non-terminal jobs (`admitting`/`queued`/`running` singles and
+   * batch children; batch parents do not count). Idempotent replays of an
+   * existing equivalent job are still admitted.
+   *
+   */
+  429: ErrorResponse;
+};
+
+export type CompleteExtractionReviewError =
+  CompleteExtractionReviewErrors[keyof CompleteExtractionReviewErrors];
+
+export type CompleteExtractionReviewResponses = {
+  /**
+   * Completed extraction review
+   */
+  200: ExtractionReview;
+};
+
+export type CompleteExtractionReviewResponse =
+  CompleteExtractionReviewResponses[keyof CompleteExtractionReviewResponses];
+
+export type ReopenExtractionReviewData = {
+  body: ReopenExtractionReviewRequest2;
+  path: {
+    /**
+     * Durable OCR job identifier (`opj_…`).
+     */
+    id: JobId;
+  };
+  query?: never;
+  url: '/jobs/{id}/review/reopen';
+};
+
+export type ReopenExtractionReviewErrors = {
+  /**
+   * Malformed request
+   */
+  400: ErrorResponse;
+  /**
+   * Missing or invalid API key
+   */
+  401: ErrorResponse;
+  /**
+   * API key lacks required OCR scope (`*` or `ocr:full`)
+   */
+  403: ErrorResponse;
+  /**
+   * Job not found for the authenticated tenant
+   */
+  404: ErrorResponse;
+  /**
+   * Review is not signed off (`review_not_completed`), was signed off by another reviewer
+   * (`review_reopen_not_author`), or the expected version is stale
+   *
+   */
+  409: ErrorResponse;
+  /**
+   * Successful response
+   */
+  413: ErrorResponse;
+  /**
+   * Rate or tenant concurrency limit exceeded. Tenant capacity uses
+   * `tenant_limit_exceeded` when the caller already holds the configured maximum
+   * of executable non-terminal jobs (`admitting`/`queued`/`running` singles and
+   * batch children; batch parents do not count). Idempotent replays of an
+   * existing equivalent job are still admitted.
+   *
+   */
+  429: ErrorResponse;
+};
+
+export type ReopenExtractionReviewError =
+  ReopenExtractionReviewErrors[keyof ReopenExtractionReviewErrors];
+
+export type ReopenExtractionReviewResponses = {
+  /**
+   * Reopened extraction review, now pending
+   */
+  200: ExtractionReview;
+};
+
+export type ReopenExtractionReviewResponse =
+  ReopenExtractionReviewResponses[keyof ReopenExtractionReviewResponses];
 
 export type GetJobResultData = {
   body?: never;

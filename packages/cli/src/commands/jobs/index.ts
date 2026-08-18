@@ -1,4 +1,10 @@
-import type { Job, JobStatus } from '@openparser/sdk';
+import type {
+  CompleteExtractionReviewRequest,
+  Job,
+  JobStatus,
+  ReopenExtractionReviewRequest,
+  UpdateExtractionReviewRequest,
+} from '@openparser/sdk';
 import { createWriteStream } from 'fs';
 import { Readable } from 'stream';
 import { pipeline } from 'stream/promises';
@@ -26,6 +32,82 @@ interface JobResultOpts {
   baseUrl?: string;
   json?: boolean;
   format?: string;
+}
+
+interface JobSourceOpts {
+  baseUrl?: string;
+  output?: string;
+}
+
+interface JobReviewUpdateOpts {
+  baseUrl?: string;
+  json?: boolean;
+  body?: string;
+  expectedVersion?: number;
+  confirmJson?: string;
+}
+
+interface JobReviewCompleteOpts {
+  baseUrl?: string;
+  json?: boolean;
+  body?: string;
+  expectedVersion?: number;
+  status?: string;
+  note?: string;
+}
+
+interface JobReviewReopenOpts {
+  baseUrl?: string;
+  json?: boolean;
+  body?: string;
+  expectedVersion?: number;
+}
+
+export function buildReviewUpdateBody(opts: JobReviewUpdateOpts): UpdateExtractionReviewRequest {
+  if (opts.body) {
+    return JSON.parse(opts.body) as UpdateExtractionReviewRequest;
+  }
+  if (opts.expectedVersion === undefined) {
+    throw new Error('Provide --expected-version or --body.');
+  }
+  if (!opts.confirmJson) {
+    throw new Error('Provide --confirm-json or --body.');
+  }
+  return {
+    expected_version: opts.expectedVersion,
+    confirmations: JSON.parse(opts.confirmJson) as UpdateExtractionReviewRequest['confirmations'],
+  };
+}
+
+export function buildReviewCompleteBody(
+  opts: JobReviewCompleteOpts
+): CompleteExtractionReviewRequest {
+  if (opts.body) {
+    return JSON.parse(opts.body) as CompleteExtractionReviewRequest;
+  }
+  if (opts.expectedVersion === undefined) {
+    throw new Error('Provide --expected-version or --body.');
+  }
+  if (!opts.status) {
+    throw new Error('Provide --status approved|rejected or --body.');
+  }
+  return {
+    expected_version: opts.expectedVersion,
+    status: opts.status as CompleteExtractionReviewRequest['status'],
+    ...(opts.note ? { note: opts.note } : {}),
+  };
+}
+
+export function buildReviewReopenBody(opts: JobReviewReopenOpts): ReopenExtractionReviewRequest {
+  if (opts.body) {
+    return JSON.parse(opts.body) as ReopenExtractionReviewRequest;
+  }
+  if (opts.expectedVersion === undefined) {
+    throw new Error('Provide --expected-version or --body.');
+  }
+  return {
+    expected_version: opts.expectedVersion,
+  };
 }
 
 export async function jobsList(opts: JobsListOpts): Promise<void> {
@@ -84,10 +166,7 @@ export async function jobsResult(jobId: string, opts: JobResultOpts): Promise<vo
   writeJson(result);
 }
 
-export async function jobsSource(
-  jobId: string,
-  opts: { baseUrl?: string; output?: string }
-): Promise<void> {
+export async function jobsSource(jobId: string, opts: JobSourceOpts): Promise<void> {
   const config = resolveConfig(opts);
   requireApiKey(config);
   const client = createSdkClient(config);
@@ -103,4 +182,42 @@ export async function jobsSource(
 
   const buffer = Buffer.from(await blob.arrayBuffer());
   process.stdout.write(buffer);
+}
+
+export async function jobsReview(jobId: string, opts: JobGetOpts): Promise<void> {
+  const config = resolveConfig(opts);
+  requireApiKey(config);
+  const client = createSdkClient(config);
+  const result = await client.jobs.review(jobId);
+  writeJson(result);
+}
+
+export async function jobsReviewUpdate(jobId: string, opts: JobReviewUpdateOpts): Promise<void> {
+  const config = resolveConfig(opts);
+  requireApiKey(config);
+  const client = createSdkClient(config);
+  const body = buildReviewUpdateBody(opts);
+  const result = await client.jobs.updateReview(jobId, body);
+  writeJson(result);
+}
+
+export async function jobsReviewComplete(
+  jobId: string,
+  opts: JobReviewCompleteOpts
+): Promise<void> {
+  const config = resolveConfig(opts);
+  requireApiKey(config);
+  const client = createSdkClient(config);
+  const body = buildReviewCompleteBody(opts);
+  const result = await client.jobs.completeReview(jobId, body);
+  writeJson(result);
+}
+
+export async function jobsReviewReopen(jobId: string, opts: JobReviewReopenOpts): Promise<void> {
+  const config = resolveConfig(opts);
+  requireApiKey(config);
+  const client = createSdkClient(config);
+  const body = buildReviewReopenBody(opts);
+  const result = await client.jobs.reopenReview(jobId, body);
+  writeJson(result);
 }

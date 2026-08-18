@@ -1,12 +1,11 @@
 # @openparser/schema
 
-Vendor-neutral Zod schemas and TypeScript types for `openparser@1` documents
-and the generic raw OCR result envelope.
+Zod schemas and TypeScript types for `openparser@1` document graphs and the
+generic raw OCR result envelope.
 
-This package is provider-, model-, and service-agnostic. It intentionally
-contains no jobs, HTTP request bodies, hosted model catalogs, pricing, guidance,
-availability, extraction pipelines, IDs, curl examples, or other OpenParser
-service concepts.
+Use this package to validate parse results at runtime, type document graphs in
+TypeScript, and share one canonical graph definition across providers and
+runtimes.
 
 [Full reference](https://docs.openparser.dev/schema/openparser-schema) · [OpenParser](https://openparser.dev)
 
@@ -16,9 +15,9 @@ service concepts.
 npm install @openparser/schema
 ```
 
-## Root export only
+## Import
 
-Import from `@openparser/schema`. There are no `/document` or `/http` subpaths.
+Import from the package root (`@openparser/schema`):
 
 ```ts
 import {
@@ -30,6 +29,10 @@ import {
   type ParsedDocumentWithElementKinds,
 } from '@openparser/schema';
 ```
+
+Validate at runtime with `ParsedDocumentSchema.parse(json)`. Narrow adapter
+output with `ParsedDocumentWithElementKinds<'text' | 'table'>` when you know
+which element kinds a converter may emit.
 
 ## `openparser@1`
 
@@ -60,20 +63,14 @@ parent to child, while `caption_of` and `footnote_of` point from the annotation
 to its target.
 
 Geometry always includes a bounding box and may additionally retain the native
-polygon. Source provenance retains native ids/types without embedding hosted
-routing or pricing policy.
+polygon.
 
 All published object schemas are strict. Adding a field or otherwise changing a
 shape in a way that an existing schema rejects requires a new `output_format`
 revision; `openparser@1` will not silently grow incompatible fields.
 
 Table validation rejects overlapping cells and enforces a structural row-coverage
-limit during overlap checks. Overlap-detection helpers are internal to the package
-and are not part of the public export surface.
-
-For hosted API model discovery, request validation, and SDK helpers, use
-[@openparser/sdk](https://www.npmjs.com/package/@openparser/sdk) and the
-[OpenParser docs](https://docs.openparser.dev/clients/models) — not this package.
+limit during overlap checks.
 
 ## License
 

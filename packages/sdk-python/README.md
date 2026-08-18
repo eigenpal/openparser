@@ -86,6 +86,36 @@ suggested = client.extract.suggest_schema(
 )
 ```
 
+### Grounding and lineage
+
+Set `"grounding": "field"` to receive verified citations and a `lineage@1`
+derivation DAG:
+
+```python
+extracted = client.extract.sync(
+    {
+        "ocr_model": "mistral-ocr-4",
+        "llm_model": "openai/gpt-5.6-terra",
+        "grounding": "field",
+        "schema": {
+            "type": "object",
+            "properties": {"total": {"type": "number"}},
+        },
+    },
+    file=Path("invoice.pdf"),
+)
+
+lineage = extracted.to_dict().get("lineage")
+if lineage is not None:
+    print(lineage["outputs"])
+```
+
+The graph connects each output value to its source evidence and the operations
+that produced it. Evidence carries the closest recognition confidence supplied
+by the selected OCR model. Applications can append normalization, calculation,
+inference, and human-review activities without replacing the original machine
+result.
+
 `OpenParserClient` is synchronous. Methods named `async_` submit durable jobs
 without waiting for processing to finish.
 

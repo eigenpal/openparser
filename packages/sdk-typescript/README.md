@@ -66,6 +66,33 @@ const suggested = await client.extract.suggestSchema({
 });
 ```
 
+### Grounding and lineage
+
+Request field grounding when the result needs to be explainable or reviewed:
+
+```ts
+const result = await client.extract.sync(
+  {
+    ocr_model: 'mistral-ocr-4',
+    llm_model: 'openai/gpt-5.6-terra',
+    grounding: 'field',
+    schema: { type: 'object', properties: { total: { type: 'number' } } },
+  },
+  file
+);
+
+if ('lineage' in result && result.lineage) {
+  // `lineage@1`: values, source evidence, operations, and derivations.
+  console.log(result.lineage.outputs);
+}
+```
+
+The lineage is a complete derivation DAG. Each output value points through the
+extraction activity to its document evidence, including the closest recognition
+confidence the OCR provider supplied. Applications can append normalization,
+calculation, inference, and human-review activities with
+[`@openparser/lineage`](https://www.npmjs.com/package/@openparser/lineage).
+
 ## Jobs
 
 ```ts

@@ -8,6 +8,7 @@ from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
+from ..models.extraction_review_status import ExtractionReviewStatus
 from ..models.job_operation import JobOperation
 from ..models.job_status import JobStatus
 from ..models.ocr_output_format import OcrOutputFormat
@@ -58,6 +59,7 @@ class Job:
             output_format (OcrOutputFormat):
             created_at (datetime.datetime):
             updated_at (datetime.datetime):
+            completed_at (datetime.datetime | None):
             pipeline_id (None | str): Snapshot of the saved extraction pipeline id at admit time, or `null` for parse jobs,
                 inline extract config, and other non-pipeline work.
             pipeline_version (int | None): Snapshot of the saved extraction pipeline version at admit time, or `null` when
@@ -75,6 +77,7 @@ class Job:
             extraction_schema (JobExtractionSchema | Unset):
             ocr_model (None | str | Unset): OCR model used at admit time when recorded. Omitted when unknown. Jobs do not
                 expose a durable OCR options snapshot.
+            review_status (ExtractionReviewStatus | Unset):
      """
 
     id: str
@@ -83,6 +86,7 @@ class Job:
     output_format: OcrOutputFormat
     created_at: datetime.datetime
     updated_at: datetime.datetime
+    completed_at: datetime.datetime | None
     pipeline_id: None | str
     pipeline_version: int | None
     progress: JobProgress | Unset = UNSET
@@ -96,6 +100,7 @@ class Job:
     related_extractions: list[JobRelatedExtractionsItem] | Unset = UNSET
     extraction_schema: JobExtractionSchema | Unset = UNSET
     ocr_model: None | str | Unset = UNSET
+    review_status: ExtractionReviewStatus | Unset = UNSET
 
 
 
@@ -122,6 +127,12 @@ class Job:
         created_at = self.created_at.isoformat()
 
         updated_at = self.updated_at.isoformat()
+
+        completed_at: None | str
+        if isinstance(self.completed_at, datetime.datetime):
+            completed_at = self.completed_at.isoformat()
+        else:
+            completed_at = self.completed_at
 
         pipeline_id: None | str
         pipeline_id = self.pipeline_id
@@ -189,6 +200,11 @@ class Job:
         else:
             ocr_model = self.ocr_model
 
+        review_status: str | Unset = UNSET
+        if not isinstance(self.review_status, Unset):
+            review_status = self.review_status.value
+
+
 
         field_dict: dict[str, Any] = {}
 
@@ -199,6 +215,7 @@ class Job:
             "output_format": output_format,
             "created_at": created_at,
             "updated_at": updated_at,
+            "completed_at": completed_at,
             "pipeline_id": pipeline_id,
             "pipeline_version": pipeline_version,
         })
@@ -224,6 +241,8 @@ class Job:
             field_dict["extraction_schema"] = extraction_schema
         if ocr_model is not UNSET:
             field_dict["ocr_model"] = ocr_model
+        if review_status is not UNSET:
+            field_dict["review_status"] = review_status
 
         return field_dict
 
@@ -266,6 +285,24 @@ class Job:
         updated_at = isoparse(d.pop("updated_at"))
 
 
+
+
+        def _parse_completed_at(data: object) -> datetime.datetime | None:
+            if data is None:
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                completed_at_type_0 = isoparse(data)
+
+
+
+                return completed_at_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(datetime.datetime | None, data)
+
+        completed_at = _parse_completed_at(d.pop("completed_at"))
 
 
         def _parse_pipeline_id(data: object) -> None | str:
@@ -412,6 +449,16 @@ class Job:
         ocr_model = _parse_ocr_model(d.pop("ocr_model", UNSET))
 
 
+        _review_status = d.pop("review_status", UNSET)
+        review_status: ExtractionReviewStatus | Unset
+        if isinstance(_review_status,  Unset):
+            review_status = UNSET
+        else:
+            review_status = ExtractionReviewStatus(_review_status)
+
+
+
+
         job = cls(
             id=id,
             operation=operation,
@@ -419,6 +466,7 @@ class Job:
             output_format=output_format,
             created_at=created_at,
             updated_at=updated_at,
+            completed_at=completed_at,
             pipeline_id=pipeline_id,
             pipeline_version=pipeline_version,
             progress=progress,
@@ -432,6 +480,7 @@ class Job:
             related_extractions=related_extractions,
             extraction_schema=extraction_schema,
             ocr_model=ocr_model,
+            review_status=review_status,
         )
 
         return job

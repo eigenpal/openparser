@@ -1,7 +1,23 @@
 import type { OperationResult, RequestRetryContext } from '../client';
 import type { Client } from '../generated/client';
-import { getJob, getJobResult, getJobSource, listJobs } from '../generated/sdk.gen';
-import type { JobOperation, JobStatus, OcrOutputFormat } from '../generated/types.gen';
+import {
+  completeExtractionReview,
+  getExtractionReview,
+  getJob,
+  getJobResult,
+  getJobSource,
+  listJobs,
+  reopenExtractionReview,
+  updateExtractionReview,
+} from '../generated/sdk.gen';
+import type {
+  CompleteExtractionReviewRequest,
+  JobOperation,
+  JobStatus,
+  OcrOutputFormat,
+  ReopenExtractionReviewRequest,
+  UpdateExtractionReviewRequest,
+} from '../generated/types.gen';
 
 type Dispatch = <T>(
   call: () => Promise<OperationResult<T>>,
@@ -83,6 +99,69 @@ export class JobsResource {
         return response as OperationResult<Blob>;
       },
       { method: 'GET', responseType: 'binary' }
+    );
+  }
+
+  async review(jobId: string, options: SignalOptions = {}) {
+    return this.dispatch(
+      () =>
+        getExtractionReview({
+          client: this.client,
+          path: { id: jobId },
+          signal: options.signal,
+        }),
+      { method: 'GET' }
+    );
+  }
+
+  async updateReview(
+    jobId: string,
+    body: UpdateExtractionReviewRequest,
+    options: SignalOptions = {}
+  ) {
+    return this.dispatch(
+      () =>
+        updateExtractionReview({
+          client: this.client,
+          path: { id: jobId },
+          body,
+          signal: options.signal,
+        }),
+      { method: 'PATCH' }
+    );
+  }
+
+  async completeReview(
+    jobId: string,
+    body: CompleteExtractionReviewRequest,
+    options: SignalOptions = {}
+  ) {
+    return this.dispatch(
+      () =>
+        completeExtractionReview({
+          client: this.client,
+          path: { id: jobId },
+          body,
+          signal: options.signal,
+        }),
+      { method: 'POST' }
+    );
+  }
+
+  async reopenReview(
+    jobId: string,
+    body: ReopenExtractionReviewRequest,
+    options: SignalOptions = {}
+  ) {
+    return this.dispatch(
+      () =>
+        reopenExtractionReview({
+          client: this.client,
+          path: { id: jobId },
+          body,
+          signal: options.signal,
+        }),
+      { method: 'POST' }
     );
   }
 }

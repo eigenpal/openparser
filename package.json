@@ -1,17 +1,18 @@
 {
   "name": "openparser",
   "private": true,
-  "description": "Open OCR schemas, adapters, SDKs, and CLI for openparser@1",
+  "description": "Open OCR schemas, lineage, adapters, SDKs, and CLI for OpenParser",
   "license": "Apache-2.0",
   "workspaces": [
     "packages/schema",
+    "packages/lineage",
     "packages/adapters",
     "packages/sdk-typescript",
     "packages/cli"
   ],
   "scripts": {
     "typecheck": "bun run --filter '@openparser/*' typecheck",
-    "test": "bun test packages/schema packages/adapters packages/sdk-typescript packages/cli"
+    "test": "bun test packages/schema packages/lineage packages/adapters packages/sdk-typescript packages/cli"
   },
   "repository": {
     "type": "git",

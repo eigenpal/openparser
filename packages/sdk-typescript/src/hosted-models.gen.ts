@@ -29,9 +29,9 @@ export const DEFAULT_HOSTED_OCR_MODEL_ID = 'paddleocr-vl-1.6' as const satisfies
  */
 export type PaddleocrVl16Options = {
   /**
-   * Image block OCR.
+   * Parse image blocks.
    *
-   * OCR text inside images.
+   * Parse text inside images.
    */
   image_block_ocr?: boolean;
   /**
@@ -81,7 +81,7 @@ export type MistralOcr4Options = {
   /**
    * Confidence scores.
    *
-   * Attach OCR confidence at page or word level.
+   * Attach parse confidence at page or word level.
    */
   confidence_scores_granularity?: 'page' | 'word' | null;
 };
@@ -113,7 +113,7 @@ export type MistralOcr3Options = {
   /**
    * Confidence scores.
    *
-   * Attach OCR confidence at page or word level.
+   * Attach parse confidence at page or word level.
    */
   confidence_scores_granularity?: 'page' | 'word' | null;
 };
@@ -125,9 +125,9 @@ export type MistralOcr3Options = {
  */
 export type AzureDiLayoutOptions = {
   /**
-   * High-resolution OCR.
+   * High-resolution parsing.
    *
-   * Run OCR at higher resolution for small text.
+   * Parse at higher resolution for small text.
    */
   high_resolution_ocr?: boolean;
   /**
@@ -181,9 +181,9 @@ export type AzureDiLayoutOptions = {
  */
 export type AzureDiReadOptions = {
   /**
-   * High-resolution OCR.
+   * High-resolution parsing.
    *
-   * Run OCR at higher resolution for small text.
+   * Parse at higher resolution for small text.
    */
   high_resolution_ocr?: boolean;
   /**
@@ -245,7 +245,7 @@ export type GoogleDocaiOcrOptions = {
   /**
    * Symbols.
    *
-   * Return symbol-level OCR detail.
+   * Return symbol-level text detail.
    */
   symbols?: boolean;
   /**
@@ -255,9 +255,9 @@ export type GoogleDocaiOcrOptions = {
    */
   language_hints?: readonly string[] | null;
   /**
-   * Math OCR.
+   * Math recognition.
    *
-   * Enable math formula recognition.
+   * Recognize mathematical formulas and equations.
    */
   math_ocr?: boolean;
   /**

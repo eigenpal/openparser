@@ -1,13 +1,15 @@
 # @openparser/adapters
 
-Convert provider OCR responses into `openparser@1` document graphs, and call cloud OCR providers with production HTTP/SDK clients.
-
-Inputs use provider-native model ids and options. This package contains no
-Eigenpal-hosted aliases, routing catalog, availability policy, or retail prices.
+Convert provider OCR responses into `openparser@1` document graphs, and call
+cloud OCR providers with production HTTP/SDK clients.
 
 Converters preserve provider hierarchy, text spans and granularity, coordinate
-spaces, confidence provenance, styles/languages, structured tables and fields,
-and returned image assets in the shared `openparser@1` graph.
+spaces, styles, languages, structured tables, fields, and returned image assets
+in the shared graph. Confidence stays attached to the closest source unit the
+provider reports: word or symbol when available, otherwise block, field, page,
+or document. The normalized record keeps the provider's original score and
+scale so downstream lineage and review tools can show the signal without
+presenting it as a cross-provider probability.
 
 **Configuration:** this package never reads environment variables or discovers
 credentials on its own. Pass API keys, endpoints, regions, and auth objects into

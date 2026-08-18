@@ -1,6 +1,6 @@
 [project]
 name = "openparser-sdk"
-version = "1.0.1"
+version = "1.0.2"
 description = "Parse documents and extract structured data with Python"
 readme = "README.md"
 requires-python = ">=3.10"

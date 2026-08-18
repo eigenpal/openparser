@@ -179,7 +179,7 @@ describe('mapMistralOcrResponseToParsedDocument unit cases', () => {
             ],
             confidence_scores: {
               word_confidence_scores: [
-                { text: 'after', start_index: nativeText.indexOf('after'), confidence: 0.9 },
+                { text: 'after', confidence: 0.9 },
                 { text: 'same', start_index: 0, confidence: 0.5 },
               ],
             },
@@ -236,6 +236,38 @@ describe('mapMistralOcrResponseToParsedDocument unit cases', () => {
       ])
     );
     expect(ParsedDocumentSchema.safeParse(parsed).success).toBe(true);
+  });
+
+  test('associates repeated table word scores with their cells in reading order', () => {
+    const content = '<table><tr><td>1</td><td>1</td></tr></table>';
+    const parsed = mapMistralOcrResponseToParsedDocument({
+      documentId: 'table-word-cells',
+      expectedPages: 1,
+      payload: {
+        pages: [
+          {
+            markdown: '[table.html](table.html)',
+            blocks: [{ type: 'table', content }],
+            tables: [
+              {
+                id: 'table.html',
+                content,
+                word_confidence_scores: [
+                  { text: '1', start_index: 0, confidence: 0.95 },
+                  { text: '1', start_index: 1, confidence: 0.55 },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    });
+
+    const table = parsed.elements.find((element) => element.kind === 'table');
+    expect(table?.kind === 'table' ? table.cells.map((cell) => cell.element_ids) : []).toEqual([
+      ['mistral-1-table-0-word-0'],
+      ['mistral-1-table-0-word-1'],
+    ]);
   });
 
   test('OCR3-style blocks-off materializes native tables without duplicating markdown/text', () => {

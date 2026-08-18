@@ -16,6 +16,7 @@ if TYPE_CHECKING:
   from ..models.extraction_attempt import ExtractionAttempt
   from ..models.extraction_grounding_result import ExtractionGroundingResult
   from ..models.extraction_usage_totals import ExtractionUsageTotals
+  from ..models.lineage_document import LineageDocument
   from ..models.parsed_document import ParsedDocument
 
 
@@ -40,8 +41,7 @@ class ExtractionTerminalResult:
                 create a new output-format version.
             llm_model (str): OpenRouter model slug from the compatible OCR extraction catalog
                 (`GET /models/llm`). Unknown or deprecated values return `422 unsupported_llm_model`.
-                Ordinary extract may use any currently compatible model; field grounding requires a
-                certified model.
+                Any currently compatible model may be used for extract and field grounding.
                  Example: openai/gpt-5.6-terra.
             attempts (list[ExtractionAttempt]):
             parse_job_id (str | Unset): Prefixed public id for an OCR job (`opj_…`). Example: opj_V1StGXR8_Z5jdHi6B-myT.
@@ -52,6 +52,8 @@ class ExtractionTerminalResult:
                 USD $0.001/page (0.1 credits/page) OCR charge recorded by Eigenpal billing.
             grounding (ExtractionGroundingResult | Unset): Optional terminal grounding envelope present only when
                 `grounding: field` succeeded.
+            lineage (LineageDocument | Unset): A complete, acyclic `lineage@1` data-derivation graph grounded in W3C PROV
+                semantics. Downstream systems can append entities, activities, agents, and derivations.
      """
 
     output: Any
@@ -62,6 +64,7 @@ class ExtractionTerminalResult:
     reasoning_effort: ExtractionTerminalResultReasoningEffortType0 | None | Unset = UNSET
     usage: ExtractionUsageTotals | Unset = UNSET
     grounding: ExtractionGroundingResult | Unset = UNSET
+    lineage: LineageDocument | Unset = UNSET
 
 
 
@@ -71,6 +74,7 @@ class ExtractionTerminalResult:
         from ..models.extraction_attempt import ExtractionAttempt
         from ..models.extraction_grounding_result import ExtractionGroundingResult
         from ..models.extraction_usage_totals import ExtractionUsageTotals
+        from ..models.lineage_document import LineageDocument
         from ..models.parsed_document import ParsedDocument
         output = self.output
 
@@ -103,6 +107,10 @@ class ExtractionTerminalResult:
         if not isinstance(self.grounding, Unset):
             grounding = self.grounding.to_dict()
 
+        lineage: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.lineage, Unset):
+            lineage = self.lineage.to_dict()
+
 
         field_dict: dict[str, Any] = {}
 
@@ -120,6 +128,8 @@ class ExtractionTerminalResult:
             field_dict["usage"] = usage
         if grounding is not UNSET:
             field_dict["grounding"] = grounding
+        if lineage is not UNSET:
+            field_dict["lineage"] = lineage
 
         return field_dict
 
@@ -130,6 +140,7 @@ class ExtractionTerminalResult:
         from ..models.extraction_attempt import ExtractionAttempt
         from ..models.extraction_grounding_result import ExtractionGroundingResult
         from ..models.extraction_usage_totals import ExtractionUsageTotals
+        from ..models.lineage_document import LineageDocument
         from ..models.parsed_document import ParsedDocument
         d = dict(src_dict)
         output = d.pop("output")
@@ -193,6 +204,16 @@ class ExtractionTerminalResult:
 
 
 
+        _lineage = d.pop("lineage", UNSET)
+        lineage: LineageDocument | Unset
+        if isinstance(_lineage,  Unset):
+            lineage = UNSET
+        else:
+            lineage = LineageDocument.from_dict(_lineage)
+
+
+
+
         extraction_terminal_result = cls(
             output=output,
             parsed_document=parsed_document,
@@ -202,6 +223,7 @@ class ExtractionTerminalResult:
             reasoning_effort=reasoning_effort,
             usage=usage,
             grounding=grounding,
+            lineage=lineage,
         )
 
         return extraction_terminal_result

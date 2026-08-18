@@ -26,7 +26,11 @@ openparser
 │   ├── list
 │   ├── get <jobId>
 │   ├── result <jobId>
-│   └── source <jobId>
+│   ├── source <jobId>
+│   ├── review <jobId>
+│   ├── review-update <jobId>
+│   ├── review-complete <jobId>
+│   └── review-reopen <jobId>
 ├── files
 │   ├── upload <file>
 │   ├── get <fileId>

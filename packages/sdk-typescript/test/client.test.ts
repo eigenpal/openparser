@@ -132,6 +132,68 @@ describe('OpenParserClient', () => {
     expect(source).toBeInstanceOf(Blob);
   });
 
+  test('jobs review helpers call the review endpoints', async () => {
+    const captured: { url: string; method: string; body?: string }[] = [];
+    const review = {
+      job_id: 'opj_test',
+      status: 'pending',
+      machine_output: { total: 100 },
+      corrected_output: { total: 120 },
+      version: 1,
+      events: [],
+      created_at: null,
+      updated_at: null,
+      completed_at: null,
+      reviewed_by_actor_id: null,
+      viewer_actor_id: 'key_test',
+    };
+    const client = new OpenParserClient({
+      apiKey: 'eg_test',
+      baseUrl: 'https://api.openparser.dev',
+      fetch: mockFetch(
+        [
+          { status: 200, body: review },
+          { status: 200, body: { ...review, version: 2 } },
+          { status: 200, body: { ...review, status: 'approved', version: 3 } },
+          { status: 200, body: { ...review, status: 'pending', version: 4 } },
+        ],
+        captured
+      ),
+      maxRetries: 0,
+    });
+
+    await client.jobs.review('opj_test');
+    await client.jobs.updateReview('opj_test', {
+      expected_version: 1,
+      confirmations: [{ path: 'total', value: 120 }],
+    });
+    await client.jobs.completeReview('opj_test', {
+      expected_version: 2,
+      status: 'approved',
+    });
+    await client.jobs.reopenReview('opj_test', {
+      expected_version: 3,
+    });
+
+    expect(captured.map((call) => [call.method, call.url])).toEqual([
+      ['GET', 'https://api.openparser.dev/jobs/opj_test/review'],
+      ['PATCH', 'https://api.openparser.dev/jobs/opj_test/review'],
+      ['POST', 'https://api.openparser.dev/jobs/opj_test/review/complete'],
+      ['POST', 'https://api.openparser.dev/jobs/opj_test/review/reopen'],
+    ]);
+    expect(JSON.parse(captured[1]?.body ?? '{}')).toEqual({
+      expected_version: 1,
+      confirmations: [{ path: 'total', value: 120 }],
+    });
+    expect(JSON.parse(captured[2]?.body ?? '{}')).toEqual({
+      expected_version: 2,
+      status: 'approved',
+    });
+    expect(JSON.parse(captured[3]?.body ?? '{}')).toEqual({
+      expected_version: 3,
+    });
+  });
+
   test('401, 404, 429, and 400 responses map to typed errors', async () => {
     const client = new OpenParserClient({
       apiKey: 'eg_test',

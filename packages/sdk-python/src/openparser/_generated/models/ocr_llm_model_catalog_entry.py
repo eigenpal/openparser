@@ -28,8 +28,9 @@ T = TypeVar("T", bound="OcrLlmModelCatalogEntry")
 @_attrs_define
 class OcrLlmModelCatalogEntry:
     """ One compatible extraction LLM. `recommendation` is `suggested` or `compatible`.
-    `certified_grounding` / `certified_suggest` (and compatibility aliases
-    `supports_grounding` / `supports_suggest`) gate heavier schemas. `pricing` is customer retail USD per 1M tokens
+    `certified_grounding` / `certified_suggest` mark Eigenpal-tested quality tiers;
+    `supports_grounding` is true for every compatible model while `supports_suggest`
+    matches certification. `pricing` is customer retail USD per 1M tokens
     (`basis: customer_retail`) — the rates customers are charged, not raw provider list cost.
 
         Attributes:

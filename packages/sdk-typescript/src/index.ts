@@ -36,6 +36,19 @@ export {
 export { createIdempotencyKey } from './lib/idempotency';
 
 export type {
+  CompleteExtractionReviewRequest,
+  ExtractionReview,
+  ExtractionReviewStatus,
+  LineageActivity,
+  LineageAgent,
+  LineageConfidenceAssertion,
+  LineageDerivation,
+  LineageDocument,
+  LineageEntity,
+  ReopenExtractionReviewRequest,
+  UpdateExtractionReviewRequest,
+} from './generated/types.gen';
+export type {
   ExtractAdmissionOptions,
   ExtractAsyncOptions,
   ExtractBatchOptions,

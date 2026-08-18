@@ -1,0 +1,89 @@
+# @openparser/lineage
+
+## 1.0.2
+
+### Minor Changes
+
+- e7bd767: Grounded extraction now makes every output field explainable. The extraction API can return a portable `lineage@1` derivation DAG connecting values to source text, page geometry, the closest recognition confidence supplied by the OCR model, and every operation that produced them. Downstream systems can append normalization, calculation, inference, and review activities without losing the original evidence.
+
+  The new `@openparser/lineage` package provides runtime schemas, graph validation, traversal and builder helpers, and W3C PROV interoperability for using the same lineage protocol beyond document extraction. `fields()` and `fieldTrace()` return an output field, its confidence, and its supporting evidence directly, so per-field explanations do not require walking the graph.
+
+  Lineage documents stay small enough to return with every extraction. Each field points back to the passage it came from and a single confidence for that passage, without repeating the word-by-word parse that already ships beside it. A typical multi-field result is now a few kilobytes per field, so full evidence arrives with the result rather than being dropped when it grows too large.
+
+  `fields()` and `fieldTrace()` fill in the rest on demand — a field's display path, whether its confidence was reported or derived, and whether it is grounded — so consumers do not have to reconstruct those answers themselves. The document names the model behind each step and keeps the original evidence, not presentation strings.
+
+  OpenParser Studio starts new Playground sessions with field grounding, so clicking a value immediately reveals where it came from. New review endpoints, SDK helpers, and `openparser jobs review` commands let teams confirm field values, or approve or reject a whole extraction, while preserving the original machine output and an attributed event history.
+
+- e7bd767: A field's parse confidence now reflects the words that value was actually read from, instead of the worst word anywhere near it. When one sentence supplies two fields — a square footage and a street address, say — a street name the scanner struggled with used to drag the crisply scanned number down with it, and both fields reported the same low number. Each field is now scored on its own words, discounted a little when the surrounding text scanned poorly, so a value that reads cleanly reads as confident and reviewers can trust a low score to mean that particular value is worth a look.
+
+  Lineage keeps both readings, because they answer different questions. A cited region still reports how that region scanned as a whole, and each field that quotes it reports how clearly _its_ wording came through — so two fields from the same sentence can have different confidence, and reviewers are not asked to treat them as one score.
+
+  Pipelines that build their own lineage can apply the same per-field scoring instead of inventing a parallel rule.
+
+- e7bd767: Extraction review now asks a reviewer for one thing: confirm what a field should say. If the value is right, confirming it signs it off; if it is wrong, correct it in the same box and confirming records the correction and the sign-off together. There is no longer a separate approve step to remember, and no way to end up with an approval that describes a value nobody agreed to — a sign-off always names the exact value it was given.
+
+  Confirming keeps you on the field, so the confirmation you just made is there to read, and Previous and Next below it move through the queue in the order the field list shows — lowest confidence first — for working a run field by field without going back to the list between each one.
+
+  Once a field is confirmed, the card that asked for the confirmation says so plainly: it turns green, carries a tick and the number of reviewers behind the value, and names whether the value was confirmed as it stood or corrected. Revisiting a field never leaves you hunting through its history to work out whether you already signed it off.
+
+  Each confirmation survives a refresh, appears in the field's history next to what it changed, and names the person who made it and when. Several reviewers can confirm the same field and each is counted separately, so a team can require two people on anything below a confidence threshold before treating it as settled. A field shows how many reviewers stand behind its current value, and you are still asked for your own confirmation on a field a colleague has already confirmed. Confirming is not a one-way door: a reviewer can still take back an eligible confirmation.
+
+  Reviewers can take back their own most recent confirmation on a field — and only that one. Withdrawing a signature from a value someone else also confirmed leaves that value standing; withdrawing one that introduced a value restores exactly what the field said before. Neither erases anything: the withdrawal is kept in the review trail. A confirmation cannot be taken back once another value has been built on top of it, and signing the run off freezes every field until the run is reopened.
+
+  Confirmations apply to anything lineage can describe, not just output fields, so teams reviewing pages or extracted regions record sign-off the same way. A confirmation covers only what it names: confirming a field makes no claim about the region it was read from.
+
+  `openparser jobs review-update` follows the same shape: `--confirm-json` takes the `{ path, value }` entries that used to go to `--changes-json`, and a value that differs from the current one corrects the field as it signs it off.
+
+- e7bd767: Grounded extraction now records a short reason for every extracted field, explaining what in the source supports that value. Reviewers can see why the model produced each answer, not only where it came from. A reason belongs to the step that made the claim, so a field whose wording was reformatted explains the passage it read and the conversion it applied separately, each shown with the step it describes.
+- e7bd767: `@openparser/lineage` now ships the `lineage@1` format on its own, with OpenParser's own conventions in a separate profile import. The format describes what a value was derived from, by which step, under which agent — a description that should hold whoever produced the document. Two rules did not belong to it: how an OCR word's score becomes a field's score, and when cited evidence counts as sufficient. The second reads an `openparser:`-namespaced attribute, so only one producer could ever satisfy it, and a format that claims to be neutral while quietly requiring a vendor's attributes is a format you cannot adopt without adopting the vendor.
+
+  Those rules moved to `@openparser/lineage/openparser`, which also gains `fieldGrounding()` — grounded, partial, or ungrounded for a field, read off the graph rather than stored. The package root keeps the schemas, validation, traversal, builder, and PROV export, and knows nothing about OpenParser.
+
+  If you scored words or read grounding status through this package, import from `@openparser/lineage/openparser`; `fieldTrace()` still returns a field's evidence and activities, which is the part of the question the format itself can answer. If you only build or validate documents, nothing changes.
+
+- e7bd767: When a model does not copy a value straight off the page — your schema asks for a date, the contract says "20 day of May 2025", the result is `2025-05-20` — extraction still records the wording that was actually read. That read is verified by locating it in the page and discarded when it cannot be found. What the model turned the wording into is a second step, which nothing can verify, because performing that conversion mechanically is the work the model was asked to do.
+
+  Each step carries its own confidence, so a reviewer can see which half of the claim is solid. The read scores like any other verbatim match. The conversion carries the model's own reported score when the model gives one, and no score at all when it does not, because nothing measured it — a figure invented for it would be indistinguishable from the ones that mean something. What tells you a value was rewritten is the transform step being there, not a number chosen to look doubtful. One blended score would describe neither half: not that the read checked out, and not that the formatting rests on the model's word alone.
+
+  The wording is looked for first in the regions the model cited for it, so a short value that happens to appear elsewhere in the document is not treated as exactly grounded in a passage it was never read from. That holds for the quote too: wording found only outside the regions a field cites is reported as a loose match rather than a verified read of them.
+
+  A rewrite is recognised by the value differing from the verified wording, not by the value failing to resemble it. A currency amount rendered as a plain number, a name recased, a figure with its thousands separators dropped — these still resemble the text they came from, and each is now a read plus a conversion with its own account, where previously it was presented as a direct read and the model's explanation of the conversion was dropped.
+
+  In practice a reformatted value is no longer uniformly doubtful. You can highlight the exact passage a date came from at full confidence and still route the conversion to a human, and a consumer that scores a field by the weakest step in its history now gets the read's score — a true statement about the wording on the page — with the unverifiable step declaring itself in the trace rather than dragging that number down by a fixed amount.
+
+  The two steps are also explained separately. Extraction now asks the model for two accounts instead of one: why the quote it picked is the right passage, and — only when the value is not that quote as written — a bounded structured claim about how the quote became the value. Both appear in the grounding output, as `reason` and `transform_claim`, and a rewritten field's trace no longer explains a conversion in the step that merely read the page. Reviewers can accept the citation and question the formatting, which was previously one sentence covering both.
+
+  A rewritten field's trace therefore has two steps in the graph and one request on the wire: the verified wording from the page, then a transform attributed to the same model call that did the extraction. Values that appear in the document as written are a single extraction.
+
+- e7bd767: Signing a whole run off is now unmistakable and reversible. An approved run reads as approved at a glance — the card turns green and carries the decision — and a rejected one turns red, so nobody has to hunt through a field trace to find out where a run stands. The job list and each job's own page show the same verdict, so a reviewer can see which runs are settled and which still need someone before opening any of them.
+
+  Job rows also stopped shouting the obvious. A finished job no longer wears a "succeeded" badge that looks just like an approval; instead the row's icon carries where the job is — spinning while it runs, waiting while it is queued — and a failure tints the whole row red. That leaves green and red on a job row meaning what a person decided, not a second copy of what the machine did.
+
+  A sign-off is no longer a one-way door. The reviewer who approved or rejected a run can reopen it, which returns the run to pending and unfreezes its fields for another pass — useful when a correction arrives after sign-off, or when the wrong button was clicked. Only the reviewer who signed the run off can reopen it, so one person cannot quietly undo another's decision.
+
+  Reopening hides nothing. Both the sign-off and the reopening stay in the review trail, attributed and timestamped, and the run's lineage reflects the decision that currently stands rather than every decision ever made. An auditor can still see that a run was approved on Tuesday, reopened on Wednesday, and rejected on Thursday.
+
+  `POST /jobs/{id}/review/reopen` exposes this to API, SDK, and CLI callers, and both `GET /jobs` and `GET /jobs/{id}` now report `review_status`, omitting it entirely for jobs nobody has reviewed. `GET /jobs/{id}` also reports `completed_at`, so clients can measure processing time without later review activity changing it. `openparser jobs review-reopen` does the same from the command line.
+
+  Reformatted values now carry confidence that says what was actually checked. OpenParser gives a transform full confidence only when a declared transform plan permits a versioned validator and that validator proves its narrow claim. Date/time formatting, exact decimal and unit conversions, quantity magnitudes, currency policies, aliases, and controlled text normalization can be checked without another model call. Otherwise the structured transform claim keeps the extraction model's coarse `low`, `medium`, or `high` assessment visibly reported and uncalibrated, and confidence stays unknown when nobody measured the rewrite.
+
+- e7bd767: A correction made during extraction review is now visible at a glance. The reviewed output is what the field list and the JSON view show, so a corrected field no longer displays the value the model first produced, and a small pencil beside its name says a person changed it — hover the pencil to read that edit without leaving the list. Confidence badges now take their colour from sign-off rather than from the score, so a confirmed field wears the same green a confident one does while still reporting what the extraction scored.
+
+  Opening a corrected field shows the edit itself, character by character: the wording that was removed struck through in red, what replaced it in green. A single-letter fix in a street name is now as obvious as a rewritten sentence. When a value was replaced outright rather than touched up, the original and the correction are shown in full instead of an unreadable letter-by-letter comparison.
+
+  Each field's trace reads as one story again. A confirmation appears as a single review step naming the person who made it and when, in place of two near-identical entries, and each step shows the change that step made — so a field corrected twice reports what each pass did rather than only where it ended up. Confirming a value without changing it is a review step too — it names the person and the time, and shows no value, because nothing about the value changed. So a field several people signed off on says who they were, and the value extraction originally produced stays on that field's Output step.
+
+  Several corrections made by the same person in one sitting read as one step showing the net change, with the individual passes a click away, so settling on a value no longer buries the rest of the trace. A sitting that ends where it started reports no change at all.
+
+  The confirmation a reviewer is about to make now reads as the last step in the field's story, in the same card style as the steps above it, and stays fixed to the bottom of the panel — so a field with a long history no longer pushes the only thing there is to do out of sight. Once you have confirmed a field, that card says so and offers to withdraw it, which is the one place withdrawal is offered rather than something repeated in the history above.
+
+### Patch Changes
+
+- e7bd767: The first stage of the pipeline is now called Parse everywhere it is named, replacing the mix of "OCR" and "parse" in labels, option descriptions, and lineage step names. Model names keep their own spelling, so a route such as Mistral OCR 4 still appears exactly as its vendor calls it. Option keys, request and response fields, and model ids are unchanged, so nothing needs updating in existing integrations.
+
+## 1.0.1
+
+### Patch Changes
+
+- Initial public release of `lineage@1`: Zod schemas, strict DAG validation,
+  traversal helpers, `LineageBuilder`, and W3C PROV-JSON mapping.

@@ -8,6 +8,8 @@ from .batch_job_accepted import BatchJobAccepted
 from .batch_job_accepted_operation import BatchJobAcceptedOperation
 from .batch_summary_counts import BatchSummaryCounts
 from .bounding_box import BoundingBox
+from .complete_extraction_review_request import CompleteExtractionReviewRequest
+from .complete_extraction_review_request_status import CompleteExtractionReviewRequestStatus
 from .confidence import Confidence
 from .confidence_scope import ConfidenceScope
 from .confidence_source_scale import ConfidenceSourceScale
@@ -62,6 +64,10 @@ from .extraction_attempt_status import ExtractionAttemptStatus
 from .extraction_citation import ExtractionCitation
 from .extraction_citation_granularity import ExtractionCitationGranularity
 from .extraction_grounding_field import ExtractionGroundingField
+from .extraction_grounding_field_transform_claim import ExtractionGroundingFieldTransformClaim
+from .extraction_grounding_field_transform_claim_confidence import ExtractionGroundingFieldTransformClaimConfidence
+from .extraction_grounding_field_transform_claim_operation import ExtractionGroundingFieldTransformClaimOperation
+from .extraction_grounding_field_transform_claim_parameters import ExtractionGroundingFieldTransformClaimParameters
 from .extraction_grounding_mode import ExtractionGroundingMode
 from .extraction_grounding_result import ExtractionGroundingResult
 from .extraction_pipeline import ExtractionPipeline
@@ -70,6 +76,15 @@ from .extraction_pipeline_llm_options import ExtractionPipelineLlmOptions
 from .extraction_pipeline_llm_options_reasoning_effort_type_0_type_1 import ExtractionPipelineLlmOptionsReasoningEffortType0Type1
 from .extraction_pipeline_ocr_options import ExtractionPipelineOcrOptions
 from .extraction_pipeline_schema import ExtractionPipelineSchema
+from .extraction_review import ExtractionReview
+from .extraction_review_confirmation import ExtractionReviewConfirmation
+from .extraction_review_event_type_0 import ExtractionReviewEventType0
+from .extraction_review_event_type_1 import ExtractionReviewEventType1
+from .extraction_review_event_type_2 import ExtractionReviewEventType2
+from .extraction_review_event_type_2_type import ExtractionReviewEventType2Type
+from .extraction_review_event_type_3 import ExtractionReviewEventType3
+from .extraction_review_retraction import ExtractionReviewRetraction
+from .extraction_review_status import ExtractionReviewStatus
 from .extraction_terminal_result import ExtractionTerminalResult
 from .extraction_terminal_result_reasoning_effort_type_0 import ExtractionTerminalResultReasoningEffortType0
 from .extraction_usage_totals import ExtractionUsageTotals
@@ -92,6 +107,50 @@ from .job_summary import JobSummary
 from .json_schema_object import JsonSchemaObject
 from .key_value_element import KeyValueElement
 from .language import Language
+from .lineage_activity import LineageActivity
+from .lineage_activity_attributes import LineageActivityAttributes
+from .lineage_activity_parameters import LineageActivityParameters
+from .lineage_activity_status import LineageActivityStatus
+from .lineage_agent import LineageAgent
+from .lineage_agent_attributes import LineageAgentAttributes
+from .lineage_association import LineageAssociation
+from .lineage_association_attributes import LineageAssociationAttributes
+from .lineage_attribution import LineageAttribution
+from .lineage_attribution_attributes import LineageAttributionAttributes
+from .lineage_confidence_assertion import LineageConfidenceAssertion
+from .lineage_confidence_assertion_attributes import LineageConfidenceAssertionAttributes
+from .lineage_confidence_assertion_kind import LineageConfidenceAssertionKind
+from .lineage_confidence_assertion_sources_item import LineageConfidenceAssertionSourcesItem
+from .lineage_confidence_assertion_sources_item_type import LineageConfidenceAssertionSourcesItemType
+from .lineage_confidence_scale import LineageConfidenceScale
+from .lineage_derivation import LineageDerivation
+from .lineage_derivation_attributes import LineageDerivationAttributes
+from .lineage_derivation_input import LineageDerivationInput
+from .lineage_derivation_input_attributes import LineageDerivationInputAttributes
+from .lineage_derivation_input_effect import LineageDerivationInputEffect
+from .lineage_digest import LineageDigest
+from .lineage_document import LineageDocument
+from .lineage_document_activities import LineageDocumentActivities
+from .lineage_document_agents import LineageDocumentAgents
+from .lineage_document_attributes import LineageDocumentAttributes
+from .lineage_document_entities import LineageDocumentEntities
+from .lineage_entity import LineageEntity
+from .lineage_entity_approvals_item import LineageEntityApprovalsItem
+from .lineage_entity_approvals_item_attributes import LineageEntityApprovalsItemAttributes
+from .lineage_entity_attributes import LineageEntityAttributes
+from .lineage_entity_kind import LineageEntityKind
+from .lineage_entity_schema import LineageEntitySchema
+from .lineage_implementation import LineageImplementation
+from .lineage_implementation_attributes import LineageImplementationAttributes
+from .lineage_locator import LineageLocator
+from .lineage_locator_attributes import LineageLocatorAttributes
+from .lineage_relation import LineageRelation
+from .lineage_relation_attributes import LineageRelationAttributes
+from .lineage_relation_type import LineageRelationType
+from .lineage_selector import LineageSelector
+from .lineage_selector_attributes import LineageSelectorAttributes
+from .lineage_transformation import LineageTransformation
+from .lineage_transformation_attributes import LineageTransformationAttributes
 from .link_element import LinkElement
 from .list_llm_models_mode import ListLlmModelsMode
 from .ocr_llm_model_catalog_entry import OcrLlmModelCatalogEntry
@@ -143,6 +202,7 @@ from .raw_parse_result_profile import RawParseResultProfile
 from .raw_parse_result_profile_options import RawParseResultProfileOptions
 from .raw_parse_result_result import RawParseResultResult
 from .relation_type import RelationType
+from .reopen_extraction_review_request import ReopenExtractionReviewRequest
 from .section_element import SectionElement
 from .section_role import SectionRole
 from .selection_mark_element import SelectionMarkElement
@@ -171,6 +231,9 @@ from .update_extraction_pipeline_request_llm_options_type_0 import UpdateExtract
 from .update_extraction_pipeline_request_llm_options_type_0_reasoning_effort_type_1 import UpdateExtractionPipelineRequestLlmOptionsType0ReasoningEffortType1
 from .update_extraction_pipeline_request_ocr_options_type_0 import UpdateExtractionPipelineRequestOcrOptionsType0
 from .update_extraction_pipeline_request_schema import UpdateExtractionPipelineRequestSchema
+from .update_extraction_review_request import UpdateExtractionReviewRequest
+from .update_extraction_review_request_confirmations_item import UpdateExtractionReviewRequestConfirmationsItem
+from .update_extraction_review_request_retractions_item import UpdateExtractionReviewRequestRetractionsItem
 
 __all__ = (
     "AssetKind",
@@ -181,6 +244,8 @@ __all__ = (
     "BatchJobAcceptedOperation",
     "BatchSummaryCounts",
     "BoundingBox",
+    "CompleteExtractionReviewRequest",
+    "CompleteExtractionReviewRequestStatus",
     "Confidence",
     "ConfidenceScope",
     "ConfidenceSourceScale",
@@ -227,6 +292,10 @@ __all__ = (
     "ExtractionCitation",
     "ExtractionCitationGranularity",
     "ExtractionGroundingField",
+    "ExtractionGroundingFieldTransformClaim",
+    "ExtractionGroundingFieldTransformClaimConfidence",
+    "ExtractionGroundingFieldTransformClaimOperation",
+    "ExtractionGroundingFieldTransformClaimParameters",
     "ExtractionGroundingMode",
     "ExtractionGroundingResult",
     "ExtractionPipeline",
@@ -235,6 +304,15 @@ __all__ = (
     "ExtractionPipelineLlmOptionsReasoningEffortType0Type1",
     "ExtractionPipelineOcrOptions",
     "ExtractionPipelineSchema",
+    "ExtractionReview",
+    "ExtractionReviewConfirmation",
+    "ExtractionReviewEventType0",
+    "ExtractionReviewEventType1",
+    "ExtractionReviewEventType2",
+    "ExtractionReviewEventType2Type",
+    "ExtractionReviewEventType3",
+    "ExtractionReviewRetraction",
+    "ExtractionReviewStatus",
     "ExtractionTerminalResult",
     "ExtractionTerminalResultReasoningEffortType0",
     "ExtractionUsageTotals",
@@ -265,6 +343,50 @@ __all__ = (
     "JsonSchemaObject",
     "KeyValueElement",
     "Language",
+    "LineageActivity",
+    "LineageActivityAttributes",
+    "LineageActivityParameters",
+    "LineageActivityStatus",
+    "LineageAgent",
+    "LineageAgentAttributes",
+    "LineageAssociation",
+    "LineageAssociationAttributes",
+    "LineageAttribution",
+    "LineageAttributionAttributes",
+    "LineageConfidenceAssertion",
+    "LineageConfidenceAssertionAttributes",
+    "LineageConfidenceAssertionKind",
+    "LineageConfidenceAssertionSourcesItem",
+    "LineageConfidenceAssertionSourcesItemType",
+    "LineageConfidenceScale",
+    "LineageDerivation",
+    "LineageDerivationAttributes",
+    "LineageDerivationInput",
+    "LineageDerivationInputAttributes",
+    "LineageDerivationInputEffect",
+    "LineageDigest",
+    "LineageDocument",
+    "LineageDocumentActivities",
+    "LineageDocumentAgents",
+    "LineageDocumentAttributes",
+    "LineageDocumentEntities",
+    "LineageEntity",
+    "LineageEntityApprovalsItem",
+    "LineageEntityApprovalsItemAttributes",
+    "LineageEntityAttributes",
+    "LineageEntityKind",
+    "LineageEntitySchema",
+    "LineageImplementation",
+    "LineageImplementationAttributes",
+    "LineageLocator",
+    "LineageLocatorAttributes",
+    "LineageRelation",
+    "LineageRelationAttributes",
+    "LineageRelationType",
+    "LineageSelector",
+    "LineageSelectorAttributes",
+    "LineageTransformation",
+    "LineageTransformationAttributes",
     "LinkElement",
     "ListLlmModelsMode",
     "OcrLlmModelCatalogEntry",
@@ -316,6 +438,7 @@ __all__ = (
     "RawParseResultProfileOptions",
     "RawParseResultResult",
     "RelationType",
+    "ReopenExtractionReviewRequest",
     "SectionElement",
     "SectionRole",
     "SelectionMarkElement",
@@ -344,4 +467,7 @@ __all__ = (
     "UpdateExtractionPipelineRequestLlmOptionsType0ReasoningEffortType1",
     "UpdateExtractionPipelineRequestOcrOptionsType0",
     "UpdateExtractionPipelineRequestSchema",
+    "UpdateExtractionReviewRequest",
+    "UpdateExtractionReviewRequestConfirmationsItem",
+    "UpdateExtractionReviewRequestRetractionsItem",
 )

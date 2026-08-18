@@ -112,6 +112,12 @@ export function mapMistralOcrResponseToParsedDocument(
   }
   const text = pageText.join('\n\n');
   if (!text.trim()) throw new MistralAdapterError('Mistral OCR returned empty content');
+  const pageTextOffsets: number[] = [];
+  let nextPageOffset = 0;
+  for (const value of pageText) {
+    pageTextOffsets.push(nextPageOffset);
+    nextPageOffset += value.length + 2;
+  }
 
   const pages: DocumentPage[] = [];
   const elements: DocumentElement[] = [];
@@ -144,6 +150,7 @@ export function mapMistralOcrResponseToParsedDocument(
       width,
       height
     );
+    let blockTextCursor = 0;
 
     for (let blockIndex = 0; blockIndex < blocks.length; blockIndex++) {
       const block = blocks[blockIndex]!;
@@ -196,12 +203,22 @@ export function mapMistralOcrResponseToParsedDocument(
           ...(plainContent ? { alt_text: plainContent } : {}),
         };
       } else {
+        const plainContent = markdownToPlainText(content);
+        const located = sequentialExactSpan(pageText[pageIndex]!, plainContent, blockTextCursor);
+        if (located) blockTextCursor = located.end;
         element = {
           ...common,
           kind: 'text',
           role: mistralTextRole(normalizedType),
-          text: markdownToPlainText(content),
-          spans: [],
+          text: plainContent,
+          spans: located
+            ? [
+                {
+                  start: pageTextOffsets[pageIndex]! + located.start,
+                  end: pageTextOffsets[pageIndex]! + located.end,
+                },
+              ]
+            : [],
           languages: [],
         };
       }
@@ -231,7 +248,14 @@ export function mapMistralOcrResponseToParsedDocument(
       relations,
       tableElementByNativeId
     );
-    addWordConfidenceElements(page, pageNumber, text, pageElementIds, elements);
+    addWordConfidenceElements(
+      page,
+      pageNumber,
+      pageText[pageIndex]!,
+      pageTextOffsets[pageIndex]!,
+      pageElementIds,
+      elements
+    );
 
     const pageConfidence = readPageConfidence(page.confidence_scores);
     const quality = readPageQualityExtras(page.confidence_scores);
@@ -335,7 +359,8 @@ function readPageQualityExtras(value: unknown): DocumentPage['quality'] | undefi
 function addWordConfidenceElements(
   page: Record<string, unknown>,
   pageNumber: number,
-  canonicalText: string,
+  pageText: string,
+  pageTextOffset: number,
   pageElementIds: string[],
   elements: DocumentElement[]
 ): void {
@@ -344,17 +369,29 @@ function addWordConfidenceElements(
       ? (page.confidence_scores as Record<string, unknown>).word_confidence_scores
       : undefined;
   if (!Array.isArray(scores)) return;
+  let textCursor = 0;
   for (let index = 0; index < scores.length; index++) {
     const entry = scores[index];
     if (!entry || typeof entry !== 'object') continue;
     const record = entry as Record<string, unknown>;
     const word = readString(record.text);
-    const start = readInteger(record.start_index);
+    const nativeStart = readInteger(record.start_index);
     const score = record.confidence;
-    if (word === undefined || start === undefined || !isFiniteNumber(score)) continue;
-    // Native indices target provider markdown; after plain-text normalization only emit
-    // spans that validate as an exact unique match into canonical document.text.
-    const spans = uniqueExactSpan(canonicalText, word);
+    if (word === undefined || !isFiniteNumber(score)) continue;
+    // Provider offsets target native markdown. Preserve their order, then map
+    // exact words monotonically into this page's canonical plain text. This
+    // handles repeated words without pretending native markdown offsets are
+    // offsets into ParsedDocument.text.
+    const located = sequentialExactSpan(pageText, word, textCursor);
+    if (located) textCursor = located.end;
+    const spans = located
+      ? [
+          {
+            start: pageTextOffset + located.start,
+            end: pageTextOffset + located.end,
+          },
+        ]
+      : [];
     const id = `mistral-${pageNumber}-word-${index}`;
     elements.push({
       id,
@@ -366,7 +403,7 @@ function addWordConfidenceElements(
       locations: [],
       confidence: confidence(score),
       source: {
-        native_id: `${pageNumber}:${start}`,
+        native_id: `${pageNumber}:${nativeStart ?? `sequence-${index}`}`,
         native_type: 'word_confidence',
       },
     });
@@ -396,6 +433,18 @@ function addTableWordConfidenceElements(
     const tableNativeId = readString(table.id);
     const parentId =
       tableNativeId === undefined ? undefined : tableElementByNativeId.get(tableNativeId);
+    const parent = parentId
+      ? elements.find((element) => element.id === parentId && element.kind === 'table')
+      : undefined;
+    const orderedCells =
+      parent?.kind === 'table'
+        ? [...parent.cells].sort(
+            (left, right) =>
+              left.row_index - right.row_index || left.column_index - right.column_index
+          )
+        : [];
+    let cellIndex = 0;
+    let cellTextCursor = 0;
     for (let wordIndex = 0; wordIndex < scores.length; wordIndex++) {
       const rawWord = scores[wordIndex];
       if (!rawWord || typeof rawWord !== 'object') continue;
@@ -418,6 +467,19 @@ function addTableWordConfidenceElements(
         },
       });
       pageElementIds.push(id);
+      for (let candidateIndex = cellIndex; candidateIndex < orderedCells.length; candidateIndex++) {
+        const cell = orderedCells[candidateIndex]!;
+        const located = sequentialExactSpan(
+          cell.text,
+          text,
+          candidateIndex === cellIndex ? cellTextCursor : 0
+        );
+        if (!located) continue;
+        cell.element_ids.push(id);
+        cellIndex = candidateIndex;
+        cellTextCursor = located.end;
+        break;
+      }
       if (parentId) {
         relations.push({ type: 'contains', from_id: parentId, to_id: id });
       }
@@ -681,18 +743,16 @@ function markdownToPlainText(markdown: string): string {
   return text;
 }
 
-/**
- * Remap a word into canonical UTF-16 spans only when it occurs exactly once and
- * `text.slice(start, end) === word`.
- */
-function uniqueExactSpan(text: string, word: string): Array<{ start: number; end: number }> {
-  if (!word) return [];
-  const start = text.indexOf(word);
-  if (start === -1) return [];
-  if (text.indexOf(word, start + 1) !== -1) return [];
-  const end = start + word.length;
-  if (text.slice(start, end) !== word) return [];
-  return [{ start, end }];
+function sequentialExactSpan(
+  text: string,
+  value: string,
+  cursor: number
+): { start: number; end: number } | null {
+  if (!value) return null;
+  const start = text.indexOf(value, cursor);
+  if (start === -1) return null;
+  const end = start + value.length;
+  return text.slice(start, end) === value ? { start, end } : null;
 }
 
 function parseMarkdownTable(

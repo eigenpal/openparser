@@ -43,7 +43,7 @@ class PaddleocrVl16Options(TypedDict):
     
     Output: Markdown + boxes.
     """
-    # Image block OCR: OCR text inside images.
+    # Parse image blocks: Parse text inside images.
     image_block_ocr: NotRequired[bool]
     # Chart recognition: Turn charts into structured content.
     chart_recognition: NotRequired[bool]
@@ -63,7 +63,7 @@ class MistralOcr4Options(TypedDict):
     extract_footer: NotRequired[bool]
     # Include blocks: Return structured layout blocks with the parse.
     include_blocks: NotRequired[bool]
-    # Confidence scores: Attach OCR confidence at page or word level.
+    # Confidence scores: Attach parse confidence at page or word level.
     confidence_scores_granularity: NotRequired[Literal["page", "word"] | None]
 
 class MistralOcr3Options(TypedDict):
@@ -77,7 +77,7 @@ class MistralOcr3Options(TypedDict):
     extract_header: NotRequired[bool]
     # Extract footer: Include detected page footers in output.
     extract_footer: NotRequired[bool]
-    # Confidence scores: Attach OCR confidence at page or word level.
+    # Confidence scores: Attach parse confidence at page or word level.
     confidence_scores_granularity: NotRequired[Literal["page", "word"] | None]
 
 class AzureDiLayoutOptions(TypedDict):
@@ -85,7 +85,7 @@ class AzureDiLayoutOptions(TypedDict):
     
     Output: Markdown + boxes.
     """
-    # High-resolution OCR: Run OCR at higher resolution for small text.
+    # High-resolution parsing: Parse at higher resolution for small text.
     high_resolution_ocr: NotRequired[bool]
     # Formulas: Detect and extract mathematical formulas.
     formulas: NotRequired[bool]
@@ -107,7 +107,7 @@ class AzureDiReadOptions(TypedDict):
     
     Output: Plain text + boxes.
     """
-    # High-resolution OCR: Run OCR at higher resolution for small text.
+    # High-resolution parsing: Parse at higher resolution for small text.
     high_resolution_ocr: NotRequired[bool]
     # Formulas: Detect and extract mathematical formulas.
     formulas: NotRequired[bool]
@@ -131,11 +131,11 @@ class GoogleDocaiOcrOptions(TypedDict):
     native_pdf_parsing: NotRequired[bool]
     # Image quality scores: Include image quality scores in the response.
     image_quality_scores: NotRequired[bool]
-    # Symbols: Return symbol-level OCR detail.
+    # Symbols: Return symbol-level text detail.
     symbols: NotRequired[bool]
     # Language hints: Comma-separated BCP-47 codes (e.g. en, es). Leave empty for auto.
     language_hints: NotRequired[Sequence[str] | None]
-    # Math OCR: Enable math formula recognition.
+    # Math recognition: Recognize mathematical formulas and equations.
     math_ocr: NotRequired[bool]
     # Selection marks: Detect checkboxes and radio buttons.
     selection_marks: NotRequired[bool]
