@@ -1,6 +1,6 @@
 {
   "name": "@openparser/lineage",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Zod schemas, validation, and helpers for lineage@1 complete data-derivation DAGs",
   "type": "module",
   "main": "./dist/index.js",

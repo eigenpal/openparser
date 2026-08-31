@@ -1,5 +1,7 @@
 # @openparser/lineage
 
+## 1.0.3
+
 ## 1.0.2
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # openparser-sdk
 
+## 1.0.3
+
+### Patch Changes
+
+- 57ccf0b: The TypeScript SDK now handles generated request parameters without exposing prototype-chain properties.
+
 ## 1.0.2
 
 ### Minor Changes

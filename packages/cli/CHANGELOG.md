@@ -1,5 +1,12 @@
 # @openparser/cli
 
+## 1.0.3
+
+### Patch Changes
+
+- Updated dependencies [57ccf0b]
+  - @openparser/sdk@1.0.3
+
 ## 1.0.2
 
 ### Minor Changes
