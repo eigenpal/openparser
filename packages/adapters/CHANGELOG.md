@@ -1,5 +1,12 @@
 # @openparser/adapters
 
+## 1.0.4
+
+### Patch Changes
+
+- e0c01f7: PaddleOCR-VL adapters can connect directly to HPS processing endpoints, including bounded PDF parsing, timeout recovery, and canonical OpenParser output.
+  - @openparser/schema@1.0.4
+
 ## 1.0.3
 
 ### Patch Changes
