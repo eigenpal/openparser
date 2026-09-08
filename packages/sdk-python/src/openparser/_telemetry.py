@@ -6,7 +6,7 @@ import platform
 import sys
 
 SDK_LANGUAGE = "python"
-SDK_VERSION = "1.0.4"
+SDK_VERSION = "1.0.5"
 
 
 def _detect_runtime() -> str:

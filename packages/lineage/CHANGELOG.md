@@ -1,5 +1,11 @@
 # @openparser/lineage
 
+## 1.0.5
+
+### Patch Changes
+
+- d46a558: Dotted field paths now round-trip keys containing periods and tildes without collisions, preventing review edits from targeting the wrong field.
+
 ## 1.0.4
 
 ## 1.0.3

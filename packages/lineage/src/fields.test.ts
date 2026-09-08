@@ -153,9 +153,22 @@ describe('pointer helpers', () => {
   // Both directions are used to look entities up by path, so mismatched
   // escaping would not throw — field provenance would just come back empty.
   it('round-trips pointers whose segments contain escapable characters', () => {
-    for (const pointer of ['/vendor', '/line~1items/0/total', '/odd~0key', '/a/b/c']) {
+    for (const pointer of [
+      '/vendor',
+      '/line~1items/0/total',
+      '/odd~0key',
+      '/a/b/c',
+      '/vendor.name',
+      '/~02',
+    ]) {
       expect(pointerFromDottedPath(dottedPathFromPointer(pointer))).toBe(pointer);
     }
+  });
+
+  it('maps dotted keys with literal dots to distinct pointers from nesting', () => {
+    expect(dottedPathFromPointer('/vendor.name')).toBe('vendor~2name');
+    expect(pointerFromDottedPath('vendor~2name')).toBe('/vendor.name');
+    expect(pointerFromDottedPath('vendor.name')).toBe('/vendor/name');
   });
 
   it('prefers the settled decision over a candidate at the same path', () => {

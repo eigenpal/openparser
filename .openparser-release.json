@@ -1,43 +1,48 @@
 {
-  "version": "1.0.4",
-  "sourceSha": "d6138e7b14582b681d1b10044af8ed96940db856",
-  "preparedSha": "a4369c81ec36cffaf5a93a4be8b47761668a11cb",
-  "artifactRunId": "34106028051",
+  "version": "1.0.5",
+  "sourceSha": "a2bb404aecf066f481e14ed88770e3690010f63d",
+  "preparedSha": "95333a9f46817b055bd24652fe96886c3bb4c9ec",
+  "artifactRunId": "34198434969",
   "artifacts": {
     "@openparser/schema": {
       "kind": "npm",
-      "file": "openparser-schema-1.0.4.tgz",
-      "digest": "sha512-f9NdzqOqU5pcFiezdxFLnKbSRiLefUzjWgZS8RxQB8Y0Dy95y+zwXRvkoJf8n3dBgYH+BXXJ91dYsXSi7PapHA=="
+      "file": "openparser-schema-1.0.5.tgz",
+      "digest": "sha512-IQDk55ZOEguPfR76xmHFqff8VnjoSemTvPRnp7SO0ngSvMtkp7H3GQshQ/0zD8x5pr28eNuvmvrQdFWjKRA/jw=="
     },
     "@openparser/lineage": {
       "kind": "npm",
-      "file": "openparser-lineage-1.0.4.tgz",
-      "digest": "sha512-1KVB6cNqDNgUD0or9cXcmyYDXkmj4UpoK+jgS7d1JFNY4hlJFJuCHHZPgZIjjk8jkjshbWvqvkb6LgdSf69lDQ=="
+      "file": "openparser-lineage-1.0.5.tgz",
+      "digest": "sha512-a/2XSCnj0RYi5QidAEQ+/Rw2z5SthVgH0fbE7Uvh76VppsYqTL9lBsuvICcZY97OLgYLwBCDIv1SGhp++lQO5g=="
+    },
+    "@openparser/extract": {
+      "kind": "npm",
+      "file": "openparser-extract-1.0.5.tgz",
+      "digest": "sha512-ppl+wfas2Nm+kf+jrVH4fMFjZRJ+jsubpcmS0YqOvW5wSWL7vA93iDzwTcnu2k+cy/LjGG3U5lUTiaoW2Sx+mw=="
     },
     "@openparser/adapters": {
       "kind": "npm",
-      "file": "openparser-adapters-1.0.4.tgz",
-      "digest": "sha512-tmy5gA2x6jzsauEdJINr9h4Q/66be2dJssCw/uus9I8A9CQhYIVjrXzC/vhkG+FcmRNS0F2c+7i3WQFX8wmyNw=="
+      "file": "openparser-adapters-1.0.5.tgz",
+      "digest": "sha512-7iDx1Zm6pthBwMc83CLNL8uQMDcG9TTvxpAt3Qamf/B9Tn2DTpGVa2eHxFTu5jRbP6qKtxZ4cJtbngIod9nbXg=="
     },
     "@openparser/sdk": {
       "kind": "npm",
-      "file": "openparser-sdk-1.0.4.tgz",
-      "digest": "sha512-VyPdR83P6oi+jDlI+J+AqSSLNYlIEgbSSvkTOsHzKrY8SnYaIss63wfB1NP6tYhDFA6pQjvkqV/BIv5Kiff3ZA=="
+      "file": "openparser-sdk-1.0.5.tgz",
+      "digest": "sha512-qqF37FUoWqRkSZBQr2FT6vWp12dgARLZtXlNQd7tHAGGprc91Hudwqti1bgWLTAsnzox2PedgdIYbPPtjoZhEg=="
     },
     "@openparser/cli": {
       "kind": "npm",
-      "file": "openparser-cli-1.0.4.tgz",
-      "digest": "sha512-ED+EBV+TKdp5tK9TdxGmgZuTzgIMlgI3WgW1bfKOuYsBZR+ltDAEmxpz4DwXydWauHAq/iBhIIiSbs1rcp7LDw=="
+      "file": "openparser-cli-1.0.5.tgz",
+      "digest": "sha512-91VchzCUaAhUWRJIu+mdJ+94cwms3SQytp5qyl0ALW1/ncOpVto7N5KUe6E748BrWXX5aHXrPffqb4ejDMsU3Q=="
     },
     "openparser-sdk-wheel": {
       "kind": "pypi",
-      "file": "openparser_sdk-1.0.4-py3-none-any.whl",
-      "digest": "73645fc027e97c52ed59469b85ce0324f43fcad277768e3be45f25e98b28fc83"
+      "file": "openparser_sdk-1.0.5-py3-none-any.whl",
+      "digest": "eb7b314314188e505999976468539ae41f979acc766b66bd6042b8fb3eaaa167"
     },
     "openparser-sdk-sdist": {
       "kind": "pypi",
-      "file": "openparser_sdk-1.0.4.tar.gz",
-      "digest": "c8a2274b2b94347d8c5cf922643db082245a636eaa03e24ad41fb95078908d78"
+      "file": "openparser_sdk-1.0.5.tar.gz",
+      "digest": "d01f2930872af01c24f64c4085d71f1ed402f2b724491a0f08102c72155ec2a1"
     }
   }
 }

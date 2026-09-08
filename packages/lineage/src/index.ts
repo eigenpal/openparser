@@ -106,11 +106,17 @@ export {
 } from './relation';
 
 export {
+  decodeDottedPathSegment,
   dottedPathFromPointer,
+  encodeDottedPathSegment,
+  parseDottedPathSegments,
+  pointerFromDottedPath,
+} from './dotted-path';
+
+export {
   fieldEntityByPointer,
   fieldTrace,
   fields,
-  pointerFromDottedPath,
   type ConfidenceOrigin,
   type LineageField,
   type LineageFieldTrace,

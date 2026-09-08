@@ -1,8 +1,17 @@
 import type { JsonValue } from './common';
 import type { ConfidenceAssertion, ConfidenceKind } from './confidence';
 import type { LineageDocument } from './document';
+import { dottedPathFromPointer } from './dotted-path';
 import type { Entity } from './entity';
 import { entityAncestors } from './traverse';
+
+export {
+  decodeDottedPathSegment,
+  dottedPathFromPointer,
+  encodeDottedPathSegment,
+  parseDottedPathSegments,
+  pointerFromDottedPath,
+} from './dotted-path';
 
 /** How a field's confidence came about, or that none was asserted at all. */
 export type ConfidenceOrigin = ConfidenceKind | 'not_reported';
@@ -10,10 +19,7 @@ export type ConfidenceOrigin = ConfidenceKind | 'not_reported';
 export type LineageField = {
   id: string;
   pointer: string;
-  /**
-   * Display-only dotted rendering of `pointer`. Lossy: a property whose name
-   * contains a dot is indistinguishable from nesting. Use `pointer` as the key.
-   */
+  /** Dotted UI rendering of `pointer`; bijective with {@link dottedPathFromPointer}. */
   dottedPath: string;
   value: JsonValue | undefined;
   confidence: ConfidenceAssertion | undefined;
@@ -37,35 +43,6 @@ function fieldConfidence(entity: Entity): ConfidenceAssertion | undefined {
   const assertions = entity.confidence;
   if (!assertions || assertions.length === 0) return undefined;
   return assertions.find((assertion) => assertion.scope === 'extraction') ?? assertions[0];
-}
-
-/**
- * RFC 6901 pointer to dotted display path, unescaping `~1` and `~0`.
- *
- * Display only. A property whose name contains a dot is indistinguishable from
- * nesting, so never use the result as a key.
- */
-export function dottedPathFromPointer(pointer: string): string {
-  if (pointer === '' || pointer === '/') return '';
-  return pointer
-    .replace(/^\//, '')
-    .split('/')
-    .map((segment) => segment.replace(/~1/g, '/').replace(/~0/g, '~'))
-    .join('.');
-}
-
-/**
- * Dotted display path back to an RFC 6901 pointer, escaping `~` and `/`.
- *
- * Only sound for paths `dottedPathFromPointer` could have produced: a property
- * name containing a dot round-trips as nesting. Prefer carrying the pointer.
- */
-export function pointerFromDottedPath(dottedPath: string): string {
-  if (dottedPath === '') return '';
-  return `/${dottedPath
-    .split('.')
-    .map((segment) => segment.replaceAll('~', '~0').replaceAll('/', '~1'))
-    .join('/')}`;
 }
 
 /**
