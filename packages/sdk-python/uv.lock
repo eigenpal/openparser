@@ -281,9 +281,10 @@ wheels = [
 
 [[package]]
 name = "openparser-sdk"
-version = "1.0.5"
+version = "1.0.6"
 source = { editable = "." }
 dependencies = [
+    { name = "anyio" },
     { name = "attrs" },
     { name = "httpx" },
     { name = "python-dateutil" },
@@ -299,6 +300,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "anyio", specifier = ">=4.14.2" },
     { name = "attrs", specifier = ">=21.3.0" },
     { name = "httpx", specifier = ">=0.24.0,<0.30.0" },
     { name = "python-dateutil", specifier = ">=2.8.0" },

@@ -1,6 +1,6 @@
 [project]
 name = "openparser-sdk"
-version = "1.0.5"
+version = "1.0.6"
 description = "Parse documents and extract structured data with Python"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -39,6 +39,10 @@ dependencies = [
     "attrs >= 21.3.0",
     "python-dateutil >= 2.8.0",
     "typing-extensions >= 4.0.0",
+    # Transitive via httpx. Floored because anyio < 4.14.2 encodes host names
+    # with IDNA 2003 in TLSStream, which allows TLS certificate spoofing
+    # (GHSA-82r6-8w77-94w6).
+    "anyio >= 4.14.2",
 ]
 
 [project.urls]

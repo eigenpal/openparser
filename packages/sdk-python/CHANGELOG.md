@@ -1,5 +1,11 @@
 # openparser-sdk
 
+## 1.0.6
+
+### Patch Changes
+
+- 1769389: Python SDK: installs now require `anyio` 4.14.2 or newer. Earlier versions encoded host names with IDNA 2003 when opening a TLS connection, so a crafted host name could be matched against the wrong certificate. The TypeScript SDK is unaffected.
+
 ## 1.0.5
 
 ## 1.0.4
