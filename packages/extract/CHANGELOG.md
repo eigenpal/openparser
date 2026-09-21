@@ -1,5 +1,13 @@
 # @openparser/extract
 
+## 1.0.7
+
+### Patch Changes
+
+- 78ec70a: Ship the missing 1.0.6 version stamp for `@openparser/extract` so it matches the rest of the lockstep group.
+  - @openparser/schema@1.0.7
+  - @openparser/lineage@1.0.7
+
 ## 1.0.6
 
 ### Patch Changes
