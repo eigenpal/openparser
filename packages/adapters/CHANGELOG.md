@@ -1,5 +1,12 @@
 # @openparser/adapters
 
+## 1.0.8
+
+### Patch Changes
+
+- 8662f3c: PDF layout parsing now keeps detected charts available as figures for cropping and captioning, while still exposing any extracted chart data tables for table consumers.
+  - @openparser/schema@1.0.8
+
 ## 1.0.7
 
 ### Patch Changes

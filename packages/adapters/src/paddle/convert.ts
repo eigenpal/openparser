@@ -131,6 +131,50 @@ export function mapLayoutResultsToParsedDocument(
       let element: DocumentElement;
       if (normalizedLabel === 'table' || normalizedLabel === 'chart') {
         const html = rawContent.startsWith('<') ? simplifyTableHtml(rawContent) : undefined;
+        // Chart recognition returns real <table> HTML; img-placeholder charts
+        // (VUB: useChartRecognition=false) carry imgs/… or non-table markup.
+        const chartDataTableHtml = html !== undefined && /<table\b/i.test(html) ? html : undefined;
+
+        if (normalizedLabel === 'chart') {
+          // Always emit a figure so downstream figure pipelines (summary-agent
+          // crops, worker OCR figures) see the chart geometry. When recognition
+          // also produced a data table, dual-emit a table with a distinct id so
+          // existing table consumers keep working (additive, not a rename).
+          const figureId = chartDataTableHtml === undefined ? elementId : `${elementId}-figure`;
+          const figure: DocumentElement = {
+            ...common,
+            id: figureId,
+            kind: 'figure',
+            caption_spans: [],
+            ...(chartDataTableHtml === undefined && rawContent
+              ? { caption: simplifyLatex(rawContent) }
+              : {}),
+          };
+          elements.push(figure);
+          pageElementIds.push(figureId);
+          if (chartDataTableHtml === undefined && rawContent) {
+            plainTextParts.push(simplifyLatex(rawContent));
+          }
+
+          if (chartDataTableHtml !== undefined) {
+            const table = tableCellsFromHtml(chartDataTableHtml, elementId);
+            const tableElement: DocumentElement = {
+              ...common,
+              id: elementId,
+              kind: 'table',
+              row_count: table.rowCount,
+              column_count: table.columnCount,
+              cells: table.cells,
+              html: chartDataTableHtml,
+            };
+            elements.push(tableElement);
+            pageElementIds.push(elementId);
+            plainTextParts.push(stripMarkup(chartDataTableHtml));
+          }
+          continue;
+        }
+
+        // Genuine tables: unchanged — any HTML markup → table; otherwise figure.
         if (html !== undefined) {
           const table = tableCellsFromHtml(html, elementId);
           element = {

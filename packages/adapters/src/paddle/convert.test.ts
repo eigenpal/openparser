@@ -198,6 +198,114 @@ describe('mapLayoutResultsToParsedDocument unit cases', () => {
       })
     ).toThrow(PaddleAdapterError);
   });
+
+  test('chart with img placeholder emits figure only (VUB shape)', () => {
+    const parsed = mapLayoutResultsToParsedDocument({
+      documentId: 'doc-chart-img',
+      pages: [{ number: 1, width: 100, height: 100 }],
+      layoutResults: [
+        {
+          prunedResult: {
+            parsing_res_list: [
+              {
+                block_id: 7,
+                block_label: 'chart',
+                block_content: 'imgs/chart-p9.jpg',
+                block_bbox: [10, 20, 90, 80],
+                block_score: 0.95,
+              },
+            ],
+          },
+        },
+      ],
+    });
+
+    expect(parsed.elements).toHaveLength(1);
+    expect(parsed.elements[0]).toMatchObject({
+      id: 'doc-chart-img-paddle-1-7',
+      kind: 'figure',
+      source: { native_label: 'chart', native_id: '7' },
+      caption: 'imgs/chart-p9.jpg',
+    });
+    expect(parsed.pages[0]?.element_ids).toEqual(['doc-chart-img-paddle-1-7']);
+    expect(ParsedDocumentSchema.parse(parsed).elements).toHaveLength(1);
+  });
+
+  test('chart with data table dual-emits figure and table', () => {
+    const html = '<table><tr><td>Q1</td><td>12</td></tr></table>';
+    const parsed = mapLayoutResultsToParsedDocument({
+      documentId: 'doc-chart-data',
+      pages: [{ number: 1, width: 200, height: 200 }],
+      layoutResults: [
+        {
+          prunedResult: {
+            parsing_res_list: [
+              {
+                block_id: 3,
+                block_label: 'chart',
+                block_content: html,
+                block_bbox: [5, 10, 180, 160],
+                block_score: 0.94,
+              },
+            ],
+          },
+        },
+      ],
+    });
+
+    expect(parsed.elements).toHaveLength(2);
+    expect(parsed.elements[0]).toMatchObject({
+      id: 'doc-chart-data-paddle-1-3-figure',
+      kind: 'figure',
+      source: { native_label: 'chart', native_id: '3' },
+    });
+    expect(parsed.elements[1]).toMatchObject({
+      id: 'doc-chart-data-paddle-1-3',
+      kind: 'table',
+      source: { native_label: 'chart', native_id: '3' },
+      row_count: 1,
+      column_count: 2,
+    });
+    expect(parsed.elements[1]).toHaveProperty('kind', 'table');
+    if (parsed.elements[1]?.kind === 'table') {
+      expect(parsed.elements[1].html).toContain('<table');
+    }
+    expect(parsed.pages[0]?.element_ids).toEqual([
+      'doc-chart-data-paddle-1-3-figure',
+      'doc-chart-data-paddle-1-3',
+    ]);
+    expect(parsed.markdown).toContain('<table>');
+    expect(ParsedDocumentSchema.parse(parsed).elements).toHaveLength(2);
+  });
+
+  test('real table label still emits table only', () => {
+    const html = '<table><tr><td>cell</td></tr></table>';
+    const parsed = mapLayoutResultsToParsedDocument({
+      documentId: 'doc-real-table',
+      pages: [{ number: 1, width: 100, height: 100 }],
+      layoutResults: [
+        {
+          prunedResult: {
+            parsing_res_list: [
+              {
+                block_id: 1,
+                block_label: 'table',
+                block_content: html,
+                block_bbox: [0, 0, 80, 40],
+              },
+            ],
+          },
+        },
+      ],
+    });
+
+    expect(parsed.elements).toHaveLength(1);
+    expect(parsed.elements[0]).toMatchObject({
+      kind: 'table',
+      source: { native_label: 'table' },
+    });
+    expect(parsed.elements.some((el) => el.kind === 'figure')).toBe(false);
+  });
 });
 
 describe('figure URI helpers', () => {
