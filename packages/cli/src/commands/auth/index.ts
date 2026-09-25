@@ -12,7 +12,7 @@ import {
   text,
 } from '@clack/prompts';
 import { OpenParserAuthError, OpenParserClient } from '@openparser/sdk';
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import { env } from '../../env';
 import {
   DEFAULT_PROFILE_NAME,
@@ -27,9 +27,15 @@ import { dim, error, success, ui } from '../../lib/ui';
 const CLOUD_API_URL = 'https://api.openparser.dev';
 
 function openBrowser(url: string): void {
-  const cmd =
-    process.platform === 'darwin' ? 'open' : process.platform === 'win32' ? 'start' : 'xdg-open';
-  exec(`${cmd} "${url}"`);
+  // execFile, not exec: the URL must never be parsed by a shell. The callback
+  // swallows launch failures; the caller prints the URL either way.
+  const [cmd, args]: [string, string[]] =
+    process.platform === 'darwin'
+      ? ['open', [url]]
+      : process.platform === 'win32'
+        ? ['rundll32', ['url.dll,FileProtocolHandler', url]]
+        : ['xdg-open', [url]];
+  execFile(cmd, args, () => {});
 }
 
 function exitOnCancel<T>(value: T | symbol): T {

@@ -1,5 +1,12 @@
 # @openparser/cli
 
+## 1.0.9
+
+### Patch Changes
+
+- e187c5e: `openparser auth login` now opens the dashboard in your browser without routing the URL through a shell, so an unusual server address can never be interpreted as a command.
+  - @openparser/sdk@1.0.9
+
 ## 1.0.8
 
 ### Patch Changes
