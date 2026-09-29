@@ -1,6 +1,6 @@
 [project]
 name = "openparser-sdk"
-version = "1.0.9"
+version = "1.0.10"
 description = "Parse documents and extract structured data with Python"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -70,7 +70,7 @@ include = ["src/openparser", "README.md", "LICENSE"]
 
 [dependency-groups]
 dev = [
-    "openapi-python-client == 0.28.3",
+    "openapi-python-client==0.28.4",
     "pytest >= 7.0.0",
     "respx >= 0.20.0",
 ]

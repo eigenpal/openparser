@@ -23,7 +23,7 @@ fi
 echo "→ Generating Python client from $SPEC"
 
 cd "$TMP_DIR"
-uv tool run --from openapi-python-client@0.28.3 openapi-python-client generate \
+uv tool run --from openapi-python-client@0.28.4 openapi-python-client generate \
   --path "$SPEC" \
   --config "$PKG_DIR/openapi-python-client.config.yaml" \
   --overwrite

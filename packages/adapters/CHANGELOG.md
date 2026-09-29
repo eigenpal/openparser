@@ -1,5 +1,13 @@
 # @openparser/adapters
 
+## 1.0.10
+
+### Patch Changes
+
+- 812c311: Apply security updates to document validation and processing dependencies.
+- Updated dependencies [812c311]
+  - @openparser/schema@1.0.10
+
 ## 1.0.9
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@openparser/schema",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Zod schemas and TypeScript types for openparser@1 documents and raw OCR envelopes",
   "type": "module",
   "main": "./dist/index.js",
@@ -37,7 +37,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "esbuild": "^0.25.12",
+    "esbuild": "0.25.12",
     "typescript": "^6.0.3"
   },
   "publishConfig": {
