@@ -37,7 +37,7 @@ class RawParseResultProfile:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.raw_parse_result_profile_options import RawParseResultProfileOptions
+        from ..models.raw_parse_result_profile_options import RawParseResultProfileOptions # noqa: PLC0415
         name = self.name
 
         options = self.options.to_dict()
@@ -56,7 +56,7 @@ class RawParseResultProfile:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.raw_parse_result_profile_options import RawParseResultProfileOptions
+        from ..models.raw_parse_result_profile_options import RawParseResultProfileOptions # noqa: PLC0415
         d = dict(src_dict)
         name = d.pop("name")
 

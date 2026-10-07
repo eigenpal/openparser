@@ -35,7 +35,7 @@ class ErrorResponse:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.error_body import ErrorBody
+        from ..models.error_body import ErrorBody # noqa: PLC0415
         error = self.error.to_dict()
 
 
@@ -51,7 +51,7 @@ class ErrorResponse:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.error_body import ErrorBody
+        from ..models.error_body import ErrorBody # noqa: PLC0415
         d = dict(src_dict)
         error = ErrorBody.from_dict(d.pop("error"))
 

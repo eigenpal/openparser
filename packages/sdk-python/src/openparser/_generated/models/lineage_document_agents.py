@@ -23,8 +23,7 @@ T = TypeVar("T", bound="LineageDocumentAgents")
 
 @_attrs_define
 class LineageDocumentAgents:
-    """
-     """
+
 
     additional_properties: dict[str, LineageAgent] = _attrs_field(init=False, factory=dict)
 
@@ -33,7 +32,7 @@ class LineageDocumentAgents:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.lineage_agent import LineageAgent
+        from ..models.lineage_agent import LineageAgent # noqa: PLC0415
 
         field_dict: dict[str, Any] = {}
         for prop_name, prop in self.additional_properties.items():
@@ -46,13 +45,13 @@ class LineageDocumentAgents:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.lineage_agent import LineageAgent
+        from ..models.lineage_agent import LineageAgent # noqa: PLC0415
         d = dict(src_dict)
         lineage_document_agents = cls(
         )
 
 
-        from ..models.lineage_agent_attributes import LineageAgentAttributes
+        from ..models.lineage_agent_attributes import LineageAgentAttributes # noqa: PLC0415
         additional_properties = {}
         for prop_name, prop_dict in d.items():
             additional_property = LineageAgent.from_dict(prop_dict)

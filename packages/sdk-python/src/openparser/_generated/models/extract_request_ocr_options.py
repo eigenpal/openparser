@@ -20,8 +20,7 @@ T = TypeVar("T", bound="ExtractRequestOcrOptions")
 
 @_attrs_define
 class ExtractRequestOcrOptions:
-    """
-     """
+
 
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 

@@ -9,7 +9,6 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 from ..models.ocr_llm_models_response_mode import OcrLlmModelsResponseMode
-from dateutil.parser import isoparse
 from typing import cast
 import datetime
 
@@ -56,7 +55,7 @@ class OcrLlmModelsResponse:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.ocr_llm_model_catalog_entry import OcrLlmModelCatalogEntry
+        from ..models.ocr_llm_model_catalog_entry import OcrLlmModelCatalogEntry # noqa: PLC0415
         mode = self.mode.value
 
         catalog_version = self.catalog_version
@@ -101,7 +100,7 @@ class OcrLlmModelsResponse:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.ocr_llm_model_catalog_entry import OcrLlmModelCatalogEntry
+        from ..models.ocr_llm_model_catalog_entry import OcrLlmModelCatalogEntry # noqa: PLC0415
         d = dict(src_dict)
         mode = OcrLlmModelsResponseMode(d.pop("mode"))
 
@@ -110,7 +109,7 @@ class OcrLlmModelsResponse:
 
         catalog_version = d.pop("catalog_version")
 
-        fetched_at = isoparse(d.pop("fetched_at"))
+        fetched_at = datetime.datetime.fromisoformat(d.pop("fetched_at"))
 
 
 

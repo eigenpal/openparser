@@ -43,7 +43,7 @@ class OcrModelCatalogEntryCapabilities:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.ocr_model_catalog_entry_capabilities_options import OcrModelCatalogEntryCapabilitiesOptions
+        from ..models.ocr_model_catalog_entry_capabilities_options import OcrModelCatalogEntryCapabilitiesOptions # noqa: PLC0415
         parse = self.parse
 
         extract_source = self.extract_source
@@ -71,7 +71,7 @@ class OcrModelCatalogEntryCapabilities:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.ocr_model_catalog_entry_capabilities_options import OcrModelCatalogEntryCapabilitiesOptions
+        from ..models.ocr_model_catalog_entry_capabilities_options import OcrModelCatalogEntryCapabilitiesOptions # noqa: PLC0415
         d = dict(src_dict)
         parse = d.pop("parse")
 

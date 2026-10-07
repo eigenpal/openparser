@@ -20,8 +20,7 @@ T = TypeVar("T", bound="ExtractBatchRequestItemsItemOcrOptions")
 
 @_attrs_define
 class ExtractBatchRequestItemsItemOcrOptions:
-    """
-     """
+
 
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 

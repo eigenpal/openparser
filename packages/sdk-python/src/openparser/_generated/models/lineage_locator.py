@@ -43,8 +43,8 @@ class LineageLocator:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.lineage_digest import LineageDigest
-        from ..models.lineage_locator_attributes import LineageLocatorAttributes
+        from ..models.lineage_digest import LineageDigest # noqa: PLC0415
+        from ..models.lineage_locator_attributes import LineageLocatorAttributes # noqa: PLC0415
         uri = self.uri
 
         media_type = self.media_type
@@ -76,8 +76,8 @@ class LineageLocator:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.lineage_digest import LineageDigest
-        from ..models.lineage_locator_attributes import LineageLocatorAttributes
+        from ..models.lineage_digest import LineageDigest # noqa: PLC0415
+        from ..models.lineage_locator_attributes import LineageLocatorAttributes # noqa: PLC0415
         d = dict(src_dict)
         uri = d.pop("uri")
 

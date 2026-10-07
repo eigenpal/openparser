@@ -1,5 +1,12 @@
 # @openparser/extract
 
+## 1.0.11
+
+### Patch Changes
+
+- @openparser/schema@1.0.11
+- @openparser/lineage@1.0.11
+
 ## 1.0.10
 
 ### Patch Changes

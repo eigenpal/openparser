@@ -10,7 +10,6 @@ from ..types import UNSET, Unset
 
 from ..models.lineage_activity_status import LineageActivityStatus
 from ..types import UNSET, Unset
-from dateutil.parser import isoparse
 from typing import cast
 import datetime
 
@@ -60,10 +59,10 @@ class LineageActivity:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.lineage_activity_attributes import LineageActivityAttributes
-        from ..models.lineage_activity_parameters import LineageActivityParameters
-        from ..models.lineage_association import LineageAssociation
-        from ..models.lineage_implementation import LineageImplementation
+        from ..models.lineage_activity_attributes import LineageActivityAttributes # noqa: PLC0415
+        from ..models.lineage_activity_parameters import LineageActivityParameters # noqa: PLC0415
+        from ..models.lineage_association import LineageAssociation # noqa: PLC0415
+        from ..models.lineage_implementation import LineageImplementation # noqa: PLC0415
         type_ = self.type_
 
         name = self.name
@@ -131,10 +130,10 @@ class LineageActivity:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.lineage_activity_attributes import LineageActivityAttributes
-        from ..models.lineage_activity_parameters import LineageActivityParameters
-        from ..models.lineage_association import LineageAssociation
-        from ..models.lineage_implementation import LineageImplementation
+        from ..models.lineage_activity_attributes import LineageActivityAttributes # noqa: PLC0415
+        from ..models.lineage_activity_parameters import LineageActivityParameters # noqa: PLC0415
+        from ..models.lineage_association import LineageAssociation # noqa: PLC0415
+        from ..models.lineage_implementation import LineageImplementation # noqa: PLC0415
         d = dict(src_dict)
         type_ = d.pop("type")
 
@@ -155,7 +154,7 @@ class LineageActivity:
         if isinstance(_started_at,  Unset):
             started_at = UNSET
         else:
-            started_at = isoparse(_started_at)
+            started_at = datetime.datetime.fromisoformat(_started_at)
 
 
 
@@ -165,7 +164,7 @@ class LineageActivity:
         if isinstance(_ended_at,  Unset):
             ended_at = UNSET
         else:
-            ended_at = isoparse(_ended_at)
+            ended_at = datetime.datetime.fromisoformat(_ended_at)
 
 
 

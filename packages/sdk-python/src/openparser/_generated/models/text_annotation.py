@@ -50,11 +50,11 @@ class TextAnnotation:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.confidence import Confidence
-        from ..models.language import Language
-        from ..models.source_provenance import SourceProvenance
-        from ..models.text_span import TextSpan
-        from ..models.text_style import TextStyle
+        from ..models.confidence import Confidence # noqa: PLC0415
+        from ..models.language import Language # noqa: PLC0415
+        from ..models.source_provenance import SourceProvenance # noqa: PLC0415
+        from ..models.text_span import TextSpan # noqa: PLC0415
+        from ..models.text_style import TextStyle # noqa: PLC0415
         id = self.id
 
         spans = []
@@ -104,11 +104,11 @@ class TextAnnotation:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.confidence import Confidence
-        from ..models.language import Language
-        from ..models.source_provenance import SourceProvenance
-        from ..models.text_span import TextSpan
-        from ..models.text_style import TextStyle
+        from ..models.confidence import Confidence # noqa: PLC0415
+        from ..models.language import Language # noqa: PLC0415
+        from ..models.source_provenance import SourceProvenance # noqa: PLC0415
+        from ..models.text_span import TextSpan # noqa: PLC0415
+        from ..models.text_style import TextStyle # noqa: PLC0415
         d = dict(src_dict)
         id = d.pop("id")
 

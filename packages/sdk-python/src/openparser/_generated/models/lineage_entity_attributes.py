@@ -20,8 +20,7 @@ T = TypeVar("T", bound="LineageEntityAttributes")
 
 @_attrs_define
 class LineageEntityAttributes:
-    """
-     """
+
 
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 

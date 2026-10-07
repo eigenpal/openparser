@@ -38,7 +38,7 @@ class DocumentPageQualityDefectsItem:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.confidence import Confidence
+        from ..models.confidence import Confidence # noqa: PLC0415
         type_ = self.type_
 
         confidence: dict[str, Any] | Unset = UNSET
@@ -60,7 +60,7 @@ class DocumentPageQualityDefectsItem:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.confidence import Confidence
+        from ..models.confidence import Confidence # noqa: PLC0415
         d = dict(src_dict)
         type_ = d.pop("type")
 

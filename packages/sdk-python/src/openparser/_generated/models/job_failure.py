@@ -42,7 +42,7 @@ class JobFailure:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.job_failure_details import JobFailureDetails
+        from ..models.job_failure_details import JobFailureDetails # noqa: PLC0415
         code = self.code
 
         message = self.message
@@ -70,7 +70,7 @@ class JobFailure:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.job_failure_details import JobFailureDetails
+        from ..models.job_failure_details import JobFailureDetails # noqa: PLC0415
         d = dict(src_dict)
         code = d.pop("code")
 

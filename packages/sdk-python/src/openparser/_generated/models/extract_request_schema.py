@@ -20,8 +20,7 @@ T = TypeVar("T", bound="ExtractRequestSchema")
 
 @_attrs_define
 class ExtractRequestSchema:
-    """
-     """
+
 
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 

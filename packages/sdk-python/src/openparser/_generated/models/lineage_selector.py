@@ -40,7 +40,7 @@ class LineageSelector:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.lineage_selector_attributes import LineageSelectorAttributes
+        from ..models.lineage_selector_attributes import LineageSelectorAttributes # noqa: PLC0415
         type_ = self.type_
 
         value = self.value
@@ -65,7 +65,7 @@ class LineageSelector:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.lineage_selector_attributes import LineageSelectorAttributes
+        from ..models.lineage_selector_attributes import LineageSelectorAttributes # noqa: PLC0415
         d = dict(src_dict)
         type_ = d.pop("type")
 

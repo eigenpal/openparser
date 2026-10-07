@@ -51,9 +51,9 @@ class OtherElement:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.confidence import Confidence
-        from ..models.geometry import Geometry
-        from ..models.source_provenance import SourceProvenance
+        from ..models.confidence import Confidence # noqa: PLC0415
+        from ..models.geometry import Geometry # noqa: PLC0415
+        from ..models.source_provenance import SourceProvenance # noqa: PLC0415
         id = self.id
 
         locations = []
@@ -99,9 +99,9 @@ class OtherElement:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.confidence import Confidence
-        from ..models.geometry import Geometry
-        from ..models.source_provenance import SourceProvenance
+        from ..models.confidence import Confidence # noqa: PLC0415
+        from ..models.geometry import Geometry # noqa: PLC0415
+        from ..models.source_provenance import SourceProvenance # noqa: PLC0415
         d = dict(src_dict)
         id = d.pop("id")
 

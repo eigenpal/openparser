@@ -38,7 +38,7 @@ class Language:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.confidence import Confidence
+        from ..models.confidence import Confidence # noqa: PLC0415
         code = self.code
 
         confidence: dict[str, Any] | Unset = UNSET
@@ -60,7 +60,7 @@ class Language:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.confidence import Confidence
+        from ..models.confidence import Confidence # noqa: PLC0415
         d = dict(src_dict)
         code = d.pop("code")
 

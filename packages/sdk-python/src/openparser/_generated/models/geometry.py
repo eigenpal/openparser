@@ -43,8 +43,8 @@ class Geometry:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.bounding_box import BoundingBox
-        from ..models.point import Point
+        from ..models.bounding_box import BoundingBox # noqa: PLC0415
+        from ..models.point import Point # noqa: PLC0415
         page_number = self.page_number
 
         bbox = self.bbox.to_dict()
@@ -78,8 +78,8 @@ class Geometry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.bounding_box import BoundingBox
-        from ..models.point import Point
+        from ..models.bounding_box import BoundingBox # noqa: PLC0415
+        from ..models.point import Point # noqa: PLC0415
         d = dict(src_dict)
         page_number = d.pop("page_number")
 

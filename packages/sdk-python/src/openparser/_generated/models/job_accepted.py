@@ -11,7 +11,6 @@ from ..types import UNSET, Unset
 from ..models.job_accepted_operation import JobAcceptedOperation
 from ..models.job_status import JobStatus
 from ..models.ocr_output_format import OcrOutputFormat
-from dateutil.parser import isoparse
 from typing import cast
 import datetime
 
@@ -109,12 +108,12 @@ class JobAccepted:
 
 
 
-        created_at = isoparse(d.pop("created_at"))
+        created_at = datetime.datetime.fromisoformat(d.pop("created_at"))
 
 
 
 
-        updated_at = isoparse(d.pop("updated_at"))
+        updated_at = datetime.datetime.fromisoformat(d.pop("updated_at"))
 
 
 

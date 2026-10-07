@@ -43,7 +43,7 @@ class ParseRequest:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.parse_request_ocr_options import ParseRequestOcrOptions
+        from ..models.parse_request_ocr_options import ParseRequestOcrOptions # noqa: PLC0415
         ocr_model = self.ocr_model
 
         ocr_options: dict[str, Any] | Unset = UNSET
@@ -76,7 +76,7 @@ class ParseRequest:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.parse_request_ocr_options import ParseRequestOcrOptions
+        from ..models.parse_request_ocr_options import ParseRequestOcrOptions # noqa: PLC0415
         d = dict(src_dict)
         ocr_model = d.pop("ocr_model")
 

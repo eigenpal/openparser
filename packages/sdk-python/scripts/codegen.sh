@@ -23,7 +23,7 @@ fi
 echo "→ Generating Python client from $SPEC"
 
 cd "$TMP_DIR"
-uv tool run --from openapi-python-client@0.28.4 openapi-python-client generate \
+uv tool run --python '>=3.11' --from openapi-python-client@0.29.1 openapi-python-client generate \
   --path "$SPEC" \
   --config "$PKG_DIR/openapi-python-client.config.yaml" \
   --overwrite
@@ -55,6 +55,12 @@ for path in out_dir.rglob("*.py"):
     while lines and lines[-1] == "":
         lines.pop()
     updated = "\n".join(lines) + "\n"
+    # Generator 0.29 uses Python 3.11 types; preserve our Python 3.10 runtime API.
+    updated = updated.replace("from enum import StrEnum", "from enum import Enum")
+    updated = updated.replace("(StrEnum):", "(str, Enum):")
+    updated = updated.replace(
+        "from typing import Any, Self", "from typing import Any\nfrom typing_extensions import Self"
+    )
     if (
         "Unset" in updated
         and "from ...types import" in updated

@@ -68,14 +68,14 @@ class LineageEntity:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.lineage_attribution import LineageAttribution
-        from ..models.lineage_confidence_assertion import LineageConfidenceAssertion
-        from ..models.lineage_digest import LineageDigest
-        from ..models.lineage_entity_approvals_item import LineageEntityApprovalsItem
-        from ..models.lineage_entity_attributes import LineageEntityAttributes
-        from ..models.lineage_entity_schema import LineageEntitySchema
-        from ..models.lineage_locator import LineageLocator
-        from ..models.lineage_selector import LineageSelector
+        from ..models.lineage_attribution import LineageAttribution # noqa: PLC0415
+        from ..models.lineage_confidence_assertion import LineageConfidenceAssertion # noqa: PLC0415
+        from ..models.lineage_digest import LineageDigest # noqa: PLC0415
+        from ..models.lineage_entity_approvals_item import LineageEntityApprovalsItem # noqa: PLC0415
+        from ..models.lineage_entity_attributes import LineageEntityAttributes # noqa: PLC0415
+        from ..models.lineage_entity_schema import LineageEntitySchema # noqa: PLC0415
+        from ..models.lineage_locator import LineageLocator # noqa: PLC0415
+        from ..models.lineage_selector import LineageSelector # noqa: PLC0415
         kind = self.kind.value
 
         name = self.name
@@ -166,14 +166,14 @@ class LineageEntity:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.lineage_attribution import LineageAttribution
-        from ..models.lineage_confidence_assertion import LineageConfidenceAssertion
-        from ..models.lineage_digest import LineageDigest
-        from ..models.lineage_entity_approvals_item import LineageEntityApprovalsItem
-        from ..models.lineage_entity_attributes import LineageEntityAttributes
-        from ..models.lineage_entity_schema import LineageEntitySchema
-        from ..models.lineage_locator import LineageLocator
-        from ..models.lineage_selector import LineageSelector
+        from ..models.lineage_attribution import LineageAttribution # noqa: PLC0415
+        from ..models.lineage_confidence_assertion import LineageConfidenceAssertion # noqa: PLC0415
+        from ..models.lineage_digest import LineageDigest # noqa: PLC0415
+        from ..models.lineage_entity_approvals_item import LineageEntityApprovalsItem # noqa: PLC0415
+        from ..models.lineage_entity_attributes import LineageEntityAttributes # noqa: PLC0415
+        from ..models.lineage_entity_schema import LineageEntitySchema # noqa: PLC0415
+        from ..models.lineage_locator import LineageLocator # noqa: PLC0415
+        from ..models.lineage_selector import LineageSelector # noqa: PLC0415
         d = dict(src_dict)
         kind = LineageEntityKind(d.pop("kind"))
 

@@ -41,7 +41,7 @@ class OcrModelCatalogEntryPricing:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.ocr_model_catalog_entry_pricing_configurations_item import OcrModelCatalogEntryPricingConfigurationsItem
+        from ..models.ocr_model_catalog_entry_pricing_configurations_item import OcrModelCatalogEntryPricingConfigurationsItem # noqa: PLC0415
         usd_per_page = self.usd_per_page
 
         basis = self.basis
@@ -71,7 +71,7 @@ class OcrModelCatalogEntryPricing:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.ocr_model_catalog_entry_pricing_configurations_item import OcrModelCatalogEntryPricingConfigurationsItem
+        from ..models.ocr_model_catalog_entry_pricing_configurations_item import OcrModelCatalogEntryPricingConfigurationsItem # noqa: PLC0415
         d = dict(src_dict)
         usd_per_page = d.pop("usd_per_page")
 

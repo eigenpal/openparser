@@ -59,9 +59,9 @@ class CreateExtractionPipelineRequest:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.create_extraction_pipeline_request_llm_options import CreateExtractionPipelineRequestLlmOptions
-        from ..models.create_extraction_pipeline_request_ocr_options import CreateExtractionPipelineRequestOcrOptions
-        from ..models.create_extraction_pipeline_request_schema import CreateExtractionPipelineRequestSchema
+        from ..models.create_extraction_pipeline_request_llm_options import CreateExtractionPipelineRequestLlmOptions # noqa: PLC0415
+        from ..models.create_extraction_pipeline_request_ocr_options import CreateExtractionPipelineRequestOcrOptions # noqa: PLC0415
+        from ..models.create_extraction_pipeline_request_schema import CreateExtractionPipelineRequestSchema # noqa: PLC0415
         name = self.name
 
         ocr_model = self.ocr_model
@@ -113,9 +113,9 @@ class CreateExtractionPipelineRequest:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.create_extraction_pipeline_request_llm_options import CreateExtractionPipelineRequestLlmOptions
-        from ..models.create_extraction_pipeline_request_ocr_options import CreateExtractionPipelineRequestOcrOptions
-        from ..models.create_extraction_pipeline_request_schema import CreateExtractionPipelineRequestSchema
+        from ..models.create_extraction_pipeline_request_llm_options import CreateExtractionPipelineRequestLlmOptions # noqa: PLC0415
+        from ..models.create_extraction_pipeline_request_ocr_options import CreateExtractionPipelineRequestOcrOptions # noqa: PLC0415
+        from ..models.create_extraction_pipeline_request_schema import CreateExtractionPipelineRequestSchema # noqa: PLC0415
         d = dict(src_dict)
         name = d.pop("name")
 

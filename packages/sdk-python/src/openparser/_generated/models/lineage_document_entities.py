@@ -23,8 +23,7 @@ T = TypeVar("T", bound="LineageDocumentEntities")
 
 @_attrs_define
 class LineageDocumentEntities:
-    """
-     """
+
 
     additional_properties: dict[str, LineageEntity] = _attrs_field(init=False, factory=dict)
 
@@ -33,7 +32,7 @@ class LineageDocumentEntities:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.lineage_entity import LineageEntity
+        from ..models.lineage_entity import LineageEntity # noqa: PLC0415
 
         field_dict: dict[str, Any] = {}
         for prop_name, prop in self.additional_properties.items():
@@ -46,20 +45,20 @@ class LineageDocumentEntities:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.lineage_entity import LineageEntity
+        from ..models.lineage_entity import LineageEntity # noqa: PLC0415
         d = dict(src_dict)
         lineage_document_entities = cls(
         )
 
 
-        from ..models.lineage_attribution import LineageAttribution
-        from ..models.lineage_confidence_assertion import LineageConfidenceAssertion
-        from ..models.lineage_digest import LineageDigest
-        from ..models.lineage_entity_approvals_item import LineageEntityApprovalsItem
-        from ..models.lineage_entity_attributes import LineageEntityAttributes
-        from ..models.lineage_entity_schema import LineageEntitySchema
-        from ..models.lineage_locator import LineageLocator
-        from ..models.lineage_selector import LineageSelector
+        from ..models.lineage_attribution import LineageAttribution # noqa: PLC0415
+        from ..models.lineage_confidence_assertion import LineageConfidenceAssertion # noqa: PLC0415
+        from ..models.lineage_digest import LineageDigest # noqa: PLC0415
+        from ..models.lineage_entity_approvals_item import LineageEntityApprovalsItem # noqa: PLC0415
+        from ..models.lineage_entity_attributes import LineageEntityAttributes # noqa: PLC0415
+        from ..models.lineage_entity_schema import LineageEntitySchema # noqa: PLC0415
+        from ..models.lineage_locator import LineageLocator # noqa: PLC0415
+        from ..models.lineage_selector import LineageSelector # noqa: PLC0415
         additional_properties = {}
         for prop_name, prop_dict in d.items():
             additional_property = LineageEntity.from_dict(prop_dict)

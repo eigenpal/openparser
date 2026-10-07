@@ -261,11 +261,11 @@ describe('grounding schema transform', () => {
       },
     });
     expect(
-      (transformIntentForPointer(plan, '/signed_on')?.parameters as { sourceFormats: string[] })
+      (transformIntentForPointer(plan, '/signed_on')!.parameters as { sourceFormats: string[] })
         .sourceFormats
     ).toEqual(expect.arrayContaining(['yyyy-MM-dd', 'd MMMM yyyy', "d 'day of' MMMM yyyy"]));
     expect(
-      (transformIntentForPointer(plan, '/signed_on')?.parameters as { sourceFormats: string[] })
+      (transformIntentForPointer(plan, '/signed_on')!.parameters as { sourceFormats: string[] })
         .sourceFormats
     ).not.toContain('MM/dd/yyyy');
   });

@@ -20,8 +20,7 @@ T = TypeVar("T", bound="LineageDerivationInputAttributes")
 
 @_attrs_define
 class LineageDerivationInputAttributes:
-    """
-     """
+
 
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 

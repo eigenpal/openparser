@@ -46,8 +46,8 @@ class UpdateExtractionReviewRequest:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.update_extraction_review_request_confirmations_item import UpdateExtractionReviewRequestConfirmationsItem
-        from ..models.update_extraction_review_request_retractions_item import UpdateExtractionReviewRequestRetractionsItem
+        from ..models.update_extraction_review_request_confirmations_item import UpdateExtractionReviewRequestConfirmationsItem # noqa: PLC0415
+        from ..models.update_extraction_review_request_retractions_item import UpdateExtractionReviewRequestRetractionsItem # noqa: PLC0415
         expected_version = self.expected_version
 
         confirmations: list[dict[str, Any]] | Unset = UNSET
@@ -85,8 +85,8 @@ class UpdateExtractionReviewRequest:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.update_extraction_review_request_confirmations_item import UpdateExtractionReviewRequestConfirmationsItem
-        from ..models.update_extraction_review_request_retractions_item import UpdateExtractionReviewRequestRetractionsItem
+        from ..models.update_extraction_review_request_confirmations_item import UpdateExtractionReviewRequestConfirmationsItem # noqa: PLC0415
+        from ..models.update_extraction_review_request_retractions_item import UpdateExtractionReviewRequestRetractionsItem # noqa: PLC0415
         d = dict(src_dict)
         expected_version = d.pop("expected_version")
 

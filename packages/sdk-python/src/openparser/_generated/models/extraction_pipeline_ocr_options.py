@@ -20,8 +20,7 @@ T = TypeVar("T", bound="ExtractionPipelineOcrOptions")
 
 @_attrs_define
 class ExtractionPipelineOcrOptions:
-    """
-     """
+
 
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 

@@ -44,7 +44,7 @@ class ParseBatchRequestItemsItem:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.parse_batch_request_items_item_ocr_options import ParseBatchRequestItemsItemOcrOptions
+        from ..models.parse_batch_request_items_item_ocr_options import ParseBatchRequestItemsItemOcrOptions # noqa: PLC0415
         client_item_id = self.client_item_id
 
         ocr_model = self.ocr_model
@@ -77,7 +77,7 @@ class ParseBatchRequestItemsItem:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.parse_batch_request_items_item_ocr_options import ParseBatchRequestItemsItemOcrOptions
+        from ..models.parse_batch_request_items_item_ocr_options import ParseBatchRequestItemsItemOcrOptions # noqa: PLC0415
         d = dict(src_dict)
         client_item_id = d.pop("client_item_id")
 

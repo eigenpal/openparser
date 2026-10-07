@@ -67,10 +67,10 @@ class BatchChildSummary:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.extraction_terminal_result import ExtractionTerminalResult
-        from ..models.job_failure import JobFailure
-        from ..models.parsed_document import ParsedDocument
-        from ..models.raw_parse_result import RawParseResult
+        from ..models.extraction_terminal_result import ExtractionTerminalResult # noqa: PLC0415
+        from ..models.job_failure import JobFailure # noqa: PLC0415
+        from ..models.parsed_document import ParsedDocument # noqa: PLC0415
+        from ..models.raw_parse_result import RawParseResult # noqa: PLC0415
         client_item_id = self.client_item_id
 
         job_id = self.job_id
@@ -117,10 +117,10 @@ class BatchChildSummary:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.extraction_terminal_result import ExtractionTerminalResult
-        from ..models.job_failure import JobFailure
-        from ..models.parsed_document import ParsedDocument
-        from ..models.raw_parse_result import RawParseResult
+        from ..models.extraction_terminal_result import ExtractionTerminalResult # noqa: PLC0415
+        from ..models.job_failure import JobFailure # noqa: PLC0415
+        from ..models.parsed_document import ParsedDocument # noqa: PLC0415
+        from ..models.raw_parse_result import RawParseResult # noqa: PLC0415
         d = dict(src_dict)
         client_item_id = d.pop("client_item_id")
 

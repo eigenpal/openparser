@@ -37,7 +37,7 @@ def _get_kwargs(
 
     _kwargs["files"] = body.to_multipart()
 
-
+    headers["Content-Type"] = "multipart/form-data; boundary=+++"
 
     _kwargs["headers"] = headers
     return _kwargs
@@ -144,18 +144,18 @@ def sync_detailed(
     idempotency_key: str,
 
 ) -> Response[ErrorResponse | JobAccepted]:
-    r""" Parse a document asynchronously
+    """ Parse a document asynchronously
 
      Admit a durable parse job and return immediately.
 
     Example (`multipart/form-data`):
 
     ```bash
-    curl -X POST 'https://api.openparser.dev/parse/async' \
-      -H 'Authorization: Bearer YOUR_API_KEY' \
-      -H \"Idempotency-Key: $(uuidgen 2>/dev/null || openssl rand -hex 16)\" \
-      -F 'request={\"ocr_model\":\"paddleocr-
-    vl-1.6\",\"output_format\":\"openparser@1\"};type=application/json' \
+    curl -X POST 'https://api.openparser.dev/parse/async' \\
+      -H 'Authorization: Bearer YOUR_API_KEY' \\
+      -H "Idempotency-Key: $(uuidgen 2>/dev/null || openssl rand -hex 16)" \\
+      -F 'request={"ocr_model":"paddleocr-vl-1.6","output_format":"openparser@1"};type=application/json'
+    \\
       -F 'file=@./document.pdf'
     ```
 
@@ -191,18 +191,18 @@ def sync(
     idempotency_key: str,
 
 ) -> ErrorResponse | JobAccepted | None:
-    r""" Parse a document asynchronously
+    """ Parse a document asynchronously
 
      Admit a durable parse job and return immediately.
 
     Example (`multipart/form-data`):
 
     ```bash
-    curl -X POST 'https://api.openparser.dev/parse/async' \
-      -H 'Authorization: Bearer YOUR_API_KEY' \
-      -H \"Idempotency-Key: $(uuidgen 2>/dev/null || openssl rand -hex 16)\" \
-      -F 'request={\"ocr_model\":\"paddleocr-
-    vl-1.6\",\"output_format\":\"openparser@1\"};type=application/json' \
+    curl -X POST 'https://api.openparser.dev/parse/async' \\
+      -H 'Authorization: Bearer YOUR_API_KEY' \\
+      -H "Idempotency-Key: $(uuidgen 2>/dev/null || openssl rand -hex 16)" \\
+      -F 'request={"ocr_model":"paddleocr-vl-1.6","output_format":"openparser@1"};type=application/json'
+    \\
       -F 'file=@./document.pdf'
     ```
 
@@ -233,18 +233,18 @@ async def asyncio_detailed(
     idempotency_key: str,
 
 ) -> Response[ErrorResponse | JobAccepted]:
-    r""" Parse a document asynchronously
+    """ Parse a document asynchronously
 
      Admit a durable parse job and return immediately.
 
     Example (`multipart/form-data`):
 
     ```bash
-    curl -X POST 'https://api.openparser.dev/parse/async' \
-      -H 'Authorization: Bearer YOUR_API_KEY' \
-      -H \"Idempotency-Key: $(uuidgen 2>/dev/null || openssl rand -hex 16)\" \
-      -F 'request={\"ocr_model\":\"paddleocr-
-    vl-1.6\",\"output_format\":\"openparser@1\"};type=application/json' \
+    curl -X POST 'https://api.openparser.dev/parse/async' \\
+      -H 'Authorization: Bearer YOUR_API_KEY' \\
+      -H "Idempotency-Key: $(uuidgen 2>/dev/null || openssl rand -hex 16)" \\
+      -F 'request={"ocr_model":"paddleocr-vl-1.6","output_format":"openparser@1"};type=application/json'
+    \\
       -F 'file=@./document.pdf'
     ```
 
@@ -280,18 +280,18 @@ async def asyncio(
     idempotency_key: str,
 
 ) -> ErrorResponse | JobAccepted | None:
-    r""" Parse a document asynchronously
+    """ Parse a document asynchronously
 
      Admit a durable parse job and return immediately.
 
     Example (`multipart/form-data`):
 
     ```bash
-    curl -X POST 'https://api.openparser.dev/parse/async' \
-      -H 'Authorization: Bearer YOUR_API_KEY' \
-      -H \"Idempotency-Key: $(uuidgen 2>/dev/null || openssl rand -hex 16)\" \
-      -F 'request={\"ocr_model\":\"paddleocr-
-    vl-1.6\",\"output_format\":\"openparser@1\"};type=application/json' \
+    curl -X POST 'https://api.openparser.dev/parse/async' \\
+      -H 'Authorization: Bearer YOUR_API_KEY' \\
+      -H "Idempotency-Key: $(uuidgen 2>/dev/null || openssl rand -hex 16)" \\
+      -F 'request={"ocr_model":"paddleocr-vl-1.6","output_format":"openparser@1"};type=application/json'
+    \\
       -F 'file=@./document.pdf'
     ```
 

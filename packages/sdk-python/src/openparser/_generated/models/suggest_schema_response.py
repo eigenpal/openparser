@@ -38,7 +38,7 @@ class SuggestSchemaResponse:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.suggest_schema_response_schema import SuggestSchemaResponseSchema
+        from ..models.suggest_schema_response_schema import SuggestSchemaResponseSchema # noqa: PLC0415
         name = self.name
 
         schema = self.schema.to_dict()
@@ -57,7 +57,7 @@ class SuggestSchemaResponse:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.suggest_schema_response_schema import SuggestSchemaResponseSchema
+        from ..models.suggest_schema_response_schema import SuggestSchemaResponseSchema # noqa: PLC0415
         d = dict(src_dict)
         name = d.pop("name")
 

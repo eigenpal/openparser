@@ -23,8 +23,7 @@ T = TypeVar("T", bound="LineageDocumentActivities")
 
 @_attrs_define
 class LineageDocumentActivities:
-    """
-     """
+
 
     additional_properties: dict[str, LineageActivity] = _attrs_field(init=False, factory=dict)
 
@@ -33,7 +32,7 @@ class LineageDocumentActivities:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.lineage_activity import LineageActivity
+        from ..models.lineage_activity import LineageActivity # noqa: PLC0415
 
         field_dict: dict[str, Any] = {}
         for prop_name, prop in self.additional_properties.items():
@@ -46,16 +45,16 @@ class LineageDocumentActivities:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.lineage_activity import LineageActivity
+        from ..models.lineage_activity import LineageActivity # noqa: PLC0415
         d = dict(src_dict)
         lineage_document_activities = cls(
         )
 
 
-        from ..models.lineage_activity_attributes import LineageActivityAttributes
-        from ..models.lineage_activity_parameters import LineageActivityParameters
-        from ..models.lineage_association import LineageAssociation
-        from ..models.lineage_implementation import LineageImplementation
+        from ..models.lineage_activity_attributes import LineageActivityAttributes # noqa: PLC0415
+        from ..models.lineage_activity_parameters import LineageActivityParameters # noqa: PLC0415
+        from ..models.lineage_association import LineageAssociation # noqa: PLC0415
+        from ..models.lineage_implementation import LineageImplementation # noqa: PLC0415
         additional_properties = {}
         for prop_name, prop_dict in d.items():
             additional_property = LineageActivity.from_dict(prop_dict)

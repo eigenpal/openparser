@@ -39,7 +39,7 @@ class ExtractionGroundingResult:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.extraction_grounding_field import ExtractionGroundingField
+        from ..models.extraction_grounding_field import ExtractionGroundingField # noqa: PLC0415
         mode = self.mode
 
         fields = []
@@ -63,7 +63,7 @@ class ExtractionGroundingResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.extraction_grounding_field import ExtractionGroundingField
+        from ..models.extraction_grounding_field import ExtractionGroundingField # noqa: PLC0415
         d = dict(src_dict)
         mode = cast(Literal['field'] , d.pop("mode"))
         if mode != 'field':

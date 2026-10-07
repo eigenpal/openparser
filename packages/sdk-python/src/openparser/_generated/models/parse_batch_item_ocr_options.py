@@ -20,8 +20,7 @@ T = TypeVar("T", bound="ParseBatchItemOcrOptions")
 
 @_attrs_define
 class ParseBatchItemOcrOptions:
-    """
-     """
+
 
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 

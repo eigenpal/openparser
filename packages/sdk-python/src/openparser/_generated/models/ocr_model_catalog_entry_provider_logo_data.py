@@ -39,7 +39,7 @@ class OcrModelCatalogEntryProviderLogoData:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.ocr_model_catalog_entry_provider_logo_data_paths_item import OcrModelCatalogEntryProviderLogoDataPathsItem
+        from ..models.ocr_model_catalog_entry_provider_logo_data_paths_item import OcrModelCatalogEntryProviderLogoDataPathsItem # noqa: PLC0415
         title = self.title
 
         view_box = self.view_box
@@ -66,7 +66,7 @@ class OcrModelCatalogEntryProviderLogoData:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.ocr_model_catalog_entry_provider_logo_data_paths_item import OcrModelCatalogEntryProviderLogoDataPathsItem
+        from ..models.ocr_model_catalog_entry_provider_logo_data_paths_item import OcrModelCatalogEntryProviderLogoDataPathsItem # noqa: PLC0415
         d = dict(src_dict)
         title = d.pop("title")
 

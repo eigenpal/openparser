@@ -44,7 +44,7 @@ class ErrorBody:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.error_body_details import ErrorBodyDetails
+        from ..models.error_body_details import ErrorBodyDetails # noqa: PLC0415
         code = self.code
 
         message = self.message
@@ -75,7 +75,7 @@ class ErrorBody:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.error_body_details import ErrorBodyDetails
+        from ..models.error_body_details import ErrorBodyDetails # noqa: PLC0415
         d = dict(src_dict)
         code = d.pop("code")
 

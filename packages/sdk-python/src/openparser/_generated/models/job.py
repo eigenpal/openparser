@@ -13,7 +13,6 @@ from ..models.job_operation import JobOperation
 from ..models.job_status import JobStatus
 from ..models.ocr_output_format import OcrOutputFormat
 from ..types import UNSET, Unset
-from dateutil.parser import isoparse
 from typing import cast
 import datetime
 
@@ -107,15 +106,15 @@ class Job:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.batch_child_page import BatchChildPage
-        from ..models.batch_summary_counts import BatchSummaryCounts
-        from ..models.extraction_terminal_result import ExtractionTerminalResult
-        from ..models.job_extraction_schema import JobExtractionSchema
-        from ..models.job_failure import JobFailure
-        from ..models.job_progress import JobProgress
-        from ..models.job_related_extractions_item import JobRelatedExtractionsItem
-        from ..models.parsed_document import ParsedDocument
-        from ..models.raw_parse_result import RawParseResult
+        from ..models.batch_child_page import BatchChildPage # noqa: PLC0415
+        from ..models.batch_summary_counts import BatchSummaryCounts # noqa: PLC0415
+        from ..models.extraction_terminal_result import ExtractionTerminalResult # noqa: PLC0415
+        from ..models.job_extraction_schema import JobExtractionSchema # noqa: PLC0415
+        from ..models.job_failure import JobFailure # noqa: PLC0415
+        from ..models.job_progress import JobProgress # noqa: PLC0415
+        from ..models.job_related_extractions_item import JobRelatedExtractionsItem # noqa: PLC0415
+        from ..models.parsed_document import ParsedDocument # noqa: PLC0415
+        from ..models.raw_parse_result import RawParseResult # noqa: PLC0415
         id = self.id
 
         operation = self.operation.value
@@ -250,15 +249,15 @@ class Job:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.batch_child_page import BatchChildPage
-        from ..models.batch_summary_counts import BatchSummaryCounts
-        from ..models.extraction_terminal_result import ExtractionTerminalResult
-        from ..models.job_extraction_schema import JobExtractionSchema
-        from ..models.job_failure import JobFailure
-        from ..models.job_progress import JobProgress
-        from ..models.job_related_extractions_item import JobRelatedExtractionsItem
-        from ..models.parsed_document import ParsedDocument
-        from ..models.raw_parse_result import RawParseResult
+        from ..models.batch_child_page import BatchChildPage # noqa: PLC0415
+        from ..models.batch_summary_counts import BatchSummaryCounts # noqa: PLC0415
+        from ..models.extraction_terminal_result import ExtractionTerminalResult # noqa: PLC0415
+        from ..models.job_extraction_schema import JobExtractionSchema # noqa: PLC0415
+        from ..models.job_failure import JobFailure # noqa: PLC0415
+        from ..models.job_progress import JobProgress # noqa: PLC0415
+        from ..models.job_related_extractions_item import JobRelatedExtractionsItem # noqa: PLC0415
+        from ..models.parsed_document import ParsedDocument # noqa: PLC0415
+        from ..models.raw_parse_result import RawParseResult # noqa: PLC0415
         d = dict(src_dict)
         id = d.pop("id")
 
@@ -277,12 +276,12 @@ class Job:
 
 
 
-        created_at = isoparse(d.pop("created_at"))
+        created_at = datetime.datetime.fromisoformat(d.pop("created_at"))
 
 
 
 
-        updated_at = isoparse(d.pop("updated_at"))
+        updated_at = datetime.datetime.fromisoformat(d.pop("updated_at"))
 
 
 
@@ -293,7 +292,7 @@ class Job:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                completed_at_type_0 = isoparse(data)
+                completed_at_type_0 = datetime.datetime.fromisoformat(data)
 
 
 

@@ -39,7 +39,7 @@ def _get_kwargs(
 
     _kwargs["files"] = body.to_multipart()
 
-
+    headers["Content-Type"] = "multipart/form-data; boundary=+++"
 
     _kwargs["headers"] = headers
     return _kwargs
@@ -177,7 +177,7 @@ def sync_detailed(
     idempotency_key: str,
 
 ) -> Response[ErrorResponse | JobAccepted | ParsedDocument | RawParseResult]:
-    r""" Parse a document synchronously
+    """ Parse a document synchronously
 
      Admit a parse job, wait up to the sync wait limit, and return the selected terminal parse
     representation when ready. `output_format` defaults to the versioned provider-neutral
@@ -189,11 +189,11 @@ def sync_detailed(
     Example (`multipart/form-data`):
 
     ```bash
-    curl -X POST 'https://api.openparser.dev/parse' \
-      -H 'Authorization: Bearer YOUR_API_KEY' \
-      -H \"Idempotency-Key: $(uuidgen 2>/dev/null || openssl rand -hex 16)\" \
-      -F 'request={\"ocr_model\":\"paddleocr-
-    vl-1.6\",\"output_format\":\"openparser@1\"};type=application/json' \
+    curl -X POST 'https://api.openparser.dev/parse' \\
+      -H 'Authorization: Bearer YOUR_API_KEY' \\
+      -H "Idempotency-Key: $(uuidgen 2>/dev/null || openssl rand -hex 16)" \\
+      -F 'request={"ocr_model":"paddleocr-vl-1.6","output_format":"openparser@1"};type=application/json'
+    \\
       -F 'file=@./document.pdf'
     ```
 
@@ -229,7 +229,7 @@ def sync(
     idempotency_key: str,
 
 ) -> ErrorResponse | JobAccepted | ParsedDocument | RawParseResult | None:
-    r""" Parse a document synchronously
+    """ Parse a document synchronously
 
      Admit a parse job, wait up to the sync wait limit, and return the selected terminal parse
     representation when ready. `output_format` defaults to the versioned provider-neutral
@@ -241,11 +241,11 @@ def sync(
     Example (`multipart/form-data`):
 
     ```bash
-    curl -X POST 'https://api.openparser.dev/parse' \
-      -H 'Authorization: Bearer YOUR_API_KEY' \
-      -H \"Idempotency-Key: $(uuidgen 2>/dev/null || openssl rand -hex 16)\" \
-      -F 'request={\"ocr_model\":\"paddleocr-
-    vl-1.6\",\"output_format\":\"openparser@1\"};type=application/json' \
+    curl -X POST 'https://api.openparser.dev/parse' \\
+      -H 'Authorization: Bearer YOUR_API_KEY' \\
+      -H "Idempotency-Key: $(uuidgen 2>/dev/null || openssl rand -hex 16)" \\
+      -F 'request={"ocr_model":"paddleocr-vl-1.6","output_format":"openparser@1"};type=application/json'
+    \\
       -F 'file=@./document.pdf'
     ```
 
@@ -276,7 +276,7 @@ async def asyncio_detailed(
     idempotency_key: str,
 
 ) -> Response[ErrorResponse | JobAccepted | ParsedDocument | RawParseResult]:
-    r""" Parse a document synchronously
+    """ Parse a document synchronously
 
      Admit a parse job, wait up to the sync wait limit, and return the selected terminal parse
     representation when ready. `output_format` defaults to the versioned provider-neutral
@@ -288,11 +288,11 @@ async def asyncio_detailed(
     Example (`multipart/form-data`):
 
     ```bash
-    curl -X POST 'https://api.openparser.dev/parse' \
-      -H 'Authorization: Bearer YOUR_API_KEY' \
-      -H \"Idempotency-Key: $(uuidgen 2>/dev/null || openssl rand -hex 16)\" \
-      -F 'request={\"ocr_model\":\"paddleocr-
-    vl-1.6\",\"output_format\":\"openparser@1\"};type=application/json' \
+    curl -X POST 'https://api.openparser.dev/parse' \\
+      -H 'Authorization: Bearer YOUR_API_KEY' \\
+      -H "Idempotency-Key: $(uuidgen 2>/dev/null || openssl rand -hex 16)" \\
+      -F 'request={"ocr_model":"paddleocr-vl-1.6","output_format":"openparser@1"};type=application/json'
+    \\
       -F 'file=@./document.pdf'
     ```
 
@@ -328,7 +328,7 @@ async def asyncio(
     idempotency_key: str,
 
 ) -> ErrorResponse | JobAccepted | ParsedDocument | RawParseResult | None:
-    r""" Parse a document synchronously
+    """ Parse a document synchronously
 
      Admit a parse job, wait up to the sync wait limit, and return the selected terminal parse
     representation when ready. `output_format` defaults to the versioned provider-neutral
@@ -340,11 +340,11 @@ async def asyncio(
     Example (`multipart/form-data`):
 
     ```bash
-    curl -X POST 'https://api.openparser.dev/parse' \
-      -H 'Authorization: Bearer YOUR_API_KEY' \
-      -H \"Idempotency-Key: $(uuidgen 2>/dev/null || openssl rand -hex 16)\" \
-      -F 'request={\"ocr_model\":\"paddleocr-
-    vl-1.6\",\"output_format\":\"openparser@1\"};type=application/json' \
+    curl -X POST 'https://api.openparser.dev/parse' \\
+      -H 'Authorization: Bearer YOUR_API_KEY' \\
+      -H "Idempotency-Key: $(uuidgen 2>/dev/null || openssl rand -hex 16)" \\
+      -F 'request={"ocr_model":"paddleocr-vl-1.6","output_format":"openparser@1"};type=application/json'
+    \\
       -F 'file=@./document.pdf'
     ```
 

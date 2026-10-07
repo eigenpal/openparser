@@ -44,7 +44,7 @@ class LineageImplementation:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.lineage_implementation_attributes import LineageImplementationAttributes
+        from ..models.lineage_implementation_attributes import LineageImplementationAttributes # noqa: PLC0415
         type_ = self.type_
 
         name = self.name
@@ -79,7 +79,7 @@ class LineageImplementation:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.lineage_implementation_attributes import LineageImplementationAttributes
+        from ..models.lineage_implementation_attributes import LineageImplementationAttributes # noqa: PLC0415
         d = dict(src_dict)
         type_ = d.pop("type", UNSET)
 

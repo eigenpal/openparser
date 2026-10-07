@@ -21,8 +21,7 @@ T = TypeVar("T", bound="ExtractionGroundingFieldTransformClaimParameters")
 
 @_attrs_define
 class ExtractionGroundingFieldTransformClaimParameters:
-    """
-     """
+
 
     additional_properties: dict[str, bool | float | str] = _attrs_field(init=False, factory=dict)
 

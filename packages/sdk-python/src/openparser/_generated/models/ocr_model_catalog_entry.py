@@ -68,13 +68,13 @@ class OcrModelCatalogEntry:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.ocr_model_catalog_entry_benchmark_type_0 import OcrModelCatalogEntryBenchmarkType0
-        from ..models.ocr_model_catalog_entry_capabilities import OcrModelCatalogEntryCapabilities
-        from ..models.ocr_model_catalog_entry_guidance import OcrModelCatalogEntryGuidance
-        from ..models.ocr_model_catalog_entry_option_controls_item import OcrModelCatalogEntryOptionControlsItem
-        from ..models.ocr_model_catalog_entry_option_defaults import OcrModelCatalogEntryOptionDefaults
-        from ..models.ocr_model_catalog_entry_pricing import OcrModelCatalogEntryPricing
-        from ..models.ocr_model_catalog_entry_provider import OcrModelCatalogEntryProvider
+        from ..models.ocr_model_catalog_entry_benchmark_type_0 import OcrModelCatalogEntryBenchmarkType0 # noqa: PLC0415
+        from ..models.ocr_model_catalog_entry_capabilities import OcrModelCatalogEntryCapabilities # noqa: PLC0415
+        from ..models.ocr_model_catalog_entry_guidance import OcrModelCatalogEntryGuidance # noqa: PLC0415
+        from ..models.ocr_model_catalog_entry_option_controls_item import OcrModelCatalogEntryOptionControlsItem # noqa: PLC0415
+        from ..models.ocr_model_catalog_entry_option_defaults import OcrModelCatalogEntryOptionDefaults # noqa: PLC0415
+        from ..models.ocr_model_catalog_entry_pricing import OcrModelCatalogEntryPricing # noqa: PLC0415
+        from ..models.ocr_model_catalog_entry_provider import OcrModelCatalogEntryProvider # noqa: PLC0415
         id = self.id
 
         label = self.label
@@ -132,13 +132,13 @@ class OcrModelCatalogEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.ocr_model_catalog_entry_benchmark_type_0 import OcrModelCatalogEntryBenchmarkType0
-        from ..models.ocr_model_catalog_entry_capabilities import OcrModelCatalogEntryCapabilities
-        from ..models.ocr_model_catalog_entry_guidance import OcrModelCatalogEntryGuidance
-        from ..models.ocr_model_catalog_entry_option_controls_item import OcrModelCatalogEntryOptionControlsItem
-        from ..models.ocr_model_catalog_entry_option_defaults import OcrModelCatalogEntryOptionDefaults
-        from ..models.ocr_model_catalog_entry_pricing import OcrModelCatalogEntryPricing
-        from ..models.ocr_model_catalog_entry_provider import OcrModelCatalogEntryProvider
+        from ..models.ocr_model_catalog_entry_benchmark_type_0 import OcrModelCatalogEntryBenchmarkType0 # noqa: PLC0415
+        from ..models.ocr_model_catalog_entry_capabilities import OcrModelCatalogEntryCapabilities # noqa: PLC0415
+        from ..models.ocr_model_catalog_entry_guidance import OcrModelCatalogEntryGuidance # noqa: PLC0415
+        from ..models.ocr_model_catalog_entry_option_controls_item import OcrModelCatalogEntryOptionControlsItem # noqa: PLC0415
+        from ..models.ocr_model_catalog_entry_option_defaults import OcrModelCatalogEntryOptionDefaults # noqa: PLC0415
+        from ..models.ocr_model_catalog_entry_pricing import OcrModelCatalogEntryPricing # noqa: PLC0415
+        from ..models.ocr_model_catalog_entry_provider import OcrModelCatalogEntryProvider # noqa: PLC0415
         d = dict(src_dict)
         id = d.pop("id")
 

@@ -45,7 +45,7 @@ class ParseBatchBody:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.parse_batch_request import ParseBatchRequest
+        from ..models.parse_batch_request import ParseBatchRequest # noqa: PLC0415
         request = self.request.to_dict()
 
         files: list[FileTypes] | Unset = UNSET
@@ -71,7 +71,7 @@ class ParseBatchBody:
 
 
     def to_multipart(self) -> types.RequestFiles:
-        from ..models.parse_batch_request import ParseBatchRequest
+        from ..models.parse_batch_request import ParseBatchRequest # noqa: PLC0415
         files: types.RequestFiles = []
 
         files.append(("request", (None, json.dumps( self.request.to_dict()).encode(), "application/json")))
@@ -96,7 +96,7 @@ class ParseBatchBody:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.parse_batch_request import ParseBatchRequest
+        from ..models.parse_batch_request import ParseBatchRequest # noqa: PLC0415
         d = dict(src_dict)
         request = ParseBatchRequest.from_dict(d.pop("request"))
 

@@ -1,6 +1,6 @@
 {
   "name": "@openparser/lineage",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Zod schemas, validation, and helpers for lineage@1 complete data-derivation DAGs",
   "type": "module",
   "main": "./dist/index.js",
@@ -36,7 +36,6 @@
   "scripts": {
     "build": "bun run schema:generate && bun scripts/build.ts",
     "prepack": "bun run build",
-    "lint": "eslint src/",
     "typecheck": "tsc --noEmit",
     "test": "bun test",
     "pack:smoke": "bun scripts/pack-smoke.ts",
@@ -52,7 +51,7 @@
     "@types/luxon": "3.7.4",
     "esbuild": "0.25.12",
     "prettier": "3.8.1",
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.2"
   },
   "publishConfig": {
     "access": "public"

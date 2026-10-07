@@ -14,7 +14,7 @@ export default defineConfig({
   input: '../../docs/OCR_API_OPENAPI.yaml',
   output: {
     path: './src/generated',
-    lint: false,
+    postProcess: [],
   },
   plugins: [
     {

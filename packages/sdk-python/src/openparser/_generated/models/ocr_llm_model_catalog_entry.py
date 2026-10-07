@@ -9,7 +9,6 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 from ..models.ocr_llm_model_catalog_entry_recommendation import OcrLlmModelCatalogEntryRecommendation
-from dateutil.parser import isoparse
 from typing import cast
 import datetime
 
@@ -72,8 +71,8 @@ class OcrLlmModelCatalogEntry:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.ocr_llm_model_catalog_entry_pricing import OcrLlmModelCatalogEntryPricing
-        from ..models.ocr_llm_model_catalog_entry_reasoning_type_0 import OcrLlmModelCatalogEntryReasoningType0
+        from ..models.ocr_llm_model_catalog_entry_pricing import OcrLlmModelCatalogEntryPricing # noqa: PLC0415
+        from ..models.ocr_llm_model_catalog_entry_reasoning_type_0 import OcrLlmModelCatalogEntryReasoningType0 # noqa: PLC0415
         id = self.id
 
         label = self.label
@@ -144,8 +143,8 @@ class OcrLlmModelCatalogEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.ocr_llm_model_catalog_entry_pricing import OcrLlmModelCatalogEntryPricing
-        from ..models.ocr_llm_model_catalog_entry_reasoning_type_0 import OcrLlmModelCatalogEntryReasoningType0
+        from ..models.ocr_llm_model_catalog_entry_pricing import OcrLlmModelCatalogEntryPricing # noqa: PLC0415
+        from ..models.ocr_llm_model_catalog_entry_reasoning_type_0 import OcrLlmModelCatalogEntryReasoningType0 # noqa: PLC0415
         d = dict(src_dict)
         id = d.pop("id")
 
@@ -159,7 +158,7 @@ class OcrLlmModelCatalogEntry:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                created_at_type_0 = isoparse(data)
+                created_at_type_0 = datetime.datetime.fromisoformat(data)
 
 
 
@@ -220,7 +219,7 @@ class OcrLlmModelCatalogEntry:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                deprecated_at_type_0 = isoparse(data)
+                deprecated_at_type_0 = datetime.datetime.fromisoformat(data)
 
 
 

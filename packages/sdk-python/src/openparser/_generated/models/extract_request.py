@@ -72,9 +72,9 @@ class ExtractRequest:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.extract_request_llm_options import ExtractRequestLlmOptions
-        from ..models.extract_request_ocr_options import ExtractRequestOcrOptions
-        from ..models.extract_request_schema import ExtractRequestSchema
+        from ..models.extract_request_llm_options import ExtractRequestLlmOptions # noqa: PLC0415
+        from ..models.extract_request_ocr_options import ExtractRequestOcrOptions # noqa: PLC0415
+        from ..models.extract_request_schema import ExtractRequestSchema # noqa: PLC0415
         pipeline_id = self.pipeline_id
 
         ocr_model = self.ocr_model
@@ -143,9 +143,9 @@ class ExtractRequest:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.extract_request_llm_options import ExtractRequestLlmOptions
-        from ..models.extract_request_ocr_options import ExtractRequestOcrOptions
-        from ..models.extract_request_schema import ExtractRequestSchema
+        from ..models.extract_request_llm_options import ExtractRequestLlmOptions # noqa: PLC0415
+        from ..models.extract_request_ocr_options import ExtractRequestOcrOptions # noqa: PLC0415
+        from ..models.extract_request_schema import ExtractRequestSchema # noqa: PLC0415
         d = dict(src_dict)
         pipeline_id = d.pop("pipeline_id", UNSET)
 

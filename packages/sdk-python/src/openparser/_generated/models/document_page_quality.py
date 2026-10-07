@@ -42,9 +42,9 @@ class DocumentPageQuality:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.confidence import Confidence
-        from ..models.document_page_quality_defects_item import DocumentPageQualityDefectsItem
-        from ..models.document_page_quality_metrics_item import DocumentPageQualityMetricsItem
+        from ..models.confidence import Confidence # noqa: PLC0415
+        from ..models.document_page_quality_defects_item import DocumentPageQualityDefectsItem # noqa: PLC0415
+        from ..models.document_page_quality_metrics_item import DocumentPageQualityMetricsItem # noqa: PLC0415
         defects = []
         for defects_item_data in self.defects:
             defects_item = defects_item_data.to_dict()
@@ -79,9 +79,9 @@ class DocumentPageQuality:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.confidence import Confidence
-        from ..models.document_page_quality_defects_item import DocumentPageQualityDefectsItem
-        from ..models.document_page_quality_metrics_item import DocumentPageQualityMetricsItem
+        from ..models.confidence import Confidence # noqa: PLC0415
+        from ..models.document_page_quality_defects_item import DocumentPageQualityDefectsItem # noqa: PLC0415
+        from ..models.document_page_quality_metrics_item import DocumentPageQualityMetricsItem # noqa: PLC0415
         d = dict(src_dict)
         defects = []
         _defects = d.pop("defects")

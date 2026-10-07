@@ -8,7 +8,6 @@ from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
-from dateutil.parser import isoparse
 from typing import cast
 from typing import Literal, cast
 import datetime
@@ -71,7 +70,7 @@ class ExtractionReviewEventType3:
 
         actor_id = d.pop("actor_id")
 
-        created_at = isoparse(d.pop("created_at"))
+        created_at = datetime.datetime.fromisoformat(d.pop("created_at"))
 
 
 

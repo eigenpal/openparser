@@ -44,7 +44,7 @@ class ParseAsyncBody:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.parse_request import ParseRequest
+        from ..models.parse_request import ParseRequest # noqa: PLC0415
         request = self.request.to_dict()
 
         file: FileTypes | Unset = UNSET
@@ -65,7 +65,7 @@ class ParseAsyncBody:
 
 
     def to_multipart(self) -> types.RequestFiles:
-        from ..models.parse_request import ParseRequest
+        from ..models.parse_request import ParseRequest # noqa: PLC0415
         files: types.RequestFiles = []
 
         files.append(("request", (None, json.dumps( self.request.to_dict()).encode(), "application/json")))
@@ -88,7 +88,7 @@ class ParseAsyncBody:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.parse_request import ParseRequest
+        from ..models.parse_request import ParseRequest # noqa: PLC0415
         d = dict(src_dict)
         request = ParseRequest.from_dict(d.pop("request"))
 

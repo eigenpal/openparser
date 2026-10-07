@@ -54,10 +54,10 @@ class LineageDerivation:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.lineage_confidence_assertion import LineageConfidenceAssertion
-        from ..models.lineage_derivation_attributes import LineageDerivationAttributes
-        from ..models.lineage_derivation_input import LineageDerivationInput
-        from ..models.lineage_transformation import LineageTransformation
+        from ..models.lineage_confidence_assertion import LineageConfidenceAssertion # noqa: PLC0415
+        from ..models.lineage_derivation_attributes import LineageDerivationAttributes # noqa: PLC0415
+        from ..models.lineage_derivation_input import LineageDerivationInput # noqa: PLC0415
+        from ..models.lineage_transformation import LineageTransformation # noqa: PLC0415
         output = self.output
 
         activity = self.activity
@@ -106,10 +106,10 @@ class LineageDerivation:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.lineage_confidence_assertion import LineageConfidenceAssertion
-        from ..models.lineage_derivation_attributes import LineageDerivationAttributes
-        from ..models.lineage_derivation_input import LineageDerivationInput
-        from ..models.lineage_transformation import LineageTransformation
+        from ..models.lineage_confidence_assertion import LineageConfidenceAssertion # noqa: PLC0415
+        from ..models.lineage_derivation_attributes import LineageDerivationAttributes # noqa: PLC0415
+        from ..models.lineage_derivation_input import LineageDerivationInput # noqa: PLC0415
+        from ..models.lineage_transformation import LineageTransformation # noqa: PLC0415
         d = dict(src_dict)
         output = d.pop("output")
 

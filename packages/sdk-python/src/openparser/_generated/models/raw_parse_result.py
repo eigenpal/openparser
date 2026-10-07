@@ -45,8 +45,8 @@ class RawParseResult:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.raw_parse_result_profile import RawParseResultProfile
-        from ..models.raw_parse_result_result import RawParseResultResult
+        from ..models.raw_parse_result_profile import RawParseResultProfile # noqa: PLC0415
+        from ..models.raw_parse_result_result import RawParseResultResult # noqa: PLC0415
         output_format = self.output_format
 
         provider = self.provider
@@ -74,8 +74,8 @@ class RawParseResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.raw_parse_result_profile import RawParseResultProfile
-        from ..models.raw_parse_result_result import RawParseResultResult
+        from ..models.raw_parse_result_profile import RawParseResultProfile # noqa: PLC0415
+        from ..models.raw_parse_result_result import RawParseResultResult # noqa: PLC0415
         d = dict(src_dict)
         output_format = cast(Literal['raw'] , d.pop("output_format"))
         if output_format != 'raw':

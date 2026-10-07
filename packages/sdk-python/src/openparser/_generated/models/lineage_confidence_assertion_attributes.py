@@ -20,8 +20,7 @@ T = TypeVar("T", bound="LineageConfidenceAssertionAttributes")
 
 @_attrs_define
 class LineageConfidenceAssertionAttributes:
-    """
-     """
+
 
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 

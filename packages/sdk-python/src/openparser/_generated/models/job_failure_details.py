@@ -20,8 +20,7 @@ T = TypeVar("T", bound="JobFailureDetails")
 
 @_attrs_define
 class JobFailureDetails:
-    """
-     """
+
 
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 

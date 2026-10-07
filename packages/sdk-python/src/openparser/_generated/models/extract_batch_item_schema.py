@@ -20,8 +20,7 @@ T = TypeVar("T", bound="ExtractBatchItemSchema")
 
 @_attrs_define
 class ExtractBatchItemSchema:
-    """
-     """
+
 
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 

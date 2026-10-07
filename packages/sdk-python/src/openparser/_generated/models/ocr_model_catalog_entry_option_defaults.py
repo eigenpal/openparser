@@ -20,8 +20,7 @@ T = TypeVar("T", bound="OcrModelCatalogEntryOptionDefaults")
 
 @_attrs_define
 class OcrModelCatalogEntryOptionDefaults:
-    """
-     """
+
 
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 

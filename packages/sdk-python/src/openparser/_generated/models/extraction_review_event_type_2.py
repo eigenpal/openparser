@@ -10,7 +10,6 @@ from ..types import UNSET, Unset
 
 from ..models.extraction_review_event_type_2_type import ExtractionReviewEventType2Type
 from ..types import UNSET, Unset
-from dateutil.parser import isoparse
 from typing import cast
 import datetime
 
@@ -78,7 +77,7 @@ class ExtractionReviewEventType2:
 
         actor_id = d.pop("actor_id")
 
-        created_at = isoparse(d.pop("created_at"))
+        created_at = datetime.datetime.fromisoformat(d.pop("created_at"))
 
 
 

@@ -44,7 +44,7 @@ class LineageTransformation:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.lineage_transformation_attributes import LineageTransformationAttributes
+        from ..models.lineage_transformation_attributes import LineageTransformationAttributes # noqa: PLC0415
         type_ = self.type_
 
         description = self.description
@@ -79,7 +79,7 @@ class LineageTransformation:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.lineage_transformation_attributes import LineageTransformationAttributes
+        from ..models.lineage_transformation_attributes import LineageTransformationAttributes # noqa: PLC0415
         d = dict(src_dict)
         type_ = d.pop("type", UNSET)
 

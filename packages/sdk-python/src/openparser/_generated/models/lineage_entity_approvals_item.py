@@ -9,7 +9,6 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 from ..types import UNSET, Unset
-from dateutil.parser import isoparse
 from typing import cast
 import datetime
 
@@ -44,7 +43,7 @@ class LineageEntityApprovalsItem:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.lineage_entity_approvals_item_attributes import LineageEntityApprovalsItemAttributes
+        from ..models.lineage_entity_approvals_item_attributes import LineageEntityApprovalsItemAttributes # noqa: PLC0415
         agent = self.agent
 
         at = self.at.isoformat()
@@ -73,11 +72,11 @@ class LineageEntityApprovalsItem:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.lineage_entity_approvals_item_attributes import LineageEntityApprovalsItemAttributes
+        from ..models.lineage_entity_approvals_item_attributes import LineageEntityApprovalsItemAttributes # noqa: PLC0415
         d = dict(src_dict)
         agent = d.pop("agent")
 
-        at = isoparse(d.pop("at"))
+        at = datetime.datetime.fromisoformat(d.pop("at"))
 
 
 

@@ -62,12 +62,12 @@ class LineageDocument:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.lineage_derivation import LineageDerivation
-        from ..models.lineage_document_activities import LineageDocumentActivities
-        from ..models.lineage_document_agents import LineageDocumentAgents
-        from ..models.lineage_document_attributes import LineageDocumentAttributes
-        from ..models.lineage_document_entities import LineageDocumentEntities
-        from ..models.lineage_relation import LineageRelation
+        from ..models.lineage_derivation import LineageDerivation # noqa: PLC0415
+        from ..models.lineage_document_activities import LineageDocumentActivities # noqa: PLC0415
+        from ..models.lineage_document_agents import LineageDocumentAgents # noqa: PLC0415
+        from ..models.lineage_document_attributes import LineageDocumentAttributes # noqa: PLC0415
+        from ..models.lineage_document_entities import LineageDocumentEntities # noqa: PLC0415
+        from ..models.lineage_relation import LineageRelation # noqa: PLC0415
         format_ = self.format_
 
         entities = self.entities.to_dict()
@@ -131,12 +131,12 @@ class LineageDocument:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.lineage_derivation import LineageDerivation
-        from ..models.lineage_document_activities import LineageDocumentActivities
-        from ..models.lineage_document_agents import LineageDocumentAgents
-        from ..models.lineage_document_attributes import LineageDocumentAttributes
-        from ..models.lineage_document_entities import LineageDocumentEntities
-        from ..models.lineage_relation import LineageRelation
+        from ..models.lineage_derivation import LineageDerivation # noqa: PLC0415
+        from ..models.lineage_document_activities import LineageDocumentActivities # noqa: PLC0415
+        from ..models.lineage_document_agents import LineageDocumentAgents # noqa: PLC0415
+        from ..models.lineage_document_attributes import LineageDocumentAttributes # noqa: PLC0415
+        from ..models.lineage_document_entities import LineageDocumentEntities # noqa: PLC0415
+        from ..models.lineage_relation import LineageRelation # noqa: PLC0415
         d = dict(src_dict)
         format_ = cast(Literal['lineage@1'] , d.pop("format"))
         if format_ != 'lineage@1':

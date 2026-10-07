@@ -58,9 +58,9 @@ class ExtractionCitation:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.bounding_box import BoundingBox
-        from ..models.confidence import Confidence
-        from ..models.point import Point
+        from ..models.bounding_box import BoundingBox # noqa: PLC0415
+        from ..models.confidence import Confidence # noqa: PLC0415
+        from ..models.point import Point # noqa: PLC0415
         element_id = self.element_id
 
         page_number = self.page_number
@@ -109,9 +109,9 @@ class ExtractionCitation:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.bounding_box import BoundingBox
-        from ..models.confidence import Confidence
-        from ..models.point import Point
+        from ..models.bounding_box import BoundingBox # noqa: PLC0415
+        from ..models.confidence import Confidence # noqa: PLC0415
+        from ..models.point import Point # noqa: PLC0415
         d = dict(src_dict)
         element_id = d.pop("element_id")
 

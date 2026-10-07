@@ -65,9 +65,9 @@ class ExtractBatchItem:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.extract_batch_item_llm_options import ExtractBatchItemLlmOptions
-        from ..models.extract_batch_item_ocr_options import ExtractBatchItemOcrOptions
-        from ..models.extract_batch_item_schema import ExtractBatchItemSchema
+        from ..models.extract_batch_item_llm_options import ExtractBatchItemLlmOptions # noqa: PLC0415
+        from ..models.extract_batch_item_ocr_options import ExtractBatchItemOcrOptions # noqa: PLC0415
+        from ..models.extract_batch_item_schema import ExtractBatchItemSchema # noqa: PLC0415
         client_item_id = self.client_item_id
 
         file_index = self.file_index
@@ -132,9 +132,9 @@ class ExtractBatchItem:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.extract_batch_item_llm_options import ExtractBatchItemLlmOptions
-        from ..models.extract_batch_item_ocr_options import ExtractBatchItemOcrOptions
-        from ..models.extract_batch_item_schema import ExtractBatchItemSchema
+        from ..models.extract_batch_item_llm_options import ExtractBatchItemLlmOptions # noqa: PLC0415
+        from ..models.extract_batch_item_ocr_options import ExtractBatchItemOcrOptions # noqa: PLC0415
+        from ..models.extract_batch_item_schema import ExtractBatchItemSchema # noqa: PLC0415
         d = dict(src_dict)
         client_item_id = d.pop("client_item_id")
 

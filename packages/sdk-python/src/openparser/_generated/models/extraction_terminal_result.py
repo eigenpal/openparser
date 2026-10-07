@@ -71,11 +71,11 @@ class ExtractionTerminalResult:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.extraction_attempt import ExtractionAttempt
-        from ..models.extraction_grounding_result import ExtractionGroundingResult
-        from ..models.extraction_usage_totals import ExtractionUsageTotals
-        from ..models.lineage_document import LineageDocument
-        from ..models.parsed_document import ParsedDocument
+        from ..models.extraction_attempt import ExtractionAttempt # noqa: PLC0415
+        from ..models.extraction_grounding_result import ExtractionGroundingResult # noqa: PLC0415
+        from ..models.extraction_usage_totals import ExtractionUsageTotals # noqa: PLC0415
+        from ..models.lineage_document import LineageDocument # noqa: PLC0415
+        from ..models.parsed_document import ParsedDocument # noqa: PLC0415
         output = self.output
 
         parsed_document = self.parsed_document.to_dict()
@@ -137,11 +137,11 @@ class ExtractionTerminalResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.extraction_attempt import ExtractionAttempt
-        from ..models.extraction_grounding_result import ExtractionGroundingResult
-        from ..models.extraction_usage_totals import ExtractionUsageTotals
-        from ..models.lineage_document import LineageDocument
-        from ..models.parsed_document import ParsedDocument
+        from ..models.extraction_attempt import ExtractionAttempt # noqa: PLC0415
+        from ..models.extraction_grounding_result import ExtractionGroundingResult # noqa: PLC0415
+        from ..models.extraction_usage_totals import ExtractionUsageTotals # noqa: PLC0415
+        from ..models.lineage_document import LineageDocument # noqa: PLC0415
+        from ..models.parsed_document import ParsedDocument # noqa: PLC0415
         d = dict(src_dict)
         output = d.pop("output")
 

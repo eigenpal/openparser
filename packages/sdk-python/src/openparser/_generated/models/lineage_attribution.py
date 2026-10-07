@@ -40,7 +40,7 @@ class LineageAttribution:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.lineage_attribution_attributes import LineageAttributionAttributes
+        from ..models.lineage_attribution_attributes import LineageAttributionAttributes # noqa: PLC0415
         agent = self.agent
 
         role = self.role
@@ -66,7 +66,7 @@ class LineageAttribution:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.lineage_attribution_attributes import LineageAttributionAttributes
+        from ..models.lineage_attribution_attributes import LineageAttributionAttributes # noqa: PLC0415
         d = dict(src_dict)
         agent = d.pop("agent")
 

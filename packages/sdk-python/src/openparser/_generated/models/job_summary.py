@@ -13,7 +13,6 @@ from ..models.job_operation import JobOperation
 from ..models.job_status import JobStatus
 from ..models.ocr_output_format import OcrOutputFormat
 from ..types import UNSET, Unset
-from dateutil.parser import isoparse
 from typing import cast
 import datetime
 
@@ -89,7 +88,7 @@ class JobSummary:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.job_failure import JobFailure
+        from ..models.job_failure import JobFailure # noqa: PLC0415
         id = self.id
 
         operation = self.operation.value
@@ -170,7 +169,7 @@ class JobSummary:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.job_failure import JobFailure
+        from ..models.job_failure import JobFailure # noqa: PLC0415
         d = dict(src_dict)
         id = d.pop("id")
 
@@ -191,12 +190,12 @@ class JobSummary:
 
         page_count = d.pop("page_count")
 
-        created_at = isoparse(d.pop("created_at"))
+        created_at = datetime.datetime.fromisoformat(d.pop("created_at"))
 
 
 
 
-        updated_at = isoparse(d.pop("updated_at"))
+        updated_at = datetime.datetime.fromisoformat(d.pop("updated_at"))
 
 
 

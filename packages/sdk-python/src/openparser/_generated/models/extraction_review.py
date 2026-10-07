@@ -10,7 +10,6 @@ from ..types import UNSET, Unset
 
 from ..models.extraction_review_status import ExtractionReviewStatus
 from ..types import UNSET, Unset
-from dateutil.parser import isoparse
 from typing import cast
 import datetime
 
@@ -70,11 +69,11 @@ class ExtractionReview:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.extraction_review_event_type_0 import ExtractionReviewEventType0
-        from ..models.extraction_review_event_type_1 import ExtractionReviewEventType1
-        from ..models.extraction_review_event_type_2 import ExtractionReviewEventType2
-        from ..models.extraction_review_event_type_3 import ExtractionReviewEventType3
-        from ..models.lineage_document import LineageDocument
+        from ..models.extraction_review_event_type_0 import ExtractionReviewEventType0 # noqa: PLC0415
+        from ..models.extraction_review_event_type_1 import ExtractionReviewEventType1 # noqa: PLC0415
+        from ..models.extraction_review_event_type_2 import ExtractionReviewEventType2 # noqa: PLC0415
+        from ..models.extraction_review_event_type_3 import ExtractionReviewEventType3 # noqa: PLC0415
+        from ..models.lineage_document import LineageDocument # noqa: PLC0415
         job_id = self.job_id
 
         status = self.status.value
@@ -153,11 +152,11 @@ class ExtractionReview:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.extraction_review_event_type_0 import ExtractionReviewEventType0
-        from ..models.extraction_review_event_type_1 import ExtractionReviewEventType1
-        from ..models.extraction_review_event_type_2 import ExtractionReviewEventType2
-        from ..models.extraction_review_event_type_3 import ExtractionReviewEventType3
-        from ..models.lineage_document import LineageDocument
+        from ..models.extraction_review_event_type_0 import ExtractionReviewEventType0 # noqa: PLC0415
+        from ..models.extraction_review_event_type_1 import ExtractionReviewEventType1 # noqa: PLC0415
+        from ..models.extraction_review_event_type_2 import ExtractionReviewEventType2 # noqa: PLC0415
+        from ..models.extraction_review_event_type_3 import ExtractionReviewEventType3 # noqa: PLC0415
+        from ..models.lineage_document import LineageDocument # noqa: PLC0415
         d = dict(src_dict)
         job_id = d.pop("job_id")
 
@@ -225,7 +224,7 @@ class ExtractionReview:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                created_at_type_0 = isoparse(data)
+                created_at_type_0 = datetime.datetime.fromisoformat(data)
 
 
 
@@ -243,7 +242,7 @@ class ExtractionReview:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                updated_at_type_0 = isoparse(data)
+                updated_at_type_0 = datetime.datetime.fromisoformat(data)
 
 
 
@@ -261,7 +260,7 @@ class ExtractionReview:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                completed_at_type_0 = isoparse(data)
+                completed_at_type_0 = datetime.datetime.fromisoformat(data)
 
 
 

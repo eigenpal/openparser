@@ -47,7 +47,7 @@ class ExtractionGroundingFieldTransformClaim:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.extraction_grounding_field_transform_claim_parameters import ExtractionGroundingFieldTransformClaimParameters
+        from ..models.extraction_grounding_field_transform_claim_parameters import ExtractionGroundingFieldTransformClaimParameters # noqa: PLC0415
         operation = self.operation.value
 
         parameters = self.parameters.to_dict()
@@ -76,7 +76,7 @@ class ExtractionGroundingFieldTransformClaim:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.extraction_grounding_field_transform_claim_parameters import ExtractionGroundingFieldTransformClaimParameters
+        from ..models.extraction_grounding_field_transform_claim_parameters import ExtractionGroundingFieldTransformClaimParameters # noqa: PLC0415
         d = dict(src_dict)
         operation = ExtractionGroundingFieldTransformClaimOperation(d.pop("operation"))
 

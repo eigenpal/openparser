@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.11
+
+### Patch Changes
+
+- 3267908: Strengthened Python SDK generation security while preserving Python 3.10 compatibility.
+
 ## 1.0.10
 
 ## 1.0.9

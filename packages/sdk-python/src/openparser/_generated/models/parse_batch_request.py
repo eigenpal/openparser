@@ -42,7 +42,7 @@ class ParseBatchRequest:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.parse_batch_request_items_item import ParseBatchRequestItemsItem
+        from ..models.parse_batch_request_items_item import ParseBatchRequestItemsItem # noqa: PLC0415
         items = []
         for items_item_data in self.items:
             items_item = items_item_data.to_dict()
@@ -70,7 +70,7 @@ class ParseBatchRequest:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.parse_batch_request_items_item import ParseBatchRequestItemsItem
+        from ..models.parse_batch_request_items_item import ParseBatchRequestItemsItem # noqa: PLC0415
         d = dict(src_dict)
         items = []
         _items = d.pop("items")

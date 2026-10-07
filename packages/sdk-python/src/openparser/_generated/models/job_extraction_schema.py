@@ -20,8 +20,7 @@ T = TypeVar("T", bound="JobExtractionSchema")
 
 @_attrs_define
 class JobExtractionSchema:
-    """
-     """
+
 
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 

@@ -61,9 +61,9 @@ class DocumentPage:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.confidence import Confidence
-        from ..models.document_page_quality import DocumentPageQuality
-        from ..models.language import Language
+        from ..models.confidence import Confidence # noqa: PLC0415
+        from ..models.document_page_quality import DocumentPageQuality # noqa: PLC0415
+        from ..models.language import Language # noqa: PLC0415
         number = self.number
 
         width = self.width
@@ -129,9 +129,9 @@ class DocumentPage:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.confidence import Confidence
-        from ..models.document_page_quality import DocumentPageQuality
-        from ..models.language import Language
+        from ..models.confidence import Confidence # noqa: PLC0415
+        from ..models.document_page_quality import DocumentPageQuality # noqa: PLC0415
+        from ..models.language import Language # noqa: PLC0415
         d = dict(src_dict)
         number = d.pop("number")
 

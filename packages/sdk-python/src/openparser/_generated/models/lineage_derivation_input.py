@@ -48,8 +48,8 @@ class LineageDerivationInput:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.lineage_confidence_assertion import LineageConfidenceAssertion
-        from ..models.lineage_derivation_input_attributes import LineageDerivationInputAttributes
+        from ..models.lineage_confidence_assertion import LineageConfidenceAssertion # noqa: PLC0415
+        from ..models.lineage_derivation_input_attributes import LineageDerivationInputAttributes # noqa: PLC0415
         entity = self.entity
 
         effect = self.effect.value
@@ -84,8 +84,8 @@ class LineageDerivationInput:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.lineage_confidence_assertion import LineageConfidenceAssertion
-        from ..models.lineage_derivation_input_attributes import LineageDerivationInputAttributes
+        from ..models.lineage_confidence_assertion import LineageConfidenceAssertion # noqa: PLC0415
+        from ..models.lineage_derivation_input_attributes import LineageDerivationInputAttributes # noqa: PLC0415
         d = dict(src_dict)
         entity = d.pop("entity")
 

@@ -59,9 +59,9 @@ class LineageConfidenceAssertion:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.lineage_confidence_assertion_attributes import LineageConfidenceAssertionAttributes
-        from ..models.lineage_confidence_assertion_sources_item import LineageConfidenceAssertionSourcesItem
-        from ..models.lineage_confidence_scale import LineageConfidenceScale
+        from ..models.lineage_confidence_assertion_attributes import LineageConfidenceAssertionAttributes # noqa: PLC0415
+        from ..models.lineage_confidence_assertion_sources_item import LineageConfidenceAssertionSourcesItem # noqa: PLC0415
+        from ..models.lineage_confidence_scale import LineageConfidenceScale # noqa: PLC0415
         score = self.score
 
         scale = self.scale.to_dict()
@@ -118,9 +118,9 @@ class LineageConfidenceAssertion:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.lineage_confidence_assertion_attributes import LineageConfidenceAssertionAttributes
-        from ..models.lineage_confidence_assertion_sources_item import LineageConfidenceAssertionSourcesItem
-        from ..models.lineage_confidence_scale import LineageConfidenceScale
+        from ..models.lineage_confidence_assertion_attributes import LineageConfidenceAssertionAttributes # noqa: PLC0415
+        from ..models.lineage_confidence_assertion_sources_item import LineageConfidenceAssertionSourcesItem # noqa: PLC0415
+        from ..models.lineage_confidence_scale import LineageConfidenceScale # noqa: PLC0415
         d = dict(src_dict)
         score = d.pop("score")
 

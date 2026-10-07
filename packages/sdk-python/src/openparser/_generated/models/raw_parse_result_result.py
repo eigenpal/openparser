@@ -20,8 +20,7 @@ T = TypeVar("T", bound="RawParseResultResult")
 
 @_attrs_define
 class RawParseResultResult:
-    """
-     """
+
 
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 

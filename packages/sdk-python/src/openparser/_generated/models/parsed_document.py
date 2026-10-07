@@ -79,24 +79,24 @@ class ParsedDocument:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.barcode_element import BarcodeElement
-        from ..models.document_asset import DocumentAsset
-        from ..models.document_page import DocumentPage
-        from ..models.document_provenance import DocumentProvenance
-        from ..models.document_relation import DocumentRelation
-        from ..models.figure_element import FigureElement
-        from ..models.formula_element import FormulaElement
-        from ..models.key_value_element import KeyValueElement
-        from ..models.link_element import LinkElement
-        from ..models.other_element import OtherElement
-        from ..models.query_answer_element import QueryAnswerElement
-        from ..models.section_element import SectionElement
-        from ..models.selection_mark_element import SelectionMarkElement
-        from ..models.signature_element import SignatureElement
-        from ..models.stamp_element import StampElement
-        from ..models.table_element import TableElement
-        from ..models.text_annotation import TextAnnotation
-        from ..models.text_element import TextElement
+        from ..models.barcode_element import BarcodeElement # noqa: PLC0415
+        from ..models.document_asset import DocumentAsset # noqa: PLC0415
+        from ..models.document_page import DocumentPage # noqa: PLC0415
+        from ..models.document_provenance import DocumentProvenance # noqa: PLC0415
+        from ..models.document_relation import DocumentRelation # noqa: PLC0415
+        from ..models.figure_element import FigureElement # noqa: PLC0415
+        from ..models.formula_element import FormulaElement # noqa: PLC0415
+        from ..models.key_value_element import KeyValueElement # noqa: PLC0415
+        from ..models.link_element import LinkElement # noqa: PLC0415
+        from ..models.other_element import OtherElement # noqa: PLC0415
+        from ..models.query_answer_element import QueryAnswerElement # noqa: PLC0415
+        from ..models.section_element import SectionElement # noqa: PLC0415
+        from ..models.selection_mark_element import SelectionMarkElement # noqa: PLC0415
+        from ..models.signature_element import SignatureElement # noqa: PLC0415
+        from ..models.stamp_element import StampElement # noqa: PLC0415
+        from ..models.table_element import TableElement # noqa: PLC0415
+        from ..models.text_annotation import TextAnnotation # noqa: PLC0415
+        from ..models.text_element import TextElement # noqa: PLC0415
         output_format = self.output_format
 
         document_id = self.document_id
@@ -191,24 +191,24 @@ class ParsedDocument:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.barcode_element import BarcodeElement
-        from ..models.document_asset import DocumentAsset
-        from ..models.document_page import DocumentPage
-        from ..models.document_provenance import DocumentProvenance
-        from ..models.document_relation import DocumentRelation
-        from ..models.figure_element import FigureElement
-        from ..models.formula_element import FormulaElement
-        from ..models.key_value_element import KeyValueElement
-        from ..models.link_element import LinkElement
-        from ..models.other_element import OtherElement
-        from ..models.query_answer_element import QueryAnswerElement
-        from ..models.section_element import SectionElement
-        from ..models.selection_mark_element import SelectionMarkElement
-        from ..models.signature_element import SignatureElement
-        from ..models.stamp_element import StampElement
-        from ..models.table_element import TableElement
-        from ..models.text_annotation import TextAnnotation
-        from ..models.text_element import TextElement
+        from ..models.barcode_element import BarcodeElement # noqa: PLC0415
+        from ..models.document_asset import DocumentAsset # noqa: PLC0415
+        from ..models.document_page import DocumentPage # noqa: PLC0415
+        from ..models.document_provenance import DocumentProvenance # noqa: PLC0415
+        from ..models.document_relation import DocumentRelation # noqa: PLC0415
+        from ..models.figure_element import FigureElement # noqa: PLC0415
+        from ..models.formula_element import FormulaElement # noqa: PLC0415
+        from ..models.key_value_element import KeyValueElement # noqa: PLC0415
+        from ..models.link_element import LinkElement # noqa: PLC0415
+        from ..models.other_element import OtherElement # noqa: PLC0415
+        from ..models.query_answer_element import QueryAnswerElement # noqa: PLC0415
+        from ..models.section_element import SectionElement # noqa: PLC0415
+        from ..models.selection_mark_element import SelectionMarkElement # noqa: PLC0415
+        from ..models.signature_element import SignatureElement # noqa: PLC0415
+        from ..models.stamp_element import StampElement # noqa: PLC0415
+        from ..models.table_element import TableElement # noqa: PLC0415
+        from ..models.text_annotation import TextAnnotation # noqa: PLC0415
+        from ..models.text_element import TextElement # noqa: PLC0415
         d = dict(src_dict)
         output_format = cast(Literal['openparser@1'] , d.pop("output_format"))
         if output_format != 'openparser@1':

@@ -46,9 +46,9 @@ class StructuredValue:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.confidence import Confidence
-        from ..models.geometry import Geometry
-        from ..models.text_span import TextSpan
+        from ..models.confidence import Confidence # noqa: PLC0415
+        from ..models.geometry import Geometry # noqa: PLC0415
+        from ..models.text_span import TextSpan # noqa: PLC0415
         text = self.text
 
         spans = []
@@ -91,9 +91,9 @@ class StructuredValue:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.confidence import Confidence
-        from ..models.geometry import Geometry
-        from ..models.text_span import TextSpan
+        from ..models.confidence import Confidence # noqa: PLC0415
+        from ..models.geometry import Geometry # noqa: PLC0415
+        from ..models.text_span import TextSpan # noqa: PLC0415
         d = dict(src_dict)
         text = d.pop("text")
 

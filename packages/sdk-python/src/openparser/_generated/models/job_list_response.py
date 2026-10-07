@@ -38,7 +38,7 @@ class JobListResponse:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.job_summary import JobSummary
+        from ..models.job_summary import JobSummary # noqa: PLC0415
         data = []
         for data_item_data in self.data:
             data_item = data_item_data.to_dict()
@@ -63,7 +63,7 @@ class JobListResponse:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.job_summary import JobSummary
+        from ..models.job_summary import JobSummary # noqa: PLC0415
         d = dict(src_dict)
         data = []
         _data = d.pop("data")

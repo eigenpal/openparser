@@ -58,9 +58,9 @@ class UpdateExtractionPipelineRequest:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.update_extraction_pipeline_request_llm_options_type_0 import UpdateExtractionPipelineRequestLlmOptionsType0
-        from ..models.update_extraction_pipeline_request_ocr_options_type_0 import UpdateExtractionPipelineRequestOcrOptionsType0
-        from ..models.update_extraction_pipeline_request_schema import UpdateExtractionPipelineRequestSchema
+        from ..models.update_extraction_pipeline_request_llm_options_type_0 import UpdateExtractionPipelineRequestLlmOptionsType0 # noqa: PLC0415
+        from ..models.update_extraction_pipeline_request_ocr_options_type_0 import UpdateExtractionPipelineRequestOcrOptionsType0 # noqa: PLC0415
+        from ..models.update_extraction_pipeline_request_schema import UpdateExtractionPipelineRequestSchema # noqa: PLC0415
         name = self.name
 
         slug: None | str | Unset
@@ -130,9 +130,9 @@ class UpdateExtractionPipelineRequest:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.update_extraction_pipeline_request_llm_options_type_0 import UpdateExtractionPipelineRequestLlmOptionsType0
-        from ..models.update_extraction_pipeline_request_ocr_options_type_0 import UpdateExtractionPipelineRequestOcrOptionsType0
-        from ..models.update_extraction_pipeline_request_schema import UpdateExtractionPipelineRequestSchema
+        from ..models.update_extraction_pipeline_request_llm_options_type_0 import UpdateExtractionPipelineRequestLlmOptionsType0 # noqa: PLC0415
+        from ..models.update_extraction_pipeline_request_ocr_options_type_0 import UpdateExtractionPipelineRequestOcrOptionsType0 # noqa: PLC0415
+        from ..models.update_extraction_pipeline_request_schema import UpdateExtractionPipelineRequestSchema # noqa: PLC0415
         d = dict(src_dict)
         name = d.pop("name", UNSET)
 

@@ -43,7 +43,7 @@ class LineageRelation:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.lineage_relation_attributes import LineageRelationAttributes
+        from ..models.lineage_relation_attributes import LineageRelationAttributes # noqa: PLC0415
         type_ = self.type_.value
 
         source = self.source
@@ -71,7 +71,7 @@ class LineageRelation:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.lineage_relation_attributes import LineageRelationAttributes
+        from ..models.lineage_relation_attributes import LineageRelationAttributes # noqa: PLC0415
         d = dict(src_dict)
         type_ = LineageRelationType(d.pop("type"))
 

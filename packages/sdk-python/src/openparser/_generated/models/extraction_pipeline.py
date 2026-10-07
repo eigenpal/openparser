@@ -9,7 +9,6 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 from ..models.extraction_grounding_mode import ExtractionGroundingMode
-from dateutil.parser import isoparse
 from typing import cast
 import datetime
 
@@ -72,9 +71,9 @@ class ExtractionPipeline:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.extraction_pipeline_llm_options import ExtractionPipelineLlmOptions
-        from ..models.extraction_pipeline_ocr_options import ExtractionPipelineOcrOptions
-        from ..models.extraction_pipeline_schema import ExtractionPipelineSchema
+        from ..models.extraction_pipeline_llm_options import ExtractionPipelineLlmOptions # noqa: PLC0415
+        from ..models.extraction_pipeline_ocr_options import ExtractionPipelineOcrOptions # noqa: PLC0415
+        from ..models.extraction_pipeline_schema import ExtractionPipelineSchema # noqa: PLC0415
         id = self.id
 
         name = self.name
@@ -127,9 +126,9 @@ class ExtractionPipeline:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.extraction_pipeline_llm_options import ExtractionPipelineLlmOptions
-        from ..models.extraction_pipeline_ocr_options import ExtractionPipelineOcrOptions
-        from ..models.extraction_pipeline_schema import ExtractionPipelineSchema
+        from ..models.extraction_pipeline_llm_options import ExtractionPipelineLlmOptions # noqa: PLC0415
+        from ..models.extraction_pipeline_ocr_options import ExtractionPipelineOcrOptions # noqa: PLC0415
+        from ..models.extraction_pipeline_schema import ExtractionPipelineSchema # noqa: PLC0415
         d = dict(src_dict)
         id = d.pop("id")
 
@@ -171,12 +170,12 @@ class ExtractionPipeline:
 
 
 
-        created_at = isoparse(d.pop("created_at"))
+        created_at = datetime.datetime.fromisoformat(d.pop("created_at"))
 
 
 
 
-        updated_at = isoparse(d.pop("updated_at"))
+        updated_at = datetime.datetime.fromisoformat(d.pop("updated_at"))
 
 
 

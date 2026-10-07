@@ -42,7 +42,7 @@ class OcrModelCatalogEntryProvider:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.ocr_model_catalog_entry_provider_logo_data import OcrModelCatalogEntryProviderLogoData
+        from ..models.ocr_model_catalog_entry_provider_logo_data import OcrModelCatalogEntryProviderLogoData # noqa: PLC0415
         key = self.key
 
         label = self.label
@@ -71,7 +71,7 @@ class OcrModelCatalogEntryProvider:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.ocr_model_catalog_entry_provider_logo_data import OcrModelCatalogEntryProviderLogoData
+        from ..models.ocr_model_catalog_entry_provider_logo_data import OcrModelCatalogEntryProviderLogoData # noqa: PLC0415
         d = dict(src_dict)
         key = d.pop("key")
 

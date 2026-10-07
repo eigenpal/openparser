@@ -49,7 +49,7 @@ class OcrModelCatalogEntryOptionControlsItem:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.ocr_model_catalog_entry_option_controls_item_choices_item import OcrModelCatalogEntryOptionControlsItemChoicesItem
+        from ..models.ocr_model_catalog_entry_option_controls_item_choices_item import OcrModelCatalogEntryOptionControlsItemChoicesItem # noqa: PLC0415
         key = self.key
 
         label = self.label
@@ -93,7 +93,7 @@ class OcrModelCatalogEntryOptionControlsItem:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.ocr_model_catalog_entry_option_controls_item_choices_item import OcrModelCatalogEntryOptionControlsItemChoicesItem
+        from ..models.ocr_model_catalog_entry_option_controls_item_choices_item import OcrModelCatalogEntryOptionControlsItemChoicesItem # noqa: PLC0415
         d = dict(src_dict)
         key = d.pop("key")
 
