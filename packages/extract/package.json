@@ -1,6 +1,6 @@
 {
   "name": "@openparser/extract",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "Runtime-neutral grounded extraction algorithm: schema transforms, repair loop, citation resolution, and lineage production",
   "type": "module",
   "main": "./dist/index.js",
@@ -28,13 +28,13 @@
   "scripts": {
     "build": "bun scripts/build.ts",
     "prepack": "bun run build",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "bun check",
     "test": "bun test",
     "pack:smoke": "bun scripts/pack-smoke.ts"
   },
   "dependencies": {
-    "@openparser/lineage": "1.0.11",
-    "@openparser/schema": "1.0.11",
+    "@openparser/lineage": "1.0.12",
+    "@openparser/schema": "1.0.12",
     "ajv": "8.20.0",
     "ajv-formats": "^3.0.1",
     "zod": "^4.4.3"

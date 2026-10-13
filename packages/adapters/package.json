@@ -1,6 +1,6 @@
 {
   "name": "@openparser/adapters",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "Convert provider OCR responses into openparser@1 documents",
   "type": "module",
   "main": "./dist/index.js",
@@ -59,13 +59,13 @@
   "scripts": {
     "build": "bun scripts/build.ts",
     "prepack": "bun run build",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "bun check",
     "test": "bun test",
     "pack:smoke": "bun scripts/pack-smoke.ts"
   },
   "dependencies": {
     "@aws-sdk/client-textract": "3.1093.0",
-    "@openparser/schema": "1.0.11",
+    "@openparser/schema": "1.0.12",
     "google-auth-library": "10.9.0",
     "pdf-lib": "1.17.1",
     "zod": "^4.4.3"

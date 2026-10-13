@@ -1,5 +1,12 @@
 # @openparser/schema
 
+## 1.0.12
+
+### Patch Changes
+
+- 12cf02a: Apply operating system security fixes to GPU document processing images.
+- e9e1eeb: Patch a request-processing memory leak and remove unused installer software from OCR images.
+
 ## 1.0.11
 
 ## 1.0.10

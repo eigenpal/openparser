@@ -1,6 +1,6 @@
 {
   "name": "@openparser/schema",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "Zod schemas and TypeScript types for openparser@1 documents and raw OCR envelopes",
   "type": "module",
   "main": "./dist/index.js",
@@ -28,7 +28,7 @@
   "scripts": {
     "build": "bun scripts/build.ts",
     "prepack": "bun run build",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "bun check",
     "test": "bun test",
     "pack:smoke": "bun scripts/pack-smoke.ts"
   },
