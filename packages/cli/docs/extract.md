@@ -48,21 +48,21 @@ Extract synchronously and print the result JSON.
 
 ### Options
 
-| Flag                      | Required | Default                 | Description                            |
-| ------------------------- | -------- | ----------------------- | -------------------------------------- |
-| `--ocr-model <id>`        | no       | `"paddleocr-vl-1.6"`    | OCR model id                           |
-| `--llm-model <id>`        | no       | `"openai/gpt-4.1-mini"` | LLM model id                           |
-| `--schema <path>`         | no       |                         | JSON Schema file for inline extraction |
-| `--schema-json <json>`    | no       |                         | Inline JSON Schema string              |
-| `--pipeline-id <id>`      | no       |                         | Saved extraction pipeline id           |
-| `--file-id <id>`          | no       |                         | Reuse a pooled file id                 |
-| `--parse-job-id <id>`     | no       |                         | Reuse a succeeded parse job            |
-| `--grounding <mode>`      | no       |                         | none or field                          |
-| `--repair-attempts <n>`   | no       |                         | Schema repair attempts (0-2)           |
-| `--output-format <fmt>`   | no       |                         | openparser@1 or raw                    |
-| `--idempotency-key <key>` | no       |                         | Idempotency-Key header override        |
-| `--json`                  | no       |                         | Output the raw server response as JSON |
-| `--base-url <url>`        | no       |                         | OpenParser API base URL                |
+| Flag                      | Required | Default               | Description                            |
+| ------------------------- | -------- | --------------------- | -------------------------------------- |
+| `--ocr-model <id>`        | no       | `"paddleocr-vl-1.6"`  | OCR model id                           |
+| `--llm-model <id>`        | no       | `"openai/gpt-6-luna"` | LLM model id                           |
+| `--schema <path>`         | no       |                       | JSON Schema file for inline extraction |
+| `--schema-json <json>`    | no       |                       | Inline JSON Schema string              |
+| `--pipeline-id <id>`      | no       |                       | Saved extraction pipeline id           |
+| `--file-id <id>`          | no       |                       | Reuse a pooled file id                 |
+| `--parse-job-id <id>`     | no       |                       | Reuse a succeeded parse job            |
+| `--grounding <mode>`      | no       |                       | none or field                          |
+| `--repair-attempts <n>`   | no       |                       | Schema repair attempts (0-2)           |
+| `--output-format <fmt>`   | no       |                       | openparser@1 or raw                    |
+| `--idempotency-key <key>` | no       |                       | Idempotency-Key header override        |
+| `--json`                  | no       |                       | Output the raw server response as JSON |
+| `--base-url <url>`        | no       |                       | OpenParser API base URL                |
 
 ### `openparser extract async [options] [file]`
 
@@ -76,21 +76,21 @@ Admit an async extract job.
 
 ### Options
 
-| Flag                      | Required | Default                 | Description                            |
-| ------------------------- | -------- | ----------------------- | -------------------------------------- |
-| `--ocr-model <id>`        | no       | `"paddleocr-vl-1.6"`    | OCR model id                           |
-| `--llm-model <id>`        | no       | `"openai/gpt-4.1-mini"` | LLM model id                           |
-| `--schema <path>`         | no       |                         | JSON Schema file for inline extraction |
-| `--schema-json <json>`    | no       |                         | Inline JSON Schema string              |
-| `--pipeline-id <id>`      | no       |                         | Saved extraction pipeline id           |
-| `--file-id <id>`          | no       |                         | Reuse a pooled file id                 |
-| `--parse-job-id <id>`     | no       |                         | Reuse a succeeded parse job            |
-| `--grounding <mode>`      | no       |                         | none or field                          |
-| `--repair-attempts <n>`   | no       |                         | Schema repair attempts (0-2)           |
-| `--output-format <fmt>`   | no       |                         | openparser@1 or raw                    |
-| `--idempotency-key <key>` | no       |                         | Idempotency-Key header override        |
-| `--json`                  | no       |                         | Output the raw server response as JSON |
-| `--base-url <url>`        | no       |                         | OpenParser API base URL                |
+| Flag                      | Required | Default               | Description                            |
+| ------------------------- | -------- | --------------------- | -------------------------------------- |
+| `--ocr-model <id>`        | no       | `"paddleocr-vl-1.6"`  | OCR model id                           |
+| `--llm-model <id>`        | no       | `"openai/gpt-6-luna"` | LLM model id                           |
+| `--schema <path>`         | no       |                       | JSON Schema file for inline extraction |
+| `--schema-json <json>`    | no       |                       | Inline JSON Schema string              |
+| `--pipeline-id <id>`      | no       |                       | Saved extraction pipeline id           |
+| `--file-id <id>`          | no       |                       | Reuse a pooled file id                 |
+| `--parse-job-id <id>`     | no       |                       | Reuse a succeeded parse job            |
+| `--grounding <mode>`      | no       |                       | none or field                          |
+| `--repair-attempts <n>`   | no       |                       | Schema repair attempts (0-2)           |
+| `--output-format <fmt>`   | no       |                       | openparser@1 or raw                    |
+| `--idempotency-key <key>` | no       |                       | Idempotency-Key header override        |
+| `--json`                  | no       |                       | Output the raw server response as JSON |
+| `--base-url <url>`        | no       |                       | OpenParser API base URL                |
 
 ### `openparser extract batch [options] [files...]`
 

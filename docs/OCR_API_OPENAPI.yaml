@@ -499,9 +499,9 @@ components:
                   details:
                     llm_model: openrouter/free
                     valid_models:
-                      - openai/gpt-5.6-terra
-                      - openai/gpt-4.1-mini
-                      - openai/gpt-4.1
+                      - openai/gpt-6-luna
+                      - openai/gpt-6.1-sol
+                      - anthropic/claude-sonnet-5.5
             encryptedPdf:
               value:
                 error:
@@ -561,9 +561,9 @@ components:
                   details:
                     llm_model: openrouter/free
                     valid_models:
-                      - openai/gpt-5.6-terra
-                      - openai/gpt-4.1-mini
-                      - openai/gpt-4.1
+                      - openai/gpt-6-luna
+                      - openai/gpt-6.1-sol
+                      - anthropic/claude-sonnet-5.5
             groundingUnsupportedSchema:
               value:
                 error:
@@ -898,11 +898,11 @@ components:
           text_annotations: []
           relations: []
           assets: []
-        llm_model: openai/gpt-5.6-terra
+        llm_model: openai/gpt-6-luna
         attempts:
           - index: 0
             kind: primary
-            llm_model: openai/gpt-5.6-terra
+            llm_model: openai/gpt-6-luna
             status: succeeded
             input_tokens: 1200
             output_tokens: 84
@@ -966,11 +966,11 @@ components:
           text_annotations: []
           relations: []
           assets: []
-        llm_model: openai/gpt-5.6-terra
+        llm_model: openai/gpt-6-luna
         attempts:
           - index: 0
             kind: primary
-            llm_model: openai/gpt-5.6-terra
+            llm_model: openai/gpt-6-luna
             status: succeeded
             input_tokens: 1300
             output_tokens: 96
@@ -1157,7 +1157,7 @@ components:
               name: paddleocr-vl-1.6
             agent:extraction-model:
               type: model
-              name: openai/gpt-5.6-terra
+              name: openai/gpt-6-luna
           derivations:
             - output: document:parsed
               activity: activity:ocr
@@ -1474,7 +1474,7 @@ components:
       minLength: 1
       maxLength: 200
       description: "OpenRouter model slug from the compatible OCR extraction catalog\n(`GET /models/llm`). Unknown or deprecated values return `422 unsupported_llm_model`.\nAny currently compatible model may be used for extract and field grounding.\n"
-      example: openai/gpt-5.6-terra
+      example: openai/gpt-6-luna
     RepairAttempts:
       default: 0
       type: integer

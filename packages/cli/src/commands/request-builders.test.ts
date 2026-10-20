@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'bun:test';
+import { program } from '../cli';
 import { buildExtractRequest } from '../commands/extract';
 import { buildParseRequest } from '../commands/parse';
 
@@ -53,9 +54,24 @@ describe('buildExtractRequest', () => {
       })
     ).toEqual({
       ocr_model: 'paddleocr-vl-1.6',
-      llm_model: 'openai/gpt-4.1-mini',
+      llm_model: 'openai/gpt-6-luna',
       schema: { type: 'object', properties: {} },
       file_id: 'file_1',
     });
   });
+});
+
+it('CLI extraction and pipeline creation advertise the same current default', () => {
+  for (const [parent, name] of [
+    ['extract', 'sync'],
+    ['extract', 'async'],
+    ['pipelines', 'create'],
+  ]) {
+    const command = program.commands
+      .find((entry) => entry.name() === parent)
+      ?.commands.find((entry) => entry.name() === name);
+    expect(command?.options.find((option) => option.long === '--llm-model')?.defaultValue).toBe(
+      'openai/gpt-6-luna'
+    );
+  }
 });

@@ -69,7 +69,7 @@ The SDK adds an `Idempotency-Key` header to every parse and extract request. Pas
 extracted = client.extract.sync(
     {
         "ocr_model": "paddleocr-vl-1.6",
-        "llm_model": "openai/gpt-4.1-mini",
+        "llm_model": "openai/gpt-6-luna",
         "schema": {
             "type": "object",
             "properties": {"total": {"type": "number"}},
@@ -95,7 +95,7 @@ derivation DAG:
 extracted = client.extract.sync(
     {
         "ocr_model": "mistral-ocr-4",
-        "llm_model": "openai/gpt-5.6-terra",
+        "llm_model": "openai/gpt-6-luna",
         "grounding": "field",
         "schema": {
             "type": "object",
@@ -159,7 +159,7 @@ pipeline = client.pipelines.create(
     {
         "name": "invoice-extract",
         "ocr_model": "paddleocr-vl-1.6",
-        "llm_model": "anthropic/claude-sonnet-4",
+        "llm_model": "anthropic/claude-sonnet-5.5",
         "schema": {
             "type": "object",
             "properties": {"vendor": {"type": "string"}},

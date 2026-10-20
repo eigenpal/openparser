@@ -1,6 +1,7 @@
 import type { ExtractRequest, OpenParserClient } from '@openparser/sdk';
 import { createSdkClient } from '../../lib/client';
 import { requireApiKey, resolveConfig } from '../../lib/config';
+import { DEFAULT_EXTRACTION_LLM_MODEL } from '../../lib/defaults';
 import { readFileBlob, readJsonFile } from '../../lib/fs-helpers';
 import { success, writeJson } from '../../lib/ui';
 
@@ -65,7 +66,7 @@ export function buildExtractRequest(opts: ExtractOpts): ExtractRequest {
   }
 
   const request: ExtractRequest = {
-    llm_model: opts.llmModel ?? 'openai/gpt-4.1-mini',
+    llm_model: opts.llmModel ?? DEFAULT_EXTRACTION_LLM_MODEL,
     schema: resolveSchema(opts),
   };
 

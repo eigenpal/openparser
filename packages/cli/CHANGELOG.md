@@ -1,5 +1,13 @@
 # @openparser/cli
 
+## 1.0.13
+
+### Patch Changes
+
+- 105f356: New extraction requests and pipelines default to GPT-6 Luna. SDK examples use current extraction models, and model recommendations exclude announced retirements.
+- Updated dependencies [105f356]
+  - @openparser/sdk@1.0.13
+
 ## 1.0.12
 
 ### Patch Changes

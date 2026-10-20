@@ -42,7 +42,7 @@ class ExtractionTerminalResult:
             llm_model (str): OpenRouter model slug from the compatible OCR extraction catalog
                 (`GET /models/llm`). Unknown or deprecated values return `422 unsupported_llm_model`.
                 Any currently compatible model may be used for extract and field grounding.
-                 Example: openai/gpt-5.6-terra.
+                 Example: openai/gpt-6-luna.
             attempts (list[ExtractionAttempt]):
             parse_job_id (str | Unset): Prefixed public id for an OCR job (`opj_…`). Example: opj_V1StGXR8_Z5jdHi6B-myT.
             reasoning_effort (ExtractionTerminalResultReasoningEffortType0 | None | Unset):

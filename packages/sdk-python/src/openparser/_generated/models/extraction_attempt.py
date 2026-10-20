@@ -30,7 +30,7 @@ class ExtractionAttempt:
             llm_model (str): OpenRouter model slug from the compatible OCR extraction catalog
                 (`GET /models/llm`). Unknown or deprecated values return `422 unsupported_llm_model`.
                 Any currently compatible model may be used for extract and field grounding.
-                 Example: openai/gpt-5.6-terra.
+                 Example: openai/gpt-6-luna.
             status (ExtractionAttemptStatus):
             input_tokens (int | Unset):
             output_tokens (int | Unset):

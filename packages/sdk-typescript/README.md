@@ -54,7 +54,7 @@ The SDK adds an idempotency key to every parse and extract request. Pass
 const extracted = await client.extract.sync(
   {
     ocr_model: 'paddleocr-vl-1.6',
-    llm_model: 'openai/gpt-4.1-mini',
+    llm_model: 'openai/gpt-6-luna',
     schema: { type: 'object', properties: { total: { type: 'number' } } },
   },
   file
@@ -74,7 +74,7 @@ Request field grounding when the result needs to be explainable or reviewed:
 const result = await client.extract.sync(
   {
     ocr_model: 'mistral-ocr-4',
-    llm_model: 'openai/gpt-5.6-terra',
+    llm_model: 'openai/gpt-6-luna',
     grounding: 'field',
     schema: { type: 'object', properties: { total: { type: 'number' } } },
   },
@@ -128,7 +128,7 @@ const firstPipeline = pipelinePage.items[0];
 const pipeline = await client.pipelines.create({
   name: 'invoice-default',
   ocr_model: 'paddleocr-vl-1.6',
-  llm_model: 'openai/gpt-4.1-mini',
+  llm_model: 'openai/gpt-6-luna',
   schema: { type: 'object' },
 });
 ```

@@ -39,7 +39,7 @@ class ExtractionPipeline:
             llm_model (str): OpenRouter model slug from the compatible OCR extraction catalog
                 (`GET /models/llm`). Unknown or deprecated values return `422 unsupported_llm_model`.
                 Any currently compatible model may be used for extract and field grounding.
-                 Example: openai/gpt-5.6-terra.
+                 Example: openai/gpt-6-luna.
             llm_options (ExtractionPipelineLlmOptions):
             schema (ExtractionPipelineSchema): Persisted extraction schema with at least one root property. Normalized for
                 strict

@@ -1,6 +1,7 @@
 import type { OpenParserClient } from '@openparser/sdk';
 import { createSdkClient } from '../../lib/client';
 import { requireApiKey, resolveConfig } from '../../lib/config';
+import { DEFAULT_EXTRACTION_LLM_MODEL } from '../../lib/defaults';
 import { readJsonFile } from '../../lib/fs-helpers';
 import { success, table, writeJson } from '../../lib/ui';
 
@@ -88,7 +89,7 @@ export async function pipelinesCreate(opts: PipelineCreateOpts): Promise<void> {
         name: opts.name,
         slug: opts.slug,
         schema: readSchema(opts),
-        llm_model: opts.llmModel ?? 'openai/gpt-4.1-mini',
+        llm_model: opts.llmModel ?? DEFAULT_EXTRACTION_LLM_MODEL,
         ocr_model: opts.ocrModel ?? 'paddleocr-vl-1.6',
         ...(opts.grounding
           ? { grounding: opts.grounding as CreateExtractionPipelineRequest['grounding'] }

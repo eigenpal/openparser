@@ -14,6 +14,7 @@ from typing_extensions import NotRequired
 
 HostedOcrModelId = Literal[
     "paddleocr-vl-1.6",
+    "mistral-ocr-4-1",
     "mistral-ocr-4",
     "mistral-ocr-3",
     "azure-di-layout",
@@ -26,6 +27,7 @@ HostedOcrModelId = Literal[
 
 HOSTED_OCR_MODEL_IDS: tuple[HostedOcrModelId, ...] = (
     "paddleocr-vl-1.6",
+    "mistral-ocr-4-1",
     "mistral-ocr-4",
     "mistral-ocr-3",
     "azure-di-layout",
@@ -40,7 +42,7 @@ DEFAULT_HOSTED_OCR_MODEL_ID: HostedOcrModelId = "paddleocr-vl-1.6"
 
 class PaddleocrVl16Options(TypedDict):
     """Hosted ocr_options for paddleocr-vl-1.6 (PaddleOCR-VL 1.6).
-    
+
     Output: Markdown + boxes.
     """
     # Parse image blocks: Parse text inside images.
@@ -50,9 +52,25 @@ class PaddleocrVl16Options(TypedDict):
     # Merge layout blocks: Merge nearby boxes for reading order.
     merge_layout_blocks: NotRequired[bool]
 
+class MistralOcr41Options(TypedDict):
+    """Hosted ocr_options for mistral-ocr-4-1 (Mistral OCR 4.1).
+
+    Output: Markdown + boxes.
+    """
+    # Table format: How tables are serialized in markdown output.
+    table_format: NotRequired[Literal["html", "markdown"]]
+    # Extract header: Include detected page headers in output.
+    extract_header: NotRequired[bool]
+    # Extract footer: Include detected page footers in output.
+    extract_footer: NotRequired[bool]
+    # Include blocks: Return structured layout blocks with the parse.
+    include_blocks: NotRequired[bool]
+    # Confidence scores: Attach parse confidence at page or word level.
+    confidence_scores_granularity: NotRequired[Literal["page", "word"] | None]
+
 class MistralOcr4Options(TypedDict):
     """Hosted ocr_options for mistral-ocr-4 (Mistral OCR 4).
-    
+
     Output: Markdown + boxes.
     """
     # Table format: How tables are serialized in markdown output.
@@ -68,7 +86,7 @@ class MistralOcr4Options(TypedDict):
 
 class MistralOcr3Options(TypedDict):
     """Hosted ocr_options for mistral-ocr-3 (Mistral OCR 3).
-    
+
     Output: Markdown.
     """
     # Table format: How tables are serialized in markdown output.
@@ -82,7 +100,7 @@ class MistralOcr3Options(TypedDict):
 
 class AzureDiLayoutOptions(TypedDict):
     """Hosted ocr_options for azure-di-layout (Azure Document Intelligence Layout).
-    
+
     Output: Markdown + boxes.
     """
     # High-resolution parsing: Parse at higher resolution for small text.
@@ -104,7 +122,7 @@ class AzureDiLayoutOptions(TypedDict):
 
 class AzureDiReadOptions(TypedDict):
     """Hosted ocr_options for azure-di-read (Azure Document Intelligence Read).
-    
+
     Output: Plain text + boxes.
     """
     # High-resolution parsing: Parse at higher resolution for small text.
@@ -124,7 +142,7 @@ class AzureDiReadOptions(TypedDict):
 
 class GoogleDocaiOcrOptions(TypedDict):
     """Hosted ocr_options for google-docai-ocr (Google Enterprise Document OCR).
-    
+
     Output: Markdown + boxes.
     """
     # Native PDF parsing: Use embedded PDF text when available.
@@ -144,7 +162,7 @@ class GoogleDocaiOcrOptions(TypedDict):
 
 class AwsTextractDetectOptions(TypedDict):
     """Hosted ocr_options for aws-textract-detect (AWS Textract Detect).
-    
+
     Output: Plain text + boxes.
     """
     # Forms: Extract form fields as key-value pairs.
@@ -156,7 +174,7 @@ class AwsTextractDetectOptions(TypedDict):
 
 class AwsTextractLayoutOptions(TypedDict):
     """Hosted ocr_options for aws-textract-layout (AWS Textract Layout).
-    
+
     Output: Markdown + boxes.
     """
     # Forms: Extract form fields as key-value pairs.
@@ -168,7 +186,7 @@ class AwsTextractLayoutOptions(TypedDict):
 
 class AwsTextractTablesLayoutOptions(TypedDict):
     """Hosted ocr_options for aws-textract-tables-layout (AWS Textract Tables + Layout).
-    
+
     Output: Markdown + tables + boxes.
     """
     # Forms: Extract form fields as key-value pairs.
@@ -181,6 +199,7 @@ class AwsTextractTablesLayoutOptions(TypedDict):
 # Mapping used by type checkers / docs; values are TypedDict types, not instances.
 HOSTED_OCR_OPTIONS_BY_MODEL: Mapping[HostedOcrModelId, type] = {
     "paddleocr-vl-1.6": PaddleocrVl16Options,
+    "mistral-ocr-4-1": MistralOcr41Options,
     "mistral-ocr-4": MistralOcr4Options,
     "mistral-ocr-3": MistralOcr3Options,
     "azure-di-layout": AzureDiLayoutOptions,
@@ -213,6 +232,31 @@ HOSTED_OCR_MODEL_CATALOG_SUMMARY: dict[str, dict[str, Any]] = {
             "geometry": "optional",
             "assets": "optional",
             "text_annotations": "none",
+        },
+    },
+    "mistral-ocr-4-1": {
+        "id": "mistral-ocr-4-1",
+        "label": "Mistral OCR 4.1",
+        "is_default": False,
+        "output_summary": "Markdown + boxes",
+        "capabilities": {
+            "parse": True,
+            "extract_source": True,
+            "markdown": True,
+            "regions": True,
+            "options": {
+                "table_format": True,
+                "extract_header": True,
+                "extract_footer": True,
+                "include_blocks": True,
+                "confidence_scores_granularity": True,
+            },
+        },
+        "converter": {
+            "element_kinds": ("text", "table", "figure", "signature", "link"),
+            "geometry": "optional",
+            "assets": "optional",
+            "text_annotations": "optional",
         },
     },
     "mistral-ocr-4": {
@@ -429,6 +473,16 @@ def hosted_parse_request(
 
 @overload
 def hosted_parse_request(
+    ocr_model: Literal["mistral-ocr-4-1"],
+    /,
+    *,
+    ocr_options: MistralOcr41Options | None = None,
+    file_id: str | None = None,
+    output_format: Literal["openparser@1", "raw"] | None = None,
+) -> dict[str, Any]: ...
+
+@overload
+def hosted_parse_request(
     ocr_model: Literal["mistral-ocr-4"],
     /,
     *,
@@ -547,6 +601,7 @@ __all__ = [
     "HOSTED_OCR_MODEL_IDS",
     "DEFAULT_HOSTED_OCR_MODEL_ID",
     "PaddleocrVl16Options",
+    "MistralOcr41Options",
     "MistralOcr4Options",
     "MistralOcr3Options",
     "AzureDiLayoutOptions",

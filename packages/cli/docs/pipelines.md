@@ -73,19 +73,19 @@ Create a saved extraction pipeline.
 
 ### Options
 
-| Flag                    | Required | Default                 | Description                               |
-| ----------------------- | -------- | ----------------------- | ----------------------------------------- |
-| `--name <name>`         | yes      |                         | Pipeline display name                     |
-| `--slug <slug>`         | no       |                         | URL-safe slug                             |
-| `--schema <path>`       | no       |                         | JSON Schema file                          |
-| `--schema-json <json>`  | no       |                         | Inline JSON Schema                        |
-| `--llm-model <id>`      | no       | `"openai/gpt-4.1-mini"` | LLM model id                              |
-| `--ocr-model <id>`      | no       | `"paddleocr-vl-1.6"`    | OCR model id                              |
-| `--grounding <mode>`    | no       |                         | none or field                             |
-| `--repair-attempts <n>` | no       |                         | Schema repair attempts (0-2)              |
-| `--body <json>`         | no       |                         | Full request JSON (overrides other flags) |
-| `--json`                | no       |                         | Output the raw server response as JSON    |
-| `--base-url <url>`      | no       |                         | OpenParser API base URL                   |
+| Flag                    | Required | Default               | Description                               |
+| ----------------------- | -------- | --------------------- | ----------------------------------------- |
+| `--name <name>`         | yes      |                       | Pipeline display name                     |
+| `--slug <slug>`         | no       |                       | URL-safe slug                             |
+| `--schema <path>`       | no       |                       | JSON Schema file                          |
+| `--schema-json <json>`  | no       |                       | Inline JSON Schema                        |
+| `--llm-model <id>`      | no       | `"openai/gpt-6-luna"` | LLM model id                              |
+| `--ocr-model <id>`      | no       | `"paddleocr-vl-1.6"`  | OCR model id                              |
+| `--grounding <mode>`    | no       |                       | none or field                             |
+| `--repair-attempts <n>` | no       |                       | Schema repair attempts (0-2)              |
+| `--body <json>`         | no       |                       | Full request JSON (overrides other flags) |
+| `--json`                | no       |                       | Output the raw server response as JSON    |
+| `--base-url <url>`      | no       |                       | OpenParser API base URL                   |
 
 ### `openparser pipelines update [options] <pipelineId>`
 

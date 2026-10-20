@@ -6,6 +6,7 @@
  */
 export const HOSTED_OCR_MODEL_IDS = [
   'paddleocr-vl-1.6',
+  'mistral-ocr-4-1',
   'mistral-ocr-4',
   'mistral-ocr-3',
   'azure-di-layout',
@@ -46,6 +47,44 @@ export type PaddleocrVl16Options = {
    * Merge nearby boxes for reading order.
    */
   merge_layout_blocks?: boolean;
+};
+
+/**
+ * Hosted `ocr_options` for `mistral-ocr-4-1` (Mistral OCR 4.1).
+ *
+ * Output: Markdown + boxes.
+ */
+export type MistralOcr41Options = {
+  /**
+   * Table format.
+   *
+   * How tables are serialized in markdown output.
+   */
+  table_format?: 'html' | 'markdown';
+  /**
+   * Extract header.
+   *
+   * Include detected page headers in output.
+   */
+  extract_header?: boolean;
+  /**
+   * Extract footer.
+   *
+   * Include detected page footers in output.
+   */
+  extract_footer?: boolean;
+  /**
+   * Include blocks.
+   *
+   * Return structured layout blocks with the parse.
+   */
+  include_blocks?: boolean;
+  /**
+   * Confidence scores.
+   *
+   * Attach parse confidence at page or word level.
+   */
+  confidence_scores_granularity?: 'page' | 'word' | null;
 };
 
 /**
@@ -355,6 +394,7 @@ export type AwsTextractTablesLayoutOptions = {
 /** Exact per-model hosted option types keyed by model id. */
 export type HostedOcrOptionsByModel = {
   'paddleocr-vl-1.6': PaddleocrVl16Options;
+  'mistral-ocr-4-1': MistralOcr41Options;
   'mistral-ocr-4': MistralOcr4Options;
   'mistral-ocr-3': MistralOcr3Options;
   'azure-di-layout': AzureDiLayoutOptions;
@@ -430,6 +470,38 @@ export const HOSTED_OCR_MODEL_CATALOG_SUMMARY = {
       geometry: 'optional' as const,
       assets: 'optional' as const,
       textAnnotations: 'none' as const,
+    },
+  },
+  /**
+   * Mistral OCR 4.1.
+   *
+   * Output summary: Markdown + boxes.
+   * Capabilities: parse=true, extract_source=true, markdown=true, regions=true.
+   * Converter elementKinds/geometry/assets describe a conservative upper bound — not guaranteed fields.
+   */
+  'mistral-ocr-4-1': {
+    id: 'mistral-ocr-4-1',
+    label: 'Mistral OCR 4.1',
+    isDefault: false,
+    outputSummary: 'Markdown + boxes',
+    capabilities: {
+      parse: true,
+      extract_source: true,
+      markdown: true,
+      regions: true,
+      options: {
+        table_format: true,
+        extract_header: true,
+        extract_footer: true,
+        include_blocks: true,
+        confidence_scores_granularity: true,
+      },
+    },
+    converter: {
+      elementKinds: ['text', 'table', 'figure', 'signature', 'link'] as const,
+      geometry: 'optional' as const,
+      assets: 'optional' as const,
+      textAnnotations: 'optional' as const,
     },
   },
   /**
