@@ -1,6 +1,6 @@
 [project]
 name = "openparser-sdk"
-version = "1.0.13"
+version = "1.0.14"
 description = "Parse documents and extract structured data with Python"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -43,6 +43,8 @@ dependencies = [
     # with IDNA 2003 in TLSStream, which allows TLS certificate spoofing
     # (GHSA-82r6-8w77-94w6).
     "anyio >= 4.14.2",
+    # Exclude compromised emSign CA roots (GHSA-6q48-6c7w-9gw2).
+    "certifi >= 2026.10.19",
 ]
 
 [project.urls]

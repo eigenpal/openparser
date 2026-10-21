@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.14
+
+### Patch Changes
+
+- 7c5d565: The OCR gateway now runs on a supported Python runtime and includes image-processing security fixes.
+- a5395aa: The Python SDK and OCR gateway now use an updated certificate trust store that excludes compromised certificate authorities, improving HTTPS connection security.
+
+  The OCR gateway also includes HTTP client security fixes.
+
 ## 1.0.13
 
 ### Patch Changes
