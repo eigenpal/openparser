@@ -1,5 +1,12 @@
 # @openparser/cli
 
+## 1.0.15
+
+### Patch Changes
+
+- Updated dependencies [4d28e50]
+  - @openparser/sdk@1.0.15
+
 ## 1.0.14
 
 ### Patch Changes

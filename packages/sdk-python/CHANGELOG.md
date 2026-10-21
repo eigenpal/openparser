@@ -1,5 +1,11 @@
 # openparser-sdk
 
+## 1.0.15
+
+### Patch Changes
+
+- 4d28e50: Updated OCR runtime certificate bundles to exclude compromised certificate authorities.
+
 ## 1.0.14
 
 ### Patch Changes
