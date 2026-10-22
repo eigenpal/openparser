@@ -1,5 +1,11 @@
 # openparser-sdk
 
+## 1.0.16
+
+### Patch Changes
+
+- 43ed55f: GPU OCR runtimes now include image-processing security fixes.
+
 ## 1.0.15
 
 ### Patch Changes
