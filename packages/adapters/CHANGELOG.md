@@ -1,5 +1,12 @@
 # @openparser/adapters
 
+## 1.0.17
+
+### Patch Changes
+
+- e3a544d: Tables whose cell spans overlap, which model-generated table HTML sometimes produces, no longer fail the whole parse. Each cell's `rowspan`/`colspan` is fitted to the free grid cells, `rowspan` stops at the last row, and `colspan` is capped at HTML's limit.
+  - @openparser/schema@1.0.17
+
 ## 1.0.16
 
 ### Patch Changes

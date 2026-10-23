@@ -223,6 +223,56 @@ describe('mapGoogleDocumentAiToParsedDocument unit cases', () => {
     expect(ParsedDocumentSchema.safeParse(parsed).success).toBe(true);
   });
 
+  test('OCR processor stops a rowSpan at the last row instead of failing the document', () => {
+    const parsed = mapGoogleDocumentAiToParsedDocument({
+      documentId: 'doc-ocr-rowspan-past-end',
+      response: {
+        processor_type: 'OCR_PROCESSOR',
+        page_count: 1,
+        document: {
+          text: 'Total',
+          pages: [
+            {
+              dimension: { width: 100, height: 100, unit: 'pixels' },
+              tables: [
+                {
+                  headerRows: [],
+                  bodyRows: [
+                    {
+                      cells: [
+                        {
+                          rowSpan: 2,
+                          colSpan: 1,
+                          layout: {
+                            textAnchor: { textSegments: [{ startIndex: '0', endIndex: '5' }] },
+                            boundingPoly: {
+                              vertices: [
+                                { x: 1, y: 1 },
+                                { x: 10, y: 1 },
+                                { x: 10, y: 10 },
+                                { x: 1, y: 10 },
+                              ],
+                            },
+                          },
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      },
+    });
+
+    const table = parsed.elements.find((element) => element.kind === 'table');
+    if (table?.kind !== 'table') throw new Error('expected table');
+    expect(table.row_count).toBe(1);
+    expect(table.cells[0]).toMatchObject({ row_index: 0, row_span: 1 });
+    expect(() => ParsedDocumentSchema.parse(parsed)).not.toThrow();
+  });
+
   test('layout parser advances column indexes past row-spanned occupancy', () => {
     const parsed = mapGoogleDocumentAiToParsedDocument({
       documentId: 'doc-layout-rowspan',

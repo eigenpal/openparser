@@ -27,6 +27,49 @@ export function occupyTableCellSpan(
   }
 }
 
+// HTML's own limits for colspan and rowspan.
+const MAX_TABLE_COLUMN_SPAN = 1000;
+const MAX_TABLE_ROW_SPAN = 65534;
+// Grid slots tracked per table. A few degenerate cells (colspan=1000
+// rowspan=1000) would otherwise fill gigabytes of `occupied`; past this
+// budget, spans collapse to 1x1. Real tables stay far below it.
+const MAX_TABLE_GRID_SLOTS = 250_000;
+
+/**
+ * Shrink a cell's spans so it covers only free grid slots. Provider tables,
+ * especially model-generated HTML, can run a colspan or rowspan across a slot
+ * an earlier cell already holds; TableElementSchema rejects overlapping cells,
+ * which failed whole parse jobs. The cell keeps its starting slot, so at least
+ * 1x1 always fits after advancePastOccupiedTableCells.
+ */
+export function fitTableCellSpan(
+  occupied: Set<string>,
+  rowIndex: number,
+  columnIndex: number,
+  rowSpan: number,
+  columnSpan: number
+): { rowSpan: number; columnSpan: number } {
+  let rows = Math.min(Math.max(Math.trunc(rowSpan) || 1, 1), MAX_TABLE_ROW_SPAN);
+  let columns = Math.min(Math.max(Math.trunc(columnSpan) || 1, 1), MAX_TABLE_COLUMN_SPAN);
+  // Check the budget before scanning, so a degenerate span costs nothing.
+  if (occupied.size + rows * columns > MAX_TABLE_GRID_SLOTS) return { rowSpan: 1, columnSpan: 1 };
+  for (let row = 1; row < rows; row++) {
+    if (occupied.has(tableCellCoordinateKey(rowIndex + row, columnIndex))) {
+      rows = row;
+      break;
+    }
+  }
+  columns: for (let column = 1; column < columns; column++) {
+    for (let row = 0; row < rows; row++) {
+      if (occupied.has(tableCellCoordinateKey(rowIndex + row, columnIndex + column))) {
+        columns = column;
+        break columns;
+      }
+    }
+  }
+  return { rowSpan: rows, columnSpan: columns };
+}
+
 type TableRenderSource = {
   cells: TableCell[];
   row_count: number;
@@ -67,8 +110,14 @@ export function tableCellsFromHtml(
     for (let cellIndex = 0; cellIndex < rawCells.length; cellIndex++) {
       columnIndex = advancePastOccupiedTableCells(occupied, rowIndex, columnIndex);
       const attributes = rawCells[cellIndex]?.[2] ?? '';
-      const rowSpan = positiveAttribute(attributes, 'rowspan');
-      const columnSpan = positiveAttribute(attributes, 'colspan');
+      // Like browsers, a rowspan never extends past the last row.
+      const { rowSpan, columnSpan } = fitTableCellSpan(
+        occupied,
+        rowIndex,
+        columnIndex,
+        Math.min(positiveAttribute(attributes, 'rowspan'), rows.length - rowIndex),
+        positiveAttribute(attributes, 'colspan')
+      );
       occupyTableCellSpan(occupied, rowIndex, columnIndex, rowSpan, columnSpan);
       cells.push({
         id: `${tableId}-cell-${rowIndex}-${cellIndex}`,

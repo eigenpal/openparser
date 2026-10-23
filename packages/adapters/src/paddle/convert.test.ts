@@ -306,6 +306,80 @@ describe('mapLayoutResultsToParsedDocument unit cases', () => {
     });
     expect(parsed.elements.some((el) => el.kind === 'figure')).toBe(false);
   });
+
+  test('degenerate giant spans stay bounded in time and memory and still validate', () => {
+    const rows = Array.from(
+      { length: 1000 },
+      () => '<tr>' + '<td colspan="1000" rowspan="1000">x</td>'.repeat(20) + '</tr>'
+    ).join('');
+    const started = performance.now();
+    const parsed = mapLayoutResultsToParsedDocument({
+      documentId: 'doc-giant-spans',
+      pages: [{ number: 1, width: 100, height: 100 }],
+      layoutResults: [
+        {
+          prunedResult: {
+            parsing_res_list: [
+              {
+                block_id: 1,
+                block_label: 'table',
+                block_content: `<table>${rows}</table>`,
+                block_bbox: [0, 0, 80, 40],
+              },
+            ],
+          },
+        },
+      ],
+    });
+
+    expect(performance.now() - started).toBeLessThan(5_000);
+    expect(() => ParsedDocumentSchema.parse(parsed)).not.toThrow();
+  });
+
+  test('generated table HTML with overlapping or oversized spans still validates', () => {
+    // 2026-10-23: model-generated HTML ran a colspan across a cell held by an
+    // earlier rowspan; the overlap failed ParsedDocumentSchema and the job.
+    const html =
+      '<table><tr><td>A</td><td>B</td><td rowspan="9">C</td></tr>' +
+      '<tr><td colspan="3">D</td></tr><tr><td colspan="99999">E</td></tr></table>';
+    const parsed = mapLayoutResultsToParsedDocument({
+      documentId: 'doc-overlapping-spans',
+      pages: [{ number: 1, width: 100, height: 100 }],
+      layoutResults: [
+        {
+          prunedResult: {
+            parsing_res_list: [
+              {
+                block_id: 1,
+                block_label: 'table',
+                block_content: html,
+                block_bbox: [0, 0, 80, 40],
+              },
+            ],
+          },
+        },
+      ],
+    });
+
+    expect(() => ParsedDocumentSchema.parse(parsed)).not.toThrow();
+    const table = parsed.elements[0];
+    if (table?.kind !== 'table') throw new Error('expected a table');
+    expect(table.row_count).toBe(3);
+    expect(
+      table.cells.map((cell) => [
+        cell.row_index,
+        cell.column_index,
+        cell.row_span,
+        cell.column_span,
+      ])
+    ).toEqual([
+      [0, 0, 1, 1],
+      [0, 1, 1, 1],
+      [0, 2, 3, 1],
+      [1, 0, 1, 2],
+      [2, 0, 1, 2],
+    ]);
+  });
 });
 
 describe('figure URI helpers', () => {

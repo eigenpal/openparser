@@ -18,6 +18,7 @@ import { parseCanonicalWithCapabilities } from '../shared/parse-canonical';
 import { renderCanonicalMarkdown } from '../shared/render';
 import {
   advancePastOccupiedTableCells,
+  fitTableCellSpan,
   occupyTableCellSpan,
   tableCellsToHtml,
 } from '../shared/table';
@@ -318,6 +319,11 @@ function addGoogleTables(
     const id = `google-page-${pageNumber}-table-${tableIndex}`;
     const cells: TableCell[] = [];
     const occupied = new Set<string>();
+    // row_count is the number of rows read, so a rowSpan must stop at the last one.
+    const totalRows = (['headerRows', 'bodyRows'] as const).reduce(
+      (count, field) => count + (Array.isArray(table[field]) ? table[field].length : 0),
+      0
+    );
     let rowIndex = 0;
     for (const [rowField, role] of [
       ['headerRows', 'column_header'],
@@ -336,8 +342,13 @@ function addGoogleTables(
           if (!isRecord(cell) || !isRecord(cell.layout)) continue;
           columnIndex = advancePastOccupiedTableCells(occupied, rowIndex, columnIndex);
           const spans = readGoogleSpans(cell.layout.textAnchor, codePointToUtf16);
-          const columnSpan = readInteger(cell.colSpan) ?? 1;
-          const rowSpan = readInteger(cell.rowSpan) ?? 1;
+          const { rowSpan, columnSpan } = fitTableCellSpan(
+            occupied,
+            rowIndex,
+            columnIndex,
+            Math.min(readInteger(cell.rowSpan) ?? 1, totalRows - rowIndex),
+            readInteger(cell.colSpan) ?? 1
+          );
           occupyTableCellSpan(occupied, rowIndex, columnIndex, rowSpan, columnSpan);
           cells.push({
             id: `${id}-cell-${rowIndex}-${cellIndex}`,
@@ -584,8 +595,13 @@ function layoutParserCells(table: Record<string, unknown>, tableId: string): Tab
         const cell = row.cells[index];
         if (!isRecord(cell)) continue;
         columnIndex = advancePastOccupiedTableCells(occupied, rowIndex, columnIndex);
-        const columnSpan = readInteger(cell.colSpan) ?? 1;
-        const rowSpan = readInteger(cell.rowSpan) ?? 1;
+        const { rowSpan, columnSpan } = fitTableCellSpan(
+          occupied,
+          rowIndex,
+          columnIndex,
+          readInteger(cell.rowSpan) ?? 1,
+          readInteger(cell.colSpan) ?? 1
+        );
         occupyTableCellSpan(occupied, rowIndex, columnIndex, rowSpan, columnSpan);
         cells.push({
           id: `${tableId}-cell-${rowIndex}-${index}`,
