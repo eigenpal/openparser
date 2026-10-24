@@ -10,12 +10,14 @@ export {
   HpsPdfChunkSplitError,
   HpsPdfPageTimeoutError,
   HpsRequestTimeoutError,
+  countLayoutRegions,
   createHttpHpsClient,
   type HpsClient,
   type HpsParseInput,
   type HpsParseOutput,
   type HpsPdfChunkRange,
   type HpsPdfChunkState,
+  type HpsRequestStats,
   type HttpHpsClientOptions,
 } from './client';
 export {

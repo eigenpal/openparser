@@ -40,6 +40,7 @@ export {
   type HpsParseOutput,
   type HpsPdfChunkRange,
   type HpsPdfChunkState,
+  type HpsRequestStats,
   type HttpHpsClientOptions,
   type MapLayoutResultsInput,
   type PaddleLayoutParsedDocument,

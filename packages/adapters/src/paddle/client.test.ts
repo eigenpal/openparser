@@ -1,6 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 import { PDFDocument } from 'pdf-lib';
-import { createHttpHpsClient, HpsParseError } from './client';
+import {
+  countLayoutRegions,
+  createHttpHpsClient,
+  HpsParseError,
+  type HpsRequestStats,
+} from './client';
 
 function tinyPng(): Uint8Array {
   return Buffer.from(
@@ -102,14 +107,37 @@ describe('Paddle HPS HTTP client', () => {
       },
     });
 
+    const stats: HpsRequestStats[] = [];
     const output = await client.parse({
       content: await source.save(),
       mediaType: 'application/pdf',
       documentId: 'pdf-test',
+      onRequestComplete: (request) => stats.push(request),
     });
 
     expect(requestPageCounts).toEqual([2, 1]);
     expect('canonical' in output && output.canonical.pages).toHaveLength(3);
+    // One stats record per physical request, with the page range it covered.
+    expect(stats.map(({ range, pages, regions }) => ({ range, pages, regions }))).toEqual([
+      { range: { startPage: 0, endPage: 2 }, pages: 2, regions: 0 },
+      { range: { startPage: 2, endPage: 3 }, pages: 1, regions: 0 },
+    ]);
+    for (const request of stats) {
+      expect(request.requestBytes).toBeGreaterThan(0);
+      expect(request.requestMs).toBeGreaterThanOrEqual(0);
+      expect(request.prepareMs).toBeGreaterThanOrEqual(0);
+    }
+  });
+
+  test('counts layout regions across pages and tolerates malformed pages', () => {
+    expect(
+      countLayoutRegions([
+        { prunedResult: { parsing_res_list: [{}, {}, {}] } },
+        { prunedResult: { parsing_res_list: [{}] } },
+        { prunedResult: {} },
+        null,
+      ])
+    ).toBe(4);
   });
 
   test('rejects unsuccessful Paddle response envelopes', async () => {

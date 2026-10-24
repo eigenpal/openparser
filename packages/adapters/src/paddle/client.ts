@@ -27,6 +27,21 @@ export type HpsParseInput = {
   onPdfChunkComplete?: (range: HpsPdfChunkRange, totalPages: number) => Promise<void>;
   loadPdfPageTimeoutCount?: (range: HpsPdfChunkRange) => Promise<number>;
   recordPdfPageTimeout?: (range: HpsPdfChunkRange, attempt: number) => Promise<void>;
+  /** Timing and size of each successful physical HPS request, for metrics. */
+  onRequestComplete?: (stats: HpsRequestStats) => void;
+};
+
+export type HpsRequestStats = {
+  /** PDF page range this request covered; absent for a single image. */
+  range?: HpsPdfChunkRange;
+  pages: number;
+  /** Layout blocks HPS returned (after merging; most are one VLM call each). */
+  regions: number;
+  requestBytes: number;
+  /** Wall time of the HTTP request, including GPU queueing inside HPS. */
+  requestMs: number;
+  /** Worker time spent cutting this page range out of the source PDF. */
+  prepareMs?: number;
 };
 
 export type HpsPdfChunkRange = {
@@ -214,10 +229,15 @@ export function createHttpHpsClient(options: HttpHpsClientOptions): HpsClient {
         mergeLayoutBlocks:
           input.nativeOptions?.mergeLayoutBlocks ?? LOCKED_HPS_NATIVE_OPTIONS.mergeLayoutBlocks,
       };
-      const request = async (content: Uint8Array, requestTimeoutMs: number) => {
+      const request = async (
+        content: Uint8Array,
+        requestTimeoutMs: number,
+        meta?: { range: HpsPdfChunkRange; prepareMs: number }
+      ) => {
         input.signal?.throwIfAborted();
         await input.beforeRequest?.();
         let result: Record<string, unknown>;
+        const startedAt = performance.now();
         try {
           result = await requestLayoutResult({
             baseUrl,
@@ -238,6 +258,20 @@ export function createHttpHpsClient(options: HttpHpsClientOptions): HpsClient {
           throw error;
         }
         await input.afterRequest?.(null);
+        const requestMs = Math.round(performance.now() - startedAt);
+        const pageResults = result.layoutParsingResults as unknown[];
+        try {
+          input.onRequestComplete?.({
+            range: meta?.range,
+            pages: pageResults.length,
+            regions: countLayoutRegions(pageResults),
+            requestBytes: content.byteLength,
+            requestMs,
+            prepareMs: meta?.prepareMs,
+          });
+        } catch {
+          // Metrics must never turn a successful GPU result into a failure.
+        }
         return result;
       };
 
@@ -371,12 +405,29 @@ async function requestLayoutResult(input: LayoutRequestInput): Promise<Record<st
   return result as Record<string, unknown>;
 }
 
+type HpsRangeRequest = (
+  content: Uint8Array,
+  timeoutMs: number,
+  meta?: { range: HpsPdfChunkRange; prepareMs: number }
+) => Promise<Record<string, unknown>>;
+
+/** Count layout regions across HPS page results; malformed pages count as zero. */
+export function countLayoutRegions(pageResults: readonly unknown[]): number {
+  let regions = 0;
+  for (const page of pageResults) {
+    const pruned = (page as { prunedResult?: { parsing_res_list?: unknown } } | null)?.prunedResult;
+    const list = pruned?.parsing_res_list;
+    if (Array.isArray(list)) regions += list.length;
+  }
+  return regions;
+}
+
 async function parsePdfInBoundedChunks(input: {
   content: Uint8Array;
   chunkPages: number;
   chunkTimeoutMs: number;
   singlePageTimeoutMs: number;
-  request: (content: Uint8Array, timeoutMs: number) => Promise<Record<string, unknown>>;
+  request: HpsRangeRequest;
   loadChunk?: (range: HpsPdfChunkRange) => Promise<HpsPdfChunkState | null>;
   saveChunk?: (range: HpsPdfChunkRange, state: HpsPdfChunkState) => Promise<boolean | void>;
   onChunkComplete?: (range: HpsPdfChunkRange, totalPages: number) => Promise<void>;
@@ -434,7 +485,7 @@ async function requestPdfPagesWithTimeoutBisect(input: {
   pageIndexes: number[];
   chunkTimeoutMs: number;
   singlePageTimeoutMs: number;
-  request: (content: Uint8Array, timeoutMs: number) => Promise<Record<string, unknown>>;
+  request: HpsRangeRequest;
   loadChunk?: (range: HpsPdfChunkRange) => Promise<HpsPdfChunkState | null>;
   saveChunk?: (range: HpsPdfChunkRange, state: HpsPdfChunkState) => Promise<boolean | void>;
   onChunkComplete?: (range: HpsPdfChunkRange) => Promise<void>;
@@ -474,6 +525,7 @@ async function requestPdfPagesWithTimeoutBisect(input: {
   }
 
   let bytes: Uint8Array;
+  const prepareStartedAt = performance.now();
   try {
     const chunk = await PDFDocument.create();
     const pages = await chunk.copyPages(input.source, input.pageIndexes);
@@ -492,7 +544,8 @@ async function requestPdfPagesWithTimeoutBisect(input: {
   try {
     const result = await input.request(
       bytes,
-      input.pageIndexes.length === 1 ? input.singlePageTimeoutMs : input.chunkTimeoutMs
+      input.pageIndexes.length === 1 ? input.singlePageTimeoutMs : input.chunkTimeoutMs,
+      { range, prepareMs: Math.round(performance.now() - prepareStartedAt) }
     );
     validateBoundedPageResult(result, input.pageIndexes.length, range);
     input.signal?.throwIfAborted();
@@ -556,7 +609,7 @@ async function requestSplitPdfPages(input: {
   pageIndexes: number[];
   chunkTimeoutMs: number;
   singlePageTimeoutMs: number;
-  request: (content: Uint8Array, timeoutMs: number) => Promise<Record<string, unknown>>;
+  request: HpsRangeRequest;
   loadChunk?: (range: HpsPdfChunkRange) => Promise<HpsPdfChunkState | null>;
   saveChunk?: (range: HpsPdfChunkRange, state: HpsPdfChunkState) => Promise<boolean | void>;
   onChunkComplete?: (range: HpsPdfChunkRange) => Promise<void>;

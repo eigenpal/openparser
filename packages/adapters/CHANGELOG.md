@@ -1,5 +1,12 @@
 # @openparser/adapters
 
+## 1.0.19
+
+### Patch Changes
+
+- e2bfcd1: The Paddle HPS client accepts an `onRequestComplete` callback that receives `HpsRequestStats` for every physical GPU request (page range, pages, layout regions, request bytes and time, PDF preparation time), and exports `countLayoutRegions`.
+  - @openparser/schema@1.0.19
+
 ## 1.0.18
 
 ### Patch Changes
