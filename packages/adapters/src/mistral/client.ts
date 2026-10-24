@@ -153,6 +153,24 @@ function mistralErrorMessage(payload: Record<string, unknown>, fallback: string)
 }
 
 /**
+ * Mistral's error `code` (or `type`), top level or under `error`. Restricted
+ * to identifier characters so it is safe to log.
+ */
+function mistralErrorCode(payload: Record<string, unknown>): string | undefined {
+  const nested =
+    payload.error && typeof payload.error === 'object' && !Array.isArray(payload.error)
+      ? (payload.error as Record<string, unknown>)
+      : {};
+  for (const candidate of [payload.code, payload.type, nested.code, nested.type]) {
+    const value = typeof candidate === 'number' ? String(candidate) : candidate;
+    if (typeof value === 'string' && /^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$/.test(value)) {
+      return value;
+    }
+  }
+  return undefined;
+}
+
+/**
  * Production Mistral OCR HTTP client: POST /v1/ocr, map via adapter convert.
  */
 export function createHttpMistralOcrClient(options: HttpMistralOcrClientOptions): {
@@ -206,7 +224,8 @@ export function createHttpMistralOcrClient(options: HttpMistralOcrClientOptions)
         throw new MistralOcrError(
           `Mistral OCR request failed HTTP ${response.status}`,
           true,
-          response.status !== 429
+          response.status !== 429,
+          { status: response.status }
         );
       }
       if (!response.ok) {
@@ -214,7 +233,12 @@ export function createHttpMistralOcrClient(options: HttpMistralOcrClientOptions)
         const message = payload
           ? mistralErrorMessage(payload, `HTTP ${response.status}`)
           : `HTTP ${response.status}`;
-        throw new MistralOcrError(`Mistral OCR request failed: ${message}`, false);
+        throw new MistralOcrError(
+          `Mistral OCR request failed HTTP ${response.status}: ${message}`,
+          false,
+          false,
+          { status: response.status, code: payload ? mistralErrorCode(payload) : undefined }
+        );
       }
 
       const nativeResult = await readBoundedJson(response, maxResponseBytes);

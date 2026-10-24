@@ -521,6 +521,19 @@ components:
                     page_count: 16
                     max_pages: 15
                     media_type: application/pdf
+            modelImageLimit:
+              value:
+                error:
+                  code: model_image_limit
+                  message: aws-textract-layout accepts images up to 10 MB
+                  request_id: req_01h2example
+                  retryable: false
+                  details:
+                    ocr_model: aws-textract-layout
+                    limit: max_image_bytes
+                    max_value: 10485760
+                    actual_value: 15382104
+                    media_type: image/png
             invalidSchema:
               value:
                 error:

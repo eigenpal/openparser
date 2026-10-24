@@ -15,11 +15,22 @@ export class MistralAdapterError extends Error {
 export class MistralOcrError extends Error {
   readonly retryable: boolean;
   readonly dispatchAmbiguous: boolean;
+  /** HTTP status of the failed Mistral response, when there was one. */
+  readonly status?: number;
+  /** Mistral's error `code` or `type`, restricted to identifier characters. */
+  readonly providerCode?: string;
 
-  constructor(message: string, retryable = false, dispatchAmbiguous = false) {
+  constructor(
+    message: string,
+    retryable = false,
+    dispatchAmbiguous = false,
+    provider: { status?: number; code?: string } = {}
+  ) {
     super(message);
     this.name = 'MistralOcrError';
     this.retryable = retryable;
     this.dispatchAmbiguous = dispatchAmbiguous;
+    this.status = provider.status;
+    this.providerCode = provider.code;
   }
 }

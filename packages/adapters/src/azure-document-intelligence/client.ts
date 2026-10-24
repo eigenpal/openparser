@@ -18,6 +18,8 @@ export const AZURE_DI_DEFAULT_REQUEST_TIMEOUT_MS = 30_000;
 export const AZURE_DI_DEFAULT_POLL_TIMEOUT_MS = 180_000;
 export const AZURE_DI_DEFAULT_POLL_INTERVAL_MS = 2_000;
 export const AZURE_DI_MAX_RETRY_AFTER_MS = 60_000;
+/** Azure rejects images whose width or height exceeds this many pixels. */
+export const AZURE_DI_MAX_IMAGE_SIDE_PX = 10_000;
 
 export type AzureParseInput = {
   bytes: Uint8Array;
@@ -28,6 +30,11 @@ export type AzureParseInput = {
   outputContentFormat: 'markdown' | 'text';
   /** Optional analyze features / locale / pages. Omitted = previous defaults. */
   options?: AzureParseOptions;
+  /**
+   * Set when `bytes` is a shrunk copy of the caller's image: multiplies page
+   * sizes and polygons so the result describes the original image.
+   */
+  coordinateScale?: { x: number; y: number };
   signal?: AbortSignal;
 };
 
@@ -203,15 +210,92 @@ async function readBoundedJson(
   return parsed as Record<string, unknown>;
 }
 
+function asRecord(payload: unknown): Record<string, unknown> | null {
+  return payload && typeof payload === 'object' && !Array.isArray(payload)
+    ? (payload as Record<string, unknown>)
+    : null;
+}
+
 function azureErrorMessage(payload: Record<string, unknown>, fallback: string): string {
-  const error = payload.error;
-  if (error && typeof error === 'object' && !Array.isArray(error)) {
-    const message = (error as Record<string, unknown>).message;
-    if (typeof message === 'string' && message.trim()) {
-      return message.trim().slice(0, 500);
+  const error = asRecord(payload.error);
+  const message = typeof error?.message === 'string' ? error.message.trim() : '';
+  const inner = asRecord(error?.innererror);
+  const innerMessage = typeof inner?.message === 'string' ? inner.message.trim() : '';
+  const combined =
+    innerMessage && innerMessage !== message
+      ? [message, innerMessage].filter(Boolean).join(': ')
+      : message;
+  return combined ? combined.slice(0, 500) : fallback;
+}
+
+/**
+ * Most specific Azure error code (`innererror.code` before `code`), e.g.
+ * `InvalidContentDimensions`. Restricted to identifier characters so it is
+ * safe to log and return to callers.
+ */
+function azureErrorCode(error: Record<string, unknown> | null): string | undefined {
+  const inner = asRecord(error?.innererror);
+  for (const candidate of [inner?.code, error?.code]) {
+    if (typeof candidate === 'string' && /^[A-Za-z][A-Za-z0-9_.]{0,63}$/.test(candidate)) {
+      return candidate;
     }
   }
-  return fallback;
+  return undefined;
+}
+
+/**
+ * Codes Azure reports, on a 400 or a failed analysis, when the document itself
+ * is unusable. Other 400s (bad parameters, API version) are our request's
+ * fault, so they stay ordinary provider errors.
+ */
+const AZURE_INPUT_REJECTION_CODES = new Set([
+  'InvalidContent',
+  'InvalidContentDimensions',
+  'InvalidContentLength',
+  'UnsupportedContent',
+]);
+
+function isAzureInputRejection(code: string | undefined): boolean {
+  return code !== undefined && AZURE_INPUT_REJECTION_CODES.has(code);
+}
+
+/**
+ * Scale Azure pixel geometry in place: page `width`/`height` and every
+ * `polygon` (flat `[x, y, ...]` or `{ x, y }` points) anywhere in the result.
+ */
+function scaleAnalyzeResult(
+  analyzeResult: Record<string, unknown>,
+  scale: { x: number; y: number }
+): void {
+  const pages = Array.isArray(analyzeResult.pages) ? analyzeResult.pages : [];
+  for (const page of pages) {
+    const node = asRecord(page);
+    if (!node) continue;
+    if (typeof node.width === 'number') node.width *= scale.x;
+    if (typeof node.height === 'number') node.height *= scale.y;
+  }
+  const visit = (value: unknown): void => {
+    if (Array.isArray(value)) {
+      for (const item of value) visit(item);
+      return;
+    }
+    const node = asRecord(value);
+    if (!node) return;
+    for (const [key, child] of Object.entries(node)) {
+      if (key === 'polygon' && Array.isArray(child)) {
+        node.polygon = child.map((point, index) => {
+          if (typeof point === 'number') return point * (index % 2 === 0 ? scale.x : scale.y);
+          const xy = asRecord(point);
+          return xy && typeof xy.x === 'number' && typeof xy.y === 'number'
+            ? { ...xy, x: xy.x * scale.x, y: xy.y * scale.y }
+            : point;
+        });
+      } else {
+        visit(child);
+      }
+    }
+  };
+  visit(analyzeResult);
 }
 
 function buildAnalyzeUrl(
@@ -337,10 +421,15 @@ export function createHttpAzureDiClient(options: HttpAzureDiClientOptions): {
           );
         }
 
-        const payload = await readBoundedJson(response, 8_192).catch(() => ({}));
+        const payload = await readBoundedJson(response, 8_192).catch(
+          (): Record<string, unknown> => ({})
+        );
+        const code = azureErrorCode(asRecord(payload.error));
         throw new AzureDiError(
           `Azure Document Intelligence submit failed HTTP ${response.status}: ${azureErrorMessage(payload, 'unknown error')}`,
-          false
+          false,
+          false,
+          { status: response.status, code, inputRejected: isAzureInputRejection(code) }
         );
       }
 
@@ -401,10 +490,17 @@ export function createHttpAzureDiClient(options: HttpAzureDiClientOptions): {
         }
 
         if (!pollResponse.ok) {
-          const payload = await readBoundedJson(pollResponse, 8_192).catch(() => ({}));
+          const payload = await readBoundedJson(pollResponse, 8_192).catch(
+            (): Record<string, unknown> => ({})
+          );
           throw new AzureDiError(
             `Azure Document Intelligence poll failed HTTP ${pollResponse.status}: ${azureErrorMessage(payload, 'unknown error')}`,
-            false
+            false,
+            false,
+            {
+              status: pollResponse.status,
+              code: azureErrorCode(asRecord(payload.error)),
+            }
           );
         }
 
@@ -439,6 +535,9 @@ export function createHttpAzureDiClient(options: HttpAzureDiClientOptions): {
               true
             );
           }
+          if (input.coordinateScale) {
+            scaleAnalyzeResult(analyzeResult as Record<string, unknown>, input.coordinateScale);
+          }
           const nativeResult = operation;
           let canonical: AzureDiLayoutParsedDocument | AzureDiReadParsedDocument;
           try {
@@ -462,17 +561,12 @@ export function createHttpAzureDiClient(options: HttpAzureDiClientOptions): {
         }
 
         if (status === 'failed' || status === 'canceled') {
-          const errorNode = operation.error;
-          const message =
-            errorNode &&
-            typeof errorNode === 'object' &&
-            !Array.isArray(errorNode) &&
-            typeof (errorNode as Record<string, unknown>).message === 'string'
-              ? String((errorNode as Record<string, unknown>).message)
-              : 'unknown error';
+          const code = azureErrorCode(asRecord(operation.error));
           throw new AzureDiError(
-            `Azure Document Intelligence analysis ${String(status)}: ${message}`,
-            false
+            `Azure Document Intelligence analysis ${String(status)}: ${azureErrorMessage(operation, 'unknown error')}`,
+            false,
+            false,
+            { code, inputRejected: isAzureInputRejection(code) }
           );
         }
       }

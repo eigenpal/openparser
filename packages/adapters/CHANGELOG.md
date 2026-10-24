@@ -1,5 +1,14 @@
 # @openparser/adapters
 
+## 1.0.18
+
+### Patch Changes
+
+- ade68bf: Azure Document Intelligence errors now carry Azure's HTTP status, its most specific error code (for example `InvalidContentDimensions`) and whether Azure rejected the document itself. `AZURE_DI_MAX_IMAGE_SIDE_PX` exports Azure's 10,000 px image limit, and `coordinateScale` on a parse maps page sizes and polygons back to the original image when you send Azure a shrunk copy.
+- 496a748: Azure Document Intelligence and Mistral OCR now map a blank page to an empty document with `text` and `markdown` set to `""` instead of throwing, so a blank upload succeeds instead of ending indeterminate.
+- 496a748: `MistralOcrError` now carries the HTTP `status` and Mistral's error code as `providerCode`, and its message includes the status. `AwsTextractError` has an `inputRejected` flag, set for `BadDocumentException`, `DocumentTooLargeException` and `UnsupportedDocumentException`.
+  - @openparser/schema@1.0.18
+
 ## 1.0.17
 
 ### Patch Changes

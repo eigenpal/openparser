@@ -37,7 +37,7 @@ describe('mapAzureDocumentIntelligenceToParsedDocument golden fixtures', () => {
 });
 
 describe('mapAzureDocumentIntelligenceToParsedDocument unit cases', () => {
-  test('rejects page count mismatch and empty analyze results', () => {
+  test('rejects page count mismatch', () => {
     expect(() =>
       mapAzureDocumentIntelligenceToParsedDocument({
         documentId: 'doc',
@@ -45,14 +45,19 @@ describe('mapAzureDocumentIntelligenceToParsedDocument unit cases', () => {
         analyzeResult: { pages: [{ pageNumber: 1, width: 1000, height: 1000 }] },
       })
     ).toThrow(AzureDocumentIntelligenceAdapterError);
+  });
 
-    expect(() =>
-      mapAzureDocumentIntelligenceToParsedDocument({
-        documentId: 'doc',
-        pageCount: 1,
-        analyzeResult: { pages: [{ pageNumber: 1, width: 1000, height: 1000 }] },
-      })
-    ).toThrow(AzureDocumentIntelligenceAdapterError);
+  test('maps a blank page to an empty document instead of failing', () => {
+    const document = mapAzureDocumentIntelligenceToParsedDocument({
+      documentId: 'doc',
+      pageCount: 1,
+      analyzeResult: { content: '', pages: [{ pageNumber: 1, width: 1000, height: 1000 }] },
+    });
+
+    expect(document.text).toBe('');
+    expect(document.markdown).toBe('');
+    expect(document.pages).toHaveLength(1);
+    expect(document.elements).toEqual([]);
   });
 
   test('renumbers a selected page subset into contiguous OpenParser pages', () => {

@@ -523,10 +523,18 @@ function mapAwsSdkError(error: unknown, phase: 'start' | 'get'): AwsTextractErro
     {
       retryable,
       providerCode: name,
+      inputRejected: name !== undefined && TEXTRACT_INPUT_REJECTIONS.has(name),
       cause: error,
     }
   );
 }
+
+/** Textract exceptions that mean the document itself is unusable, not our request. */
+const TEXTRACT_INPUT_REJECTIONS = new Set([
+  'BadDocumentException',
+  'DocumentTooLargeException',
+  'UnsupportedDocumentException',
+]);
 
 function isAbortError(error: unknown): boolean {
   if (!error || typeof error !== 'object') return false;

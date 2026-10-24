@@ -150,6 +150,36 @@ describe('createHttpMistralOcrClient', () => {
         documentId: 'doc-1',
         model: 'mistral-ocr-4-0',
       })
-    ).rejects.toMatchObject({ retryable: false });
+    ).rejects.toMatchObject({ retryable: false, status: 400 });
+  });
+
+  test('keeps the HTTP status and Mistral error code on a rejected request', async () => {
+    const client = createHttpMistralOcrClient({
+      apiKey: 'test-key',
+      fetchImpl: async () =>
+        Response.json(
+          {
+            object: 'error',
+            message: 'Invalid model: mistral-ocr-4-0',
+            type: 'invalid_model',
+            code: '1500',
+          },
+          { status: 400 }
+        ),
+    });
+
+    await expect(
+      client.parse({
+        bytes: tinyPngBytes(),
+        mediaType: 'image/png',
+        documentId: 'doc-1',
+        model: 'mistral-ocr-4-0',
+      })
+    ).rejects.toMatchObject({
+      retryable: false,
+      status: 400,
+      providerCode: '1500',
+      message: 'Mistral OCR request failed HTTP 400: Invalid model: mistral-ocr-4-0',
+    });
   });
 });

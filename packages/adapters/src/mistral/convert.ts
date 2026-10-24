@@ -111,7 +111,6 @@ export function mapMistralOcrResponseToParsedDocument(
     pageHasTypedBlocks.push(hasTypedBlocks(page.blocks));
   }
   const text = pageText.join('\n\n');
-  if (!text.trim()) throw new MistralAdapterError('Mistral OCR returned empty content');
   const pageTextOffsets: number[] = [];
   let nextPageOffset = 0;
   for (const value of pageText) {

@@ -185,6 +185,146 @@ describe('createHttpAzureDiClient', () => {
     expect(output.canonical.markdown).toBe('hello');
   });
 
+  test('coordinateScale maps page size and polygons back to the original image', async () => {
+    const client = createHttpAzureDiClient({
+      endpoint: 'https://azure.test',
+      apiKey: 'test-key',
+      pollIntervalMs: 1,
+      fetchImpl: async (_url, init) => {
+        if (init?.method === 'POST') return okSubmitResponse();
+        return succeededPoll('2026-06-25T15:00:04Z', structuredClone(LAYOUT_ANALYZE_RESULT));
+      },
+    });
+
+    const output = await client.parse({
+      bytes: tinyPngBytes(),
+      mediaType: 'image/png',
+      documentId: 'doc-1',
+      modelId: 'prebuilt-layout',
+      outputContentFormat: 'markdown',
+      coordinateScale: { x: 2, y: 1.5 },
+    });
+
+    const result = (output.nativeResult as { analyzeResult: typeof LAYOUT_ANALYZE_RESULT })
+      .analyzeResult;
+    expect(result.pages[0]).toMatchObject({
+      width: 2000,
+      height: 1500,
+      lines: [{ polygon: [200, 150, 1000, 150, 1000, 225, 200, 225] }],
+    });
+    expect(result.paragraphs[0]!.boundingRegions[0]!.polygon[0]).toEqual({ x: 200, y: 150 });
+    expect(output.canonical.pages[0]).toMatchObject({ width: 2000, height: 1500 });
+  });
+
+  test('keeps the Azure inner error code when Azure rejects the document', async () => {
+    const client = createHttpAzureDiClient({
+      endpoint: 'https://azure.test',
+      apiKey: 'test-key',
+      pollIntervalMs: 1,
+      fetchImpl: async () =>
+        Response.json(
+          {
+            error: {
+              code: 'InvalidRequest',
+              message: 'Invalid request.',
+              innererror: {
+                code: 'InvalidContentDimensions',
+                message: 'The input image dimensions are out of range.',
+              },
+            },
+          },
+          { status: 400 }
+        ),
+    });
+
+    const error = await client
+      .parse({
+        bytes: tinyPngBytes(),
+        mediaType: 'image/png',
+        documentId: 'doc-1',
+        modelId: 'prebuilt-read',
+        outputContentFormat: 'text',
+      })
+      .catch((caught: unknown) => caught);
+
+    expect(error).toBeInstanceOf(AzureDiError);
+    expect(error).toMatchObject({
+      status: 400,
+      providerCode: 'InvalidContentDimensions',
+      inputRejected: true,
+      retryable: false,
+      message:
+        'Azure Document Intelligence submit failed HTTP 400: Invalid request.: The input image dimensions are out of range.',
+    });
+  });
+
+  test('does not blame the document for a 400 about request parameters', async () => {
+    const client = createHttpAzureDiClient({
+      endpoint: 'https://azure.test',
+      apiKey: 'test-key',
+      pollIntervalMs: 1,
+      fetchImpl: async () =>
+        Response.json(
+          {
+            error: {
+              code: 'InvalidRequest',
+              message: 'Invalid request.',
+              innererror: { code: 'InvalidParameter', message: 'The parameter locale is invalid.' },
+            },
+          },
+          { status: 400 }
+        ),
+    });
+
+    const error = await client
+      .parse({
+        bytes: tinyPngBytes(),
+        mediaType: 'image/png',
+        documentId: 'doc-1',
+        modelId: 'prebuilt-read',
+        outputContentFormat: 'text',
+      })
+      .catch((caught: unknown) => caught);
+
+    expect(error).toMatchObject({
+      status: 400,
+      providerCode: 'InvalidParameter',
+      inputRejected: false,
+    });
+  });
+
+  test('marks a failed analysis with a content error code as rejected input', async () => {
+    const client = createHttpAzureDiClient({
+      endpoint: 'https://azure.test',
+      apiKey: 'test-key',
+      pollIntervalMs: 1,
+      fetchImpl: async (_url, init) => {
+        if (init?.method === 'POST') return okSubmitResponse();
+        return Response.json({
+          status: 'failed',
+          lastUpdatedDateTime: '2026-06-25T15:00:04Z',
+          error: {
+            code: 'InvalidRequest',
+            message: 'Invalid request.',
+            innererror: { code: 'InvalidContent', message: 'The file is corrupted.' },
+          },
+        });
+      },
+    });
+
+    const error = await client
+      .parse({
+        bytes: tinyPngBytes(),
+        mediaType: 'image/png',
+        documentId: 'doc-1',
+        modelId: 'prebuilt-read',
+        outputContentFormat: 'text',
+      })
+      .catch((caught: unknown) => caught);
+
+    expect(error).toMatchObject({ providerCode: 'InvalidContent', inputRejected: true });
+  });
+
   test('derives expected page count from PDF bytes', async () => {
     const pdf = await PDFDocument.create();
     pdf.addPage([72, 72]);

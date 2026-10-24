@@ -15,14 +15,22 @@ export class AwsTextractAdapterError extends Error {
 export class AwsTextractError extends Error {
   readonly retryable: boolean;
   readonly providerCode?: string;
+  /** Textract refused the document itself (format, corruption, size), so a retry cannot help. */
+  readonly inputRejected: boolean;
 
   constructor(
     message: string,
-    options?: { retryable?: boolean; providerCode?: string; cause?: unknown }
+    options?: {
+      retryable?: boolean;
+      providerCode?: string;
+      inputRejected?: boolean;
+      cause?: unknown;
+    }
   ) {
     super(message, options?.cause !== undefined ? { cause: options.cause } : undefined);
     this.name = 'AwsTextractError';
     this.retryable = options?.retryable ?? false;
     this.providerCode = options?.providerCode;
+    this.inputRejected = options?.inputRejected ?? false;
   }
 }

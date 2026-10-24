@@ -147,9 +147,7 @@ export function mapAzureDocumentIntelligenceToParsedDocument(
 
   assignPageElementOrders(pages, elements);
 
-  if (elements.length === 0 && !documentText) {
-    throw new AzureDocumentIntelligenceAdapterError('Azure returned no usable content');
-  }
+  // No content on the expected pages is a blank document, not a failure.
   const canonicalText = documentText || derivePlainText(elements);
   const canonicalPages = [...pageByNumber.values()].sort(
     (left, right) => left.number - right.number

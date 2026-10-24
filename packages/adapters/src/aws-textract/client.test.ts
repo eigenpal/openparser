@@ -200,7 +200,32 @@ describe('createAwsTextractClient', () => {
       const awsError = error as InstanceType<typeof AwsTextractError>;
       expect(awsError.retryable).toBe(true);
       expect(awsError.providerCode).toBe('ThrottlingException');
+      expect(awsError.inputRejected).toBe(false);
     }
+  });
+
+  test('flags an unsupported or bad document as rejected input, not a retry', async () => {
+    const client = createAwsTextractClient({
+      client: {
+        async send() {
+          const error = new Error('Request has unsupported document format');
+          error.name = 'UnsupportedDocumentException';
+          throw error;
+        },
+      },
+    });
+
+    await expect(
+      client.parse({
+        documentId: 'doc-unsupported',
+        jobId: 'opj_dddddddddddd4ddd8ddddddddddddddd',
+        source: { bucket: 'b', objectKey: 'k' },
+      })
+    ).rejects.toMatchObject({
+      retryable: false,
+      providerCode: 'UnsupportedDocumentException',
+      inputRejected: true,
+    });
   });
 
   test('accepts caller-selected regions and rejects source/client mismatches', async () => {

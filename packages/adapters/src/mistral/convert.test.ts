@@ -95,7 +95,7 @@ describe('mapMistralOcrResponseToParsedDocument golden fixtures', () => {
 });
 
 describe('mapMistralOcrResponseToParsedDocument unit cases', () => {
-  test('rejects invalid page counts and empty markdown', () => {
+  test('rejects invalid page counts and pages without markdown', () => {
     expect(() =>
       mapMistralOcrResponseToParsedDocument({
         documentId: 'doc',
@@ -111,14 +111,23 @@ describe('mapMistralOcrResponseToParsedDocument unit cases', () => {
         payload: { pages: [{ index: 0 }] },
       })
     ).toThrow(MistralAdapterError);
+  });
 
-    expect(() =>
-      mapMistralOcrResponseToParsedDocument({
-        documentId: 'doc',
-        expectedPages: 1,
-        payload: { pages: [{ markdown: '   ' }] },
-      })
-    ).toThrow(MistralAdapterError);
+  test('maps blank pages to an empty document instead of failing', () => {
+    const document = mapMistralOcrResponseToParsedDocument({
+      documentId: 'doc',
+      expectedPages: 2,
+      payload: {
+        pages: [
+          { markdown: '', dimensions: { width: 1000, height: 1200 } },
+          { markdown: '   ', dimensions: { width: 1000, height: 1200 } },
+        ],
+      },
+    });
+
+    expect(document.text.trim()).toBe('');
+    expect(document.markdown.trim()).toBe('');
+    expect(document.pages).toHaveLength(2);
   });
 
   test('falls back to full-page region when blocks are missing', () => {
