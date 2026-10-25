@@ -40,6 +40,7 @@ export {
   type HpsParseOutput,
   type HpsPdfChunkRange,
   type HpsPdfChunkState,
+  type HpsRequestSlotLease,
   type HpsRequestStats,
   type HttpHpsClientOptions,
   type MapLayoutResultsInput,

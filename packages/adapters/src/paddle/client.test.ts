@@ -129,6 +129,171 @@ describe('Paddle HPS HTTP client', () => {
     }
   });
 
+  async function pdfWithPages(count: number): Promise<Uint8Array> {
+    const pdf = await PDFDocument.create();
+    // Page width encodes the source page, so a chunk reveals where it starts.
+    for (let page = 0; page < count; page++) pdf.addPage([600 + page, 792]);
+    return pdf.save();
+  }
+
+  // Identifies each chunk by its first source page (from the page width).
+  function chunkResponder(options: {
+    delayFor: (firstPage: number) => number;
+    failFirstPage?: number;
+    calls: { pages: number; firstPage: number }[];
+    inFlight: { now: number; max: number };
+  }) {
+    return async (_url: string, init?: RequestInit) => {
+      const body = JSON.parse(String(init?.body)) as { file: string };
+      const chunk = await PDFDocument.load(Buffer.from(body.file, 'base64'));
+      const pages = chunk.getPageCount();
+      const firstPage = Math.round(chunk.getPage(0).getWidth()) - 600;
+      options.calls.push({ pages, firstPage });
+      options.inFlight.now += 1;
+      options.inFlight.max = Math.max(options.inFlight.max, options.inFlight.now);
+      try {
+        await Bun.sleep(options.delayFor(firstPage));
+        if (firstPage === options.failFirstPage) {
+          return Response.json({ errorCode: 500, errorMsg: 'boom' }, { status: 400 });
+        }
+        return Response.json({
+          errorCode: 0,
+          result: {
+            layoutParsingResults: Array.from({ length: pages }, () => ({
+              prunedResult: { width: 600, height: 792, parsing_res_list: [] },
+            })),
+          },
+        });
+      } finally {
+        options.inFlight.now -= 1;
+      }
+    };
+  }
+
+  test('runs PDF chunks on two lanes when a slot is free, keeping page order', async () => {
+    const calls: { pages: number; firstPage: number }[] = [];
+    const inFlight = { now: 0, max: 0 };
+    const client = createHttpHpsClient({
+      baseUrl: 'http://paddle.internal:8080',
+      pdfChunkPages: 2,
+      pdfChunkConcurrency: 2,
+      // The first chunk is slowest, so later chunks finish before it.
+      fetchImpl: chunkResponder({
+        delayFor: (firstPage) => (firstPage === 0 ? 60 : 5),
+        calls,
+        inFlight,
+      }),
+    });
+    let leases = 0;
+    let finished = 0;
+    const stats: HpsRequestStats[] = [];
+    const output = await client.parse({
+      content: await pdfWithPages(6),
+      mediaType: 'application/pdf',
+      documentId: 'pdf-lanes',
+      tryBorrowRequestSlot: () => {
+        leases += 1;
+        return { finish: () => void (finished += 1) };
+      },
+      onRequestComplete: (request) => stats.push(request),
+    });
+
+    expect(inFlight.max).toBe(2);
+    expect(calls).toHaveLength(3);
+    expect(leases).toBeGreaterThan(0);
+    expect(finished).toBe(leases);
+    expect('canonical' in output && output.canonical.pages.map((page) => page.number)).toEqual([
+      1, 2, 3, 4, 5, 6,
+    ]);
+    expect(stats.map((request) => request.range?.startPage).sort()).toEqual([0, 2, 4]);
+  });
+
+  test('stays on one lane when no extra GPU slot is free', async () => {
+    const calls: { pages: number; firstPage: number }[] = [];
+    const inFlight = { now: 0, max: 0 };
+    const client = createHttpHpsClient({
+      baseUrl: 'http://paddle.internal:8080',
+      pdfChunkPages: 2,
+      pdfChunkConcurrency: 2,
+      fetchImpl: chunkResponder({ delayFor: () => 5, calls, inFlight }),
+    });
+    const output = await client.parse({
+      content: await pdfWithPages(4),
+      mediaType: 'application/pdf',
+      documentId: 'pdf-no-borrow',
+      tryBorrowRequestSlot: () => null,
+    });
+
+    expect(inFlight.max).toBe(1);
+    expect(calls.map((call) => call.pages)).toEqual([2, 2]);
+    expect('canonical' in output && output.canonical.pages).toHaveLength(4);
+  });
+
+  test('a chunk the extra lane cannot get a slot for goes back to lane 0, never stranded', async () => {
+    const calls: { pages: number; firstPage: number }[] = [];
+    const inFlight = { now: 0, max: 0 };
+    const client = createHttpHpsClient({
+      baseUrl: 'http://paddle.internal:8080',
+      pdfChunkPages: 2,
+      pdfChunkConcurrency: 2,
+      fetchImpl: chunkResponder({ delayFor: () => 5, calls, inFlight }),
+    });
+    // The extra lane takes chunk 2-4 and is still reading its checkpoint when
+    // lane 0 finishes chunk 0-2; then it is refused a slot.
+    const parse = client.parse({
+      content: await pdfWithPages(4),
+      mediaType: 'application/pdf',
+      documentId: 'pdf-stranded',
+      tryBorrowRequestSlot: () => null,
+      loadPdfChunk: async (range) => {
+        if (range.startPage === 2) await Bun.sleep(30);
+        return null;
+      },
+    });
+    const outcome = await Promise.race([
+      parse.then(() => 'done' as const),
+      Bun.sleep(2_000).then(() => 'hung' as const),
+    ]);
+
+    expect(outcome).toBe('done');
+    expect(calls.map((call) => call.firstPage).sort()).toEqual([0, 2]);
+  });
+
+  test('a failed chunk lets its sibling finish and save, starts nothing new, and raises', async () => {
+    const calls: { pages: number; firstPage: number }[] = [];
+    const inFlight = { now: 0, max: 0 };
+    const saved: string[] = [];
+    const client = createHttpHpsClient({
+      baseUrl: 'http://paddle.internal:8080',
+      pdfChunkPages: 2,
+      pdfChunkConcurrency: 2,
+      // Chunk 0 fails fast; chunk 2-4 (the sibling) is still running when it does.
+      fetchImpl: chunkResponder({
+        delayFor: (firstPage) => (firstPage === 2 ? 40 : 5),
+        failFirstPage: 0,
+        calls,
+        inFlight,
+      }),
+    });
+    let finished = 0;
+
+    await expect(
+      client.parse({
+        content: await pdfWithPages(8),
+        mediaType: 'application/pdf',
+        documentId: 'pdf-fail',
+        tryBorrowRequestSlot: () => ({ finish: () => void (finished += 1) }),
+        savePdfChunk: async (range, state) => {
+          if (state.status === 'completed') saved.push(`${range.startPage}-${range.endPage}`);
+        },
+      })
+    ).rejects.toThrow();
+
+    expect(calls).toHaveLength(2);
+    expect(saved).toEqual(['2-4']);
+    expect(finished).toBe(1);
+  });
+
   test('counts layout regions across pages and tolerates malformed pages', () => {
     expect(
       countLayoutRegions([

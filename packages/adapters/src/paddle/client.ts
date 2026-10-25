@@ -29,6 +29,18 @@ export type HpsParseInput = {
   recordPdfPageTimeout?: (range: HpsPdfChunkRange, attempt: number) => Promise<void>;
   /** Timing and size of each successful physical HPS request, for metrics. */
   onRequestComplete?: (stats: HpsRequestStats) => void;
+  /**
+   * Extra PDF chunk lanes (pdfChunkConcurrency > 1): return a lease on a GPU
+   * slot that is free right now, or null. Called once per physical request
+   * on an extra lane; the lease is finished when that request ends. Lane 0
+   * keeps using beforeRequest/afterRequest.
+   */
+  tryBorrowRequestSlot?: () => HpsRequestSlotLease | null;
+};
+
+/** A GPU slot borrowed for one physical request on an extra PDF chunk lane. */
+export type HpsRequestSlotLease = {
+  finish(error: unknown | null): void;
 };
 
 export type HpsRequestStats = {
@@ -149,6 +161,11 @@ export type HttpHpsClientOptions = {
   timeoutMs?: number;
   /** Internal PDF chunk size. This is not a document page limit. */
   pdfChunkPages?: number;
+  /**
+   * Max PDF chunks of one document in flight at once (default 1). Lanes past
+   * the first run only while tryBorrowRequestSlot hands out a free slot.
+   */
+  pdfChunkConcurrency?: number;
   /** Fast timeout for multi-page chunks before recursively bisecting them. */
   chunkTimeoutMs?: number;
   /** Health endpoint path. Raw Paddle HPS exposes /health. */
@@ -186,6 +203,10 @@ export function createHttpHpsClient(options: HttpHpsClientOptions): HpsClient {
   const baseUrl = options.baseUrl.replace(/\/+$/, '');
   const timeoutMs = options.timeoutMs ?? HPS_PARSE_TIMEOUT_MS;
   const pdfChunkPages = options.pdfChunkPages ?? HPS_PDF_CHUNK_PAGES;
+  const pdfChunkConcurrency = options.pdfChunkConcurrency ?? 1;
+  if (!Number.isInteger(pdfChunkConcurrency) || pdfChunkConcurrency < 1) {
+    throw new TypeError('pdfChunkConcurrency must be a positive integer');
+  }
   const chunkTimeoutMs = options.chunkTimeoutMs ?? HPS_PDF_CHUNK_TIMEOUT_MS;
   const healthPath = options.healthPath ?? '/health';
   const headers = options.headers ?? {};
@@ -229,51 +250,70 @@ export function createHttpHpsClient(options: HttpHpsClientOptions): HpsClient {
         mergeLayoutBlocks:
           input.nativeOptions?.mergeLayoutBlocks ?? LOCKED_HPS_NATIVE_OPTIONS.mergeLayoutBlocks,
       };
-      const request = async (
-        content: Uint8Array,
-        requestTimeoutMs: number,
-        meta?: { range: HpsPdfChunkRange; prepareMs: number }
-      ) => {
-        input.signal?.throwIfAborted();
-        await input.beforeRequest?.();
-        let result: Record<string, unknown>;
-        const startedAt = performance.now();
-        try {
-          result = await requestLayoutResult({
-            baseUrl,
-            fetchImpl,
-            content,
-            mediaType: input.mediaType,
-            nativeOptions,
-            headers,
-            signal: input.signal,
-            timeoutMs: requestTimeoutMs,
-          });
-        } catch (error) {
+      const makeRequest =
+        <T>(
+          acquire: () => Promise<T>,
+          release: (slot: T, error: unknown | null) => Promise<void> | void
+        ): HpsRangeRequest =>
+        async (content, requestTimeoutMs, meta) => {
+          input.signal?.throwIfAborted();
+          const slot = await acquire();
+          let result: Record<string, unknown>;
+          const startedAt = performance.now();
           try {
-            await input.afterRequest?.(error);
-          } catch {
-            // Preserve the request failure that controls retry classification.
+            result = await requestLayoutResult({
+              baseUrl,
+              fetchImpl,
+              content,
+              mediaType: input.mediaType,
+              nativeOptions,
+              headers,
+              signal: input.signal,
+              timeoutMs: requestTimeoutMs,
+            });
+          } catch (error) {
+            try {
+              await release(slot, error);
+            } catch {
+              // Preserve the request failure that controls retry classification.
+            }
+            throw error;
           }
-          throw error;
-        }
-        await input.afterRequest?.(null);
-        const requestMs = Math.round(performance.now() - startedAt);
-        const pageResults = result.layoutParsingResults as unknown[];
-        try {
-          input.onRequestComplete?.({
-            range: meta?.range,
-            pages: pageResults.length,
-            regions: countLayoutRegions(pageResults),
-            requestBytes: content.byteLength,
-            requestMs,
-            prepareMs: meta?.prepareMs,
-          });
-        } catch {
-          // Metrics must never turn a successful GPU result into a failure.
-        }
-        return result;
-      };
+          await release(slot, null);
+          const requestMs = Math.round(performance.now() - startedAt);
+          const pageResults = result.layoutParsingResults as unknown[];
+          try {
+            input.onRequestComplete?.({
+              range: meta?.range,
+              pages: pageResults.length,
+              regions: countLayoutRegions(pageResults),
+              requestBytes: content.byteLength,
+              requestMs,
+              prepareMs: meta?.prepareMs,
+            });
+          } catch {
+            // Metrics must never turn a successful GPU result into a failure.
+          }
+          return result;
+        };
+      const request = makeRequest(
+        async () => {
+          await input.beforeRequest?.();
+        },
+        (_slot, error) => input.afterRequest?.(error)
+      );
+      const borrow = input.tryBorrowRequestSlot;
+      const extraLaneRequest =
+        borrow && pdfChunkConcurrency > 1
+          ? makeRequest(
+              async () => {
+                const lease = borrow();
+                if (!lease) throw new HpsLaneSlotUnavailableError();
+                return lease;
+              },
+              (lease, error) => lease.finish(error)
+            )
+          : undefined;
 
       const result =
         input.mediaType === 'application/pdf'
@@ -283,6 +323,8 @@ export function createHttpHpsClient(options: HttpHpsClientOptions): HpsClient {
               chunkTimeoutMs,
               singlePageTimeoutMs: timeoutMs,
               request,
+              extraLaneRequest,
+              concurrency: extraLaneRequest ? pdfChunkConcurrency : 1,
               loadChunk: input.loadPdfChunk,
               saveChunk: input.savePdfChunk,
               onChunkComplete: input.onPdfChunkComplete,
@@ -422,12 +464,23 @@ export function countLayoutRegions(pageResults: readonly unknown[]): number {
   return regions;
 }
 
+/** Internal: an extra lane found no free GPU slot; lane 0 takes the chunk. */
+class HpsLaneSlotUnavailableError extends Error {
+  constructor() {
+    super('no free GPU slot for an extra PDF chunk lane');
+    this.name = 'HpsLaneSlotUnavailableError';
+  }
+}
+
 async function parsePdfInBoundedChunks(input: {
   content: Uint8Array;
   chunkPages: number;
   chunkTimeoutMs: number;
   singlePageTimeoutMs: number;
   request: HpsRangeRequest;
+  /** Request path for lanes past the first; omitted when lanes are off. */
+  extraLaneRequest?: HpsRangeRequest;
+  concurrency: number;
   loadChunk?: (range: HpsPdfChunkRange) => Promise<HpsPdfChunkState | null>;
   saveChunk?: (range: HpsPdfChunkRange, state: HpsPdfChunkState) => Promise<boolean | void>;
   onChunkComplete?: (range: HpsPdfChunkRange, totalPages: number) => Promise<void>;
@@ -453,31 +506,105 @@ async function parsePdfInBoundedChunks(input: {
   const pageCount = source.getPageCount();
   if (pageCount === 0) throw new HpsParseError('PDF has no pages');
 
-  const results: Record<string, unknown>[] = [];
+  const chunks: number[][] = [];
   for (let start = 0; start < pageCount; start += input.chunkPages) {
-    const pageIndexes = Array.from(
-      { length: Math.min(input.chunkPages, pageCount - start) },
-      (_, index) => start + index
-    );
-    results.push(
-      ...(await requestPdfPagesWithTimeoutBisect({
-        source,
-        pageIndexes,
-        chunkTimeoutMs: input.chunkTimeoutMs,
-        singlePageTimeoutMs: input.singlePageTimeoutMs,
-        request: input.request,
-        loadChunk: input.loadChunk,
-        saveChunk: input.saveChunk,
-        onChunkComplete: input.onChunkComplete
-          ? (range) => input.onChunkComplete!(range, pageCount)
-          : undefined,
-        loadPageTimeoutCount: input.loadPageTimeoutCount,
-        recordPageTimeout: input.recordPageTimeout,
-        signal: input.signal,
-      }))
+    chunks.push(
+      Array.from(
+        { length: Math.min(input.chunkPages, pageCount - start) },
+        (_, index) => start + index
+      )
     );
   }
-  return mergeLayoutResults(results);
+  const runChunk = (pageIndexes: number[], request: HpsRangeRequest) =>
+    requestPdfPagesWithTimeoutBisect({
+      source,
+      pageIndexes,
+      chunkTimeoutMs: input.chunkTimeoutMs,
+      singlePageTimeoutMs: input.singlePageTimeoutMs,
+      request,
+      loadChunk: input.loadChunk,
+      saveChunk: input.saveChunk,
+      onChunkComplete: input.onChunkComplete
+        ? (range) => input.onChunkComplete!(range, pageCount)
+        : undefined,
+      loadPageTimeoutCount: input.loadPageTimeoutCount,
+      recordPageTimeout: input.recordPageTimeout,
+      signal: input.signal,
+    });
+
+  // Lane 0 works through the chunks with the job's own GPU slot, exactly as a
+  // single lane always has, and stays until every chunk is done. Extra lanes
+  // take chunks while a slot is lent; the first refusal hands that chunk back
+  // to lane 0 and ends the extra lane for this document (completed sub-ranges
+  // are checkpointed, so nothing is redone). Results are kept by chunk index
+  // so pages merge in order whatever finishes first. On the first error no new
+  // chunk starts, chunks in flight finish (and save their checkpoints), and
+  // the error of the lowest chunk is raised.
+  const results: Record<string, unknown>[][] = new Array(chunks.length);
+  const queue = chunks.map((_, index) => index);
+  const first: { failure: { index: number; error: unknown } | null } = { failure: null };
+  const fail = (index: number, error: unknown) => {
+    // Another lane may have failed while this chunk ran.
+    const prior = first.failure as { index: number; error: unknown } | null;
+    if (prior === null || index < prior.index) first.failure = { index, error };
+  };
+  let extraInFlight = 0;
+  let wakeLaneZero: (() => void) | null = null;
+  const notifyLaneZero = () => {
+    const wake = wakeLaneZero;
+    wakeLaneZero = null;
+    wake?.();
+  };
+  const laneZero = async (): Promise<void> => {
+    while (first.failure === null) {
+      input.signal?.throwIfAborted();
+      if (queue.length === 0) {
+        // Done only once no extra lane can still hand a chunk back.
+        if (extraInFlight === 0) return;
+        await new Promise<void>((resolve) => {
+          wakeLaneZero = resolve;
+        });
+        continue;
+      }
+      const index = queue.shift()!;
+      try {
+        results[index] = await runChunk(chunks[index]!, input.request);
+      } catch (error) {
+        fail(index, error);
+        return;
+      }
+    }
+  };
+  const extraLane = async (request: HpsRangeRequest): Promise<void> => {
+    while (queue.length > 0 && first.failure === null) {
+      const index = queue.shift()!;
+      extraInFlight += 1;
+      try {
+        results[index] = await runChunk(chunks[index]!, request);
+      } catch (error) {
+        if (error instanceof HpsLaneSlotUnavailableError) {
+          queue.unshift(index);
+          return;
+        }
+        fail(index, error);
+        return;
+      } finally {
+        extraInFlight -= 1;
+        notifyLaneZero();
+      }
+    }
+  };
+  const lanes = [laneZero()];
+  if (input.extraLaneRequest) {
+    const extraLanes = Math.min(input.concurrency, chunks.length) - 1;
+    for (let i = 0; i < extraLanes; i++) lanes.push(extraLane(input.extraLaneRequest));
+  }
+  const settled = await Promise.allSettled(lanes);
+  if (first.failure !== null) throw first.failure.error;
+  for (const outcome of settled) {
+    if (outcome.status === 'rejected') throw outcome.reason;
+  }
+  return mergeLayoutResults(results.flat());
 }
 
 async function requestPdfPagesWithTimeoutBisect(input: {

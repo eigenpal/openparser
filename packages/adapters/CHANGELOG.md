@@ -1,5 +1,12 @@
 # @openparser/adapters
 
+## 1.0.20
+
+### Patch Changes
+
+- f0f1532: The Paddle HPS client can send several PDF chunks of one document at once: set `pdfChunkConcurrency` and pass `tryBorrowRequestSlot`, which returns a lease on a free GPU slot (`HpsRequestSlotLease`) or null. Lanes past the first run only while a slot is lent; results still merge in page order, and the first failing chunk stops new chunks while those in flight finish.
+  - @openparser/schema@1.0.20
+
 ## 1.0.19
 
 ### Patch Changes
