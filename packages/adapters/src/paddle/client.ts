@@ -35,7 +35,7 @@ export type HpsParseInput = {
    * on an extra lane; the lease is finished when that request ends. Lane 0
    * keeps using beforeRequest/afterRequest.
    */
-  tryBorrowRequestSlot?: () => HpsRequestSlotLease | null;
+  tryBorrowRequestSlot?: () => HpsRequestSlotLease | null | Promise<HpsRequestSlotLease | null>;
 };
 
 /** A GPU slot borrowed for one physical request on an extra PDF chunk lane. */
@@ -307,7 +307,7 @@ export function createHttpHpsClient(options: HttpHpsClientOptions): HpsClient {
         borrow && pdfChunkConcurrency > 1
           ? makeRequest(
               async () => {
-                const lease = borrow();
+                const lease = await borrow();
                 if (!lease) throw new HpsLaneSlotUnavailableError();
                 return lease;
               },

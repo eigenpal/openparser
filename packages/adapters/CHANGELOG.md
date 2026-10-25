@@ -1,5 +1,12 @@
 # @openparser/adapters
 
+## 1.0.21
+
+### Patch Changes
+
+- f62ff57: `tryBorrowRequestSlot` on the Paddle HPS client may now return a promise, so a caller can check fresh state before lending a GPU slot to an extra PDF chunk lane.
+  - @openparser/schema@1.0.21
+
 ## 1.0.20
 
 ### Patch Changes

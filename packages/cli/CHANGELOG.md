@@ -1,5 +1,11 @@
 # @openparser/cli
 
+## 1.0.21
+
+### Patch Changes
+
+- @openparser/sdk@1.0.21
+
 ## 1.0.20
 
 ### Patch Changes
