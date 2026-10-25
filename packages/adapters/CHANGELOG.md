@@ -1,5 +1,11 @@
 # @openparser/adapters
 
+## 1.0.22
+
+### Patch Changes
+
+- @openparser/schema@1.0.22
+
 ## 1.0.21
 
 ### Patch Changes

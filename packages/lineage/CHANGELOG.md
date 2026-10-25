@@ -1,5 +1,11 @@
 # @openparser/lineage
 
+## 1.0.22
+
+### Patch Changes
+
+- ab37b58: Updated the schema validation library (zod) for a security fix. Lineage timestamps must now include seconds: `2026-10-25T10:00:00Z` is valid, and `2026-10-25T10:00Z` is rejected. Timestamps from `Date.prototype.toISOString()` are unaffected. `lineage.schema.json` is regenerated to match.
+
 ## 1.0.21
 
 ## 1.0.20
