@@ -1,5 +1,11 @@
 # @openparser/lineage
 
+## 1.0.23
+
+### Patch Changes
+
+- cdfc91d: Refresh integration and tooling dependencies for continued compatibility and maintenance.
+
 ## 1.0.22
 
 ### Patch Changes

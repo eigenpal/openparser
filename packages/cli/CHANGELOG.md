@@ -1,5 +1,15 @@
 # @openparser/cli
 
+## 1.0.23
+
+### Patch Changes
+
+- 9580ac0: Refresh CLI dependencies for continued compatibility and maintenance.
+- cdfc91d: Refresh integration and tooling dependencies for continued compatibility and maintenance.
+- Updated dependencies [c4b8375]
+- Updated dependencies [cdfc91d]
+  - @openparser/sdk@1.0.23
+
 ## 1.0.22
 
 ### Patch Changes

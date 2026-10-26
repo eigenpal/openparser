@@ -1,5 +1,13 @@
 # @openparser/extract
 
+## 1.0.23
+
+### Patch Changes
+
+- Updated dependencies [cdfc91d]
+  - @openparser/lineage@1.0.23
+  - @openparser/schema@1.0.23
+
 ## 1.0.22
 
 ### Patch Changes

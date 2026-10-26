@@ -2,8 +2,10 @@
 
 import {
   type Client,
+  type ClientMeta,
   formDataBodySerializer,
   type Options as Options2,
+  type RequestResult,
   type TDataShape,
 } from './client';
 import { client } from './client.gen';
@@ -103,7 +105,7 @@ export type Options<
    * You can pass arbitrary values through the `meta` object. This can be
    * used to access values that aren't defined as part of the SDK function.
    */
-  meta?: Record<string, unknown>;
+  meta?: keyof ClientMeta extends never ? Record<string, unknown> : ClientMeta;
 };
 
 /**
@@ -116,7 +118,7 @@ export type Options<
  */
 export const listOcrModels = <ThrowOnError extends boolean = false>(
   options?: Options<ListOcrModelsData, ThrowOnError>
-) =>
+): RequestResult<ListOcrModelsResponses, ListOcrModelsErrors, ThrowOnError> =>
   (options?.client ?? client).get<ListOcrModelsResponses, ListOcrModelsErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/models/ocr',
@@ -137,7 +139,7 @@ export const listOcrModels = <ThrowOnError extends boolean = false>(
  */
 export const listLlmModels = <ThrowOnError extends boolean = false>(
   options?: Options<ListLlmModelsData, ThrowOnError>
-) =>
+): RequestResult<ListLlmModelsResponses, ListLlmModelsErrors, ThrowOnError> =>
   (options?.client ?? client).get<ListLlmModelsResponses, ListLlmModelsErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/models/llm',
@@ -167,7 +169,7 @@ export const listLlmModels = <ThrowOnError extends boolean = false>(
  */
 export const parseSync = <ThrowOnError extends boolean = false>(
   options: Options<ParseSyncData, ThrowOnError>
-) =>
+): RequestResult<ParseSyncResponses, ParseSyncErrors, ThrowOnError> =>
   (options.client ?? client).post<ParseSyncResponses, ParseSyncErrors, ThrowOnError>({
     ...formDataBodySerializer,
     security: [{ scheme: 'bearer', type: 'http' }],
@@ -197,7 +199,7 @@ export const parseSync = <ThrowOnError extends boolean = false>(
  */
 export const parseAsync = <ThrowOnError extends boolean = false>(
   options: Options<ParseAsyncData, ThrowOnError>
-) =>
+): RequestResult<ParseAsyncResponses, ParseAsyncErrors, ThrowOnError> =>
   (options.client ?? client).post<ParseAsyncResponses, ParseAsyncErrors, ThrowOnError>({
     ...formDataBodySerializer,
     security: [{ scheme: 'bearer', type: 'http' }],
@@ -219,7 +221,7 @@ export const parseAsync = <ThrowOnError extends boolean = false>(
  */
 export const parseBatch = <ThrowOnError extends boolean = false>(
   options: Options<ParseBatchData, ThrowOnError>
-) =>
+): RequestResult<ParseBatchResponses, ParseBatchErrors, ThrowOnError> =>
   (options.client ?? client).post<ParseBatchResponses, ParseBatchErrors, ThrowOnError>({
     ...formDataBodySerializer,
     security: [{ scheme: 'bearer', type: 'http' }],
@@ -246,7 +248,7 @@ export const parseBatch = <ThrowOnError extends boolean = false>(
  */
 export const extractSync = <ThrowOnError extends boolean = false>(
   options: Options<ExtractSyncData, ThrowOnError>
-) =>
+): RequestResult<ExtractSyncResponses, ExtractSyncErrors, ThrowOnError> =>
   (options.client ?? client).post<ExtractSyncResponses, ExtractSyncErrors, ThrowOnError>({
     ...formDataBodySerializer,
     security: [{ scheme: 'bearer', type: 'http' }],
@@ -268,7 +270,7 @@ export const extractSync = <ThrowOnError extends boolean = false>(
  */
 export const extractAsync = <ThrowOnError extends boolean = false>(
   options: Options<ExtractAsyncData, ThrowOnError>
-) =>
+): RequestResult<ExtractAsyncResponses, ExtractAsyncErrors, ThrowOnError> =>
   (options.client ?? client).post<ExtractAsyncResponses, ExtractAsyncErrors, ThrowOnError>({
     ...formDataBodySerializer,
     security: [{ scheme: 'bearer', type: 'http' }],
@@ -291,7 +293,7 @@ export const extractAsync = <ThrowOnError extends boolean = false>(
  */
 export const extractBatch = <ThrowOnError extends boolean = false>(
   options: Options<ExtractBatchData, ThrowOnError>
-) =>
+): RequestResult<ExtractBatchResponses, ExtractBatchErrors, ThrowOnError> =>
   (options.client ?? client).post<ExtractBatchResponses, ExtractBatchErrors, ThrowOnError>({
     ...formDataBodySerializer,
     security: [{ scheme: 'bearer', type: 'http' }],
@@ -313,7 +315,7 @@ export const extractBatch = <ThrowOnError extends boolean = false>(
  */
 export const suggestSchema = <ThrowOnError extends boolean = false>(
   options: Options<SuggestSchemaData, ThrowOnError>
-) =>
+): RequestResult<SuggestSchemaResponses, SuggestSchemaErrors, ThrowOnError> =>
   (options.client ?? client).post<SuggestSchemaResponses, SuggestSchemaErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/suggest-schema',
@@ -335,7 +337,7 @@ export const suggestSchema = <ThrowOnError extends boolean = false>(
  */
 export const listJobs = <ThrowOnError extends boolean = false>(
   options?: Options<ListJobsData, ThrowOnError>
-) =>
+): RequestResult<ListJobsResponses, ListJobsErrors, ThrowOnError> =>
   (options?.client ?? client).get<ListJobsResponses, ListJobsErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/jobs',
@@ -354,7 +356,7 @@ export const listJobs = <ThrowOnError extends boolean = false>(
  */
 export const getJob = <ThrowOnError extends boolean = false>(
   options: Options<GetJobData, ThrowOnError>
-) =>
+): RequestResult<GetJobResponses, GetJobErrors, ThrowOnError> =>
   (options.client ?? client).get<GetJobResponses, GetJobErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/jobs/{id}',
@@ -371,7 +373,7 @@ export const getJob = <ThrowOnError extends boolean = false>(
  */
 export const getExtractionReview = <ThrowOnError extends boolean = false>(
   options: Options<GetExtractionReviewData, ThrowOnError>
-) =>
+): RequestResult<GetExtractionReviewResponses, GetExtractionReviewErrors, ThrowOnError> =>
   (options.client ?? client).get<
     GetExtractionReviewResponses,
     GetExtractionReviewErrors,
@@ -404,7 +406,7 @@ export const getExtractionReview = <ThrowOnError extends boolean = false>(
  */
 export const updateExtractionReview = <ThrowOnError extends boolean = false>(
   options: Options<UpdateExtractionReviewData, ThrowOnError>
-) =>
+): RequestResult<UpdateExtractionReviewResponses, UpdateExtractionReviewErrors, ThrowOnError> =>
   (options.client ?? client).patch<
     UpdateExtractionReviewResponses,
     UpdateExtractionReviewErrors,
@@ -429,7 +431,7 @@ export const updateExtractionReview = <ThrowOnError extends boolean = false>(
  */
 export const completeExtractionReview = <ThrowOnError extends boolean = false>(
   options: Options<CompleteExtractionReviewData, ThrowOnError>
-) =>
+): RequestResult<CompleteExtractionReviewResponses, CompleteExtractionReviewErrors, ThrowOnError> =>
   (options.client ?? client).post<
     CompleteExtractionReviewResponses,
     CompleteExtractionReviewErrors,
@@ -456,7 +458,7 @@ export const completeExtractionReview = <ThrowOnError extends boolean = false>(
  */
 export const reopenExtractionReview = <ThrowOnError extends boolean = false>(
   options: Options<ReopenExtractionReviewData, ThrowOnError>
-) =>
+): RequestResult<ReopenExtractionReviewResponses, ReopenExtractionReviewErrors, ThrowOnError> =>
   (options.client ?? client).post<
     ReopenExtractionReviewResponses,
     ReopenExtractionReviewErrors,
@@ -485,7 +487,7 @@ export const reopenExtractionReview = <ThrowOnError extends boolean = false>(
  */
 export const getJobResult = <ThrowOnError extends boolean = false>(
   options: Options<GetJobResultData, ThrowOnError>
-) =>
+): RequestResult<GetJobResultResponses, GetJobResultErrors, ThrowOnError> =>
   (options.client ?? client).get<GetJobResultResponses, GetJobResultErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/jobs/{id}/result',
@@ -504,7 +506,7 @@ export const getJobResult = <ThrowOnError extends boolean = false>(
  */
 export const getJobSource = <ThrowOnError extends boolean = false>(
   options: Options<GetJobSourceData, ThrowOnError>
-) =>
+): RequestResult<GetJobSourceResponses, GetJobSourceErrors, ThrowOnError> =>
   (options.client ?? client).get<GetJobSourceResponses, GetJobSourceErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/jobs/{id}/source',
@@ -521,7 +523,7 @@ export const getJobSource = <ThrowOnError extends boolean = false>(
  */
 export const createFile = <ThrowOnError extends boolean = false>(
   options: Options<CreateFileData, ThrowOnError>
-) =>
+): RequestResult<CreateFileResponses, CreateFileErrors, ThrowOnError> =>
   (options.client ?? client).post<CreateFileResponses, CreateFileErrors, ThrowOnError>({
     ...formDataBodySerializer,
     security: [{ scheme: 'bearer', type: 'http' }],
@@ -538,7 +540,7 @@ export const createFile = <ThrowOnError extends boolean = false>(
  */
 export const deleteFile = <ThrowOnError extends boolean = false>(
   options: Options<DeleteFileData, ThrowOnError>
-) =>
+): RequestResult<DeleteFileResponses, DeleteFileErrors, ThrowOnError> =>
   (options.client ?? client).delete<DeleteFileResponses, DeleteFileErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/files/{id}',
@@ -550,7 +552,7 @@ export const deleteFile = <ThrowOnError extends boolean = false>(
  */
 export const getFile = <ThrowOnError extends boolean = false>(
   options: Options<GetFileData, ThrowOnError>
-) =>
+): RequestResult<GetFileResponses, GetFileErrors, ThrowOnError> =>
   (options.client ?? client).get<GetFileResponses, GetFileErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/files/{id}',
@@ -562,7 +564,7 @@ export const getFile = <ThrowOnError extends boolean = false>(
  */
 export const getFileContent = <ThrowOnError extends boolean = false>(
   options: Options<GetFileContentData, ThrowOnError>
-) =>
+): RequestResult<GetFileContentResponses, GetFileContentErrors, ThrowOnError> =>
   (options.client ?? client).get<GetFileContentResponses, GetFileContentErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/files/{id}/content',
@@ -577,7 +579,7 @@ export const getFileContent = <ThrowOnError extends boolean = false>(
  */
 export const listExtractionPipelines = <ThrowOnError extends boolean = false>(
   options?: Options<ListExtractionPipelinesData, ThrowOnError>
-) =>
+): RequestResult<ListExtractionPipelinesResponses, ListExtractionPipelinesErrors, ThrowOnError> =>
   (options?.client ?? client).get<
     ListExtractionPipelinesResponses,
     ListExtractionPipelinesErrors,
@@ -598,7 +600,7 @@ export const listExtractionPipelines = <ThrowOnError extends boolean = false>(
  */
 export const createExtractionPipeline = <ThrowOnError extends boolean = false>(
   options: Options<CreateExtractionPipelineData, ThrowOnError>
-) =>
+): RequestResult<CreateExtractionPipelineResponses, CreateExtractionPipelineErrors, ThrowOnError> =>
   (options.client ?? client).post<
     CreateExtractionPipelineResponses,
     CreateExtractionPipelineErrors,
@@ -622,7 +624,7 @@ export const createExtractionPipeline = <ThrowOnError extends boolean = false>(
  */
 export const deleteExtractionPipeline = <ThrowOnError extends boolean = false>(
   options: Options<DeleteExtractionPipelineData, ThrowOnError>
-) =>
+): RequestResult<DeleteExtractionPipelineResponses, DeleteExtractionPipelineErrors, ThrowOnError> =>
   (options.client ?? client).delete<
     DeleteExtractionPipelineResponses,
     DeleteExtractionPipelineErrors,
@@ -642,7 +644,7 @@ export const deleteExtractionPipeline = <ThrowOnError extends boolean = false>(
  */
 export const getExtractionPipeline = <ThrowOnError extends boolean = false>(
   options: Options<GetExtractionPipelineData, ThrowOnError>
-) =>
+): RequestResult<GetExtractionPipelineResponses, GetExtractionPipelineErrors, ThrowOnError> =>
   (options.client ?? client).get<
     GetExtractionPipelineResponses,
     GetExtractionPipelineErrors,
@@ -662,7 +664,7 @@ export const getExtractionPipeline = <ThrowOnError extends boolean = false>(
  */
 export const updateExtractionPipeline = <ThrowOnError extends boolean = false>(
   options: Options<UpdateExtractionPipelineData, ThrowOnError>
-) =>
+): RequestResult<UpdateExtractionPipelineResponses, UpdateExtractionPipelineErrors, ThrowOnError> =>
   (options.client ?? client).patch<
     UpdateExtractionPipelineResponses,
     UpdateExtractionPipelineErrors,

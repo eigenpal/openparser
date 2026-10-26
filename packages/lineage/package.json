@@ -1,6 +1,6 @@
 {
   "name": "@openparser/lineage",
-  "version": "1.0.22",
+  "version": "1.0.23",
   "description": "Zod schemas, validation, and helpers for lineage@1 complete data-derivation DAGs",
   "type": "module",
   "main": "./dist/index.js",
@@ -48,7 +48,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@types/luxon": "3.7.4",
+    "@types/luxon": "3.7.6",
     "esbuild": "0.25.12",
     "prettier": "3.8.1",
     "typescript": "^7.0.2"

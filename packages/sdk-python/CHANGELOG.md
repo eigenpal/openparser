@@ -1,5 +1,12 @@
 # openparser-sdk
 
+## 1.0.23
+
+### Patch Changes
+
+- c4b8375: GPU OCR recovers on its own when part of the layout pipeline fails: a task whose models stay unready for ten minutes now restarts and frees its GPU host for a healthy replacement.
+- cdfc91d: Refresh integration and tooling dependencies for continued compatibility and maintenance.
+
 ## 1.0.22
 
 ## 1.0.21
