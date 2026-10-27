@@ -1,5 +1,9 @@
 # @openparser/lineage
 
+## 1.0.24
+
+No changes in this release.
+
 ## 1.0.23
 
 ### Patch Changes

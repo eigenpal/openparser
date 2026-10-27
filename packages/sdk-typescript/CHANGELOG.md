@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.24
+
+### Patch Changes
+
+- 5452849: GPU OCR handles large documents with more memory headroom and sends more of each document's text regions to recognition at once, so busy periods clear faster.
+
 ## 1.0.23
 
 ### Patch Changes
