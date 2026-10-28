@@ -14,6 +14,7 @@ from typing_extensions import NotRequired
 
 HostedOcrModelId = Literal[
     "paddleocr-vl-1.6",
+    "glm-ocr",
     "mistral-ocr-4-1",
     "mistral-ocr-4",
     "mistral-ocr-3",
@@ -27,6 +28,7 @@ HostedOcrModelId = Literal[
 
 HOSTED_OCR_MODEL_IDS: tuple[HostedOcrModelId, ...] = (
     "paddleocr-vl-1.6",
+    "glm-ocr",
     "mistral-ocr-4-1",
     "mistral-ocr-4",
     "mistral-ocr-3",
@@ -51,6 +53,13 @@ class PaddleocrVl16Options(TypedDict):
     chart_recognition: NotRequired[bool]
     # Merge layout blocks: Merge nearby boxes for reading order.
     merge_layout_blocks: NotRequired[bool]
+
+class GlmOcrOptions(TypedDict):
+    """Hosted ocr_options for glm-ocr (GLM-OCR).
+
+    Output: Markdown + boxes.
+    """
+    pass
 
 class MistralOcr41Options(TypedDict):
     """Hosted ocr_options for mistral-ocr-4-1 (Mistral OCR 4.1).
@@ -199,6 +208,7 @@ class AwsTextractTablesLayoutOptions(TypedDict):
 # Mapping used by type checkers / docs; values are TypedDict types, not instances.
 HOSTED_OCR_OPTIONS_BY_MODEL: Mapping[HostedOcrModelId, type] = {
     "paddleocr-vl-1.6": PaddleocrVl16Options,
+    "glm-ocr": GlmOcrOptions,
     "mistral-ocr-4-1": MistralOcr41Options,
     "mistral-ocr-4": MistralOcr4Options,
     "mistral-ocr-3": MistralOcr3Options,
@@ -225,6 +235,27 @@ HOSTED_OCR_MODEL_CATALOG_SUMMARY: dict[str, dict[str, Any]] = {
                 "image_block_ocr": True,
                 "chart_recognition": True,
                 "merge_layout_blocks": True,
+            },
+        },
+        "converter": {
+            "element_kinds": ("text", "table", "figure", "formula", "stamp"),
+            "geometry": "optional",
+            "assets": "optional",
+            "text_annotations": "none",
+        },
+    },
+    "glm-ocr": {
+        "id": "glm-ocr",
+        "label": "GLM-OCR",
+        "is_default": False,
+        "output_summary": "Markdown + boxes",
+        "capabilities": {
+            "parse": True,
+            "extract_source": True,
+            "markdown": True,
+            "regions": True,
+            "options": {
+
             },
         },
         "converter": {
@@ -473,6 +504,16 @@ def hosted_parse_request(
 
 @overload
 def hosted_parse_request(
+    ocr_model: Literal["glm-ocr"],
+    /,
+    *,
+    ocr_options: GlmOcrOptions | None = None,
+    file_id: str | None = None,
+    output_format: Literal["openparser@1", "raw"] | None = None,
+) -> dict[str, Any]: ...
+
+@overload
+def hosted_parse_request(
     ocr_model: Literal["mistral-ocr-4-1"],
     /,
     *,
@@ -601,6 +642,7 @@ __all__ = [
     "HOSTED_OCR_MODEL_IDS",
     "DEFAULT_HOSTED_OCR_MODEL_ID",
     "PaddleocrVl16Options",
+    "GlmOcrOptions",
     "MistralOcr41Options",
     "MistralOcr4Options",
     "MistralOcr3Options",

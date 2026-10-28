@@ -4,6 +4,7 @@ import {
   countLayoutRegions,
   createHttpHpsClient,
   HpsParseError,
+  HpsRequestTimeoutError,
   type HpsRequestStats,
 } from './client';
 
@@ -127,6 +128,56 @@ describe('Paddle HPS HTTP client', () => {
       expect(request.requestMs).toBeGreaterThanOrEqual(0);
       expect(request.prepareMs).toBeGreaterThanOrEqual(0);
     }
+  });
+
+  test('bisects a chunk the gateway stopped at its own deadline, but not a bare 504', async () => {
+    const source = await PDFDocument.create();
+    source.addPage([612, 792]);
+    source.addPage([612, 792]);
+    const content = await source.save();
+    const run = async (deadlineHeader: boolean) => {
+      const requestPageCounts: number[] = [];
+      const client = createHttpHpsClient({
+        baseUrl: 'http://glm.internal:8080',
+        pdfChunkPages: 2,
+        fetchImpl: async (_url, init) => {
+          const body = JSON.parse(String(init?.body)) as { file: string };
+          const pageCount = (
+            await PDFDocument.load(Buffer.from(body.file, 'base64'))
+          ).getPageCount();
+          requestPageCounts.push(pageCount);
+          if (pageCount > 1) {
+            return Response.json(
+              { errorCode: 504, errorMsg: 'GLM parse stopped: deadline' },
+              {
+                status: 504,
+                headers: deadlineHeader ? { 'X-OpenParser-Deadline-Exceeded': '1' } : {},
+              }
+            );
+          }
+          return Response.json({
+            errorCode: 0,
+            result: {
+              layoutParsingResults: [
+                { prunedResult: { width: 1224, height: 1584, parsing_res_list: [] } },
+              ],
+            },
+          });
+        },
+      });
+      const output = await client
+        .parse({ content, mediaType: 'application/pdf', documentId: 'pdf-deadline' })
+        .catch((error: unknown) => error);
+      return { output, requestPageCounts };
+    };
+
+    const marked = await run(true);
+    expect(marked.requestPageCounts).toEqual([2, 1, 1]);
+    expect(marked.output).not.toBeInstanceOf(Error);
+
+    const bare = await run(false);
+    expect(bare.requestPageCounts).toEqual([2]);
+    expect(bare.output).toBeInstanceOf(HpsRequestTimeoutError);
   });
 
   async function pdfWithPages(count: number): Promise<Uint8Array> {

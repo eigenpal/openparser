@@ -189,6 +189,24 @@ describe('mapLayoutResultsToParsedDocument unit cases', () => {
     });
   });
 
+  test('names the serving provider for other models behind the HPS contract', () => {
+    const input = loadJson<MapLayoutResultsInput>(join(FIXTURES_DIR, 'glm-ocr-invoice.input.json'));
+    const parsed = mapLayoutResultsToParsedDocument(input);
+    expect(parsed.provenance).toMatchObject({ provider: 'zai', model: 'glm-ocr' });
+    expect(
+      parsed.elements.every((element) => element.id.startsWith('glm-ocr-invoice-glm-1-'))
+    ).toBe(true);
+    expect(parsed.elements.some((element) => element.kind === 'table')).toBe(true);
+
+    const defaults = mapLayoutResultsToParsedDocument({
+      ...input,
+      provider: undefined,
+      elementIdPrefix: undefined,
+    });
+    expect(defaults.provenance.provider).toBe('baidu');
+    expect(defaults.elements[0]?.id).toStartWith('glm-ocr-invoice-paddle-1-');
+  });
+
   test('rejects page count mismatch', () => {
     expect(() =>
       mapLayoutResultsToParsedDocument({

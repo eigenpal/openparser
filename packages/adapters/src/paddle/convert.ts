@@ -49,6 +49,12 @@ export type MapLayoutResultsInput = {
   isPublicFigureUri?: FigureUriValidator;
   model?: string;
   version?: string;
+  /**
+   * Provenance provider and element-id segment. Defaults to Baidu / `paddle`;
+   * other models served behind the HPS contract (GLM-OCR) name themselves.
+   */
+  provider?: string;
+  elementIdPrefix?: string;
 };
 
 /**
@@ -60,6 +66,7 @@ export function mapLayoutResultsToParsedDocument(
   const figureAssetsMode = input.figureAssets ?? 'none';
   const figureUriMap = input.figureUriMap ?? new Map();
   const isPublicFigureUri = input.isPublicFigureUri;
+  const elementIdPrefix = input.elementIdPrefix ?? 'paddle';
   if (input.layoutResults.length !== input.pages.length) {
     throw new PaddleAdapterError(
       `page count mismatch: ${input.layoutResults.length} results for ${input.pages.length} pages`
@@ -105,7 +112,7 @@ export function mapLayoutResultsToParsedDocument(
       }
 
       const nativeId = String(entry.block_id ?? index);
-      const elementId = `${input.documentId}-paddle-${dimensions.number}-${nativeId}`;
+      const elementId = `${input.documentId}-${elementIdPrefix}-${dimensions.number}-${nativeId}`;
       const bbox = clampBbox(bboxRaw as number[], dimensions.width, dimensions.height);
       const polygon = readPolygon(entry, dimensions.width, dimensions.height);
       const locations: Geometry[] = [
@@ -301,7 +308,7 @@ export function mapLayoutResultsToParsedDocument(
       output_format: 'openparser@1',
       document_id: input.documentId,
       provenance: {
-        provider: 'baidu',
+        provider: input.provider ?? 'baidu',
         model: input.model ?? 'paddleocr-vl',
         ...(input.version === undefined ? {} : { version: input.version }),
         operation: 'layout_parsing',

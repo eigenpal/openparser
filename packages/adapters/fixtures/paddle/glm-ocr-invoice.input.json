@@ -1,0 +1,108 @@
+{
+  "documentId": "glm-ocr-invoice",
+  "model": "glm-ocr",
+  "provider": "zai",
+  "elementIdPrefix": "glm",
+  "pages": [
+    {
+      "number": 1,
+      "width": 1654,
+      "height": 2339
+    }
+  ],
+  "layoutResults": [
+    {
+      "prunedResult": {
+        "page_index": 0,
+        "width": 1654,
+        "height": 2339,
+        "parsing_res_list": [
+          {
+            "block_id": 0,
+            "block_order": 0,
+            "block_label": "image",
+            "block_content": "",
+            "block_bbox": [0, 14, 827, 655]
+          },
+          {
+            "block_id": 1,
+            "block_order": 1,
+            "block_label": "image",
+            "block_content": "",
+            "block_bbox": [182, 248, 810, 660]
+          },
+          {
+            "block_id": 2,
+            "block_order": 2,
+            "block_label": "vision_footnote",
+            "block_content": "123 Somewhere St, Melbourne VIC 3000 (03) 1234 5678",
+            "block_bbox": [53, 716, 935, 826]
+          },
+          {
+            "block_id": 3,
+            "block_order": 3,
+            "block_label": "text",
+            "block_content": "Invoice Number: 1234567890",
+            "block_bbox": [45, 910, 475, 952]
+          },
+          {
+            "block_id": 4,
+            "block_order": 4,
+            "block_label": "text",
+            "block_content": "Denny Gunawan",
+            "block_bbox": [1012, 320, 1346, 367]
+          },
+          {
+            "block_id": 5,
+            "block_order": 5,
+            "block_label": "text",
+            "block_content": "221 Queen St Melbourne VIC 3000 Melbourne VIC 3000",
+            "block_bbox": [1011, 451, 1328, 533]
+          },
+          {
+            "block_id": 6,
+            "block_order": 6,
+            "block_label": "text",
+            "block_content": "$39.60",
+            "block_bbox": [1150, 678, 1479, 779]
+          },
+          {
+            "block_id": 7,
+            "block_order": 7,
+            "block_label": "table",
+            "block_content": "<table border=\"1\"><tr><td>Organic Items</td><td>Price/kg</td><td>Quantity(kg)</td><td>Subtotal</td></tr><tr><td>Apple</td><td>$5.00</td><td>1</td><td>$5.00</td></tr><tr><td>Orange</td><td>$1.99</td><td>2</td><td>$3.98</td></tr><tr><td>Watermelon</td><td>$1.69</td><td>3</td><td>$5.07</td></tr><tr><td>Mango</td><td>$9.56</td><td>2</td><td>$19.12</td></tr><tr><td>Peach</td><td>$2.99</td><td>1</td><td>$2.99</td></tr></table>",
+            "block_bbox": [41, 985, 1603, 1490]
+          },
+          {
+            "block_id": 8,
+            "block_order": 8,
+            "block_label": "doc_title",
+            "block_content": "THANK YOU",
+            "block_bbox": [41, 1948, 885, 2072]
+          },
+          {
+            "block_id": 9,
+            "block_order": 9,
+            "block_label": "text",
+            "block_content": "- Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam sodales dapibus fermentum. Nunc adipiscing, magna sed scelerisque cursus, erat lectus dapibus urna, sed facilisis leo dui et ipsum.",
+            "block_bbox": [41, 2105, 872, 2199]
+          },
+          {
+            "block_id": 10,
+            "block_order": 10,
+            "block_label": "table",
+            "block_content": "Subtotal $36.00\nGST (10%)$ 3.60\nGST (10%) $3.60\n\nTotal$ 39.60",
+            "block_bbox": [963, 1836, 1642, 2334]
+          }
+        ]
+      }
+    }
+  ],
+  "dataInfoPages": [
+    {
+      "number": 1,
+      "width": 1654,
+      "height": 2339
+    }
+  ]
+}

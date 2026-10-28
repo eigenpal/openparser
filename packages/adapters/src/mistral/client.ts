@@ -13,7 +13,7 @@ export type MistralParseInput = {
   bytes: Uint8Array;
   mediaType: string;
   documentId: string;
-  /** Provider-native Mistral model id (for example `mistral-ocr-4-0`). */
+  /** Provider-native Mistral model id (for example `mistral-ocr-4-1`). */
   model: string;
   options?: MistralOcrRequestOptions;
   signal?: AbortSignal;

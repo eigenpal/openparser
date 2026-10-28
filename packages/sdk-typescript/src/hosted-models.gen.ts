@@ -6,6 +6,7 @@
  */
 export const HOSTED_OCR_MODEL_IDS = [
   'paddleocr-vl-1.6',
+  'glm-ocr',
   'mistral-ocr-4-1',
   'mistral-ocr-4',
   'mistral-ocr-3',
@@ -48,6 +49,13 @@ export type PaddleocrVl16Options = {
    */
   merge_layout_blocks?: boolean;
 };
+
+/**
+ * Hosted `ocr_options` for `glm-ocr` (GLM-OCR).
+ *
+ * Output: Markdown + boxes.
+ */
+export type GlmOcrOptions = {};
 
 /**
  * Hosted `ocr_options` for `mistral-ocr-4-1` (Mistral OCR 4.1).
@@ -394,6 +402,7 @@ export type AwsTextractTablesLayoutOptions = {
 /** Exact per-model hosted option types keyed by model id. */
 export type HostedOcrOptionsByModel = {
   'paddleocr-vl-1.6': PaddleocrVl16Options;
+  'glm-ocr': GlmOcrOptions;
   'mistral-ocr-4-1': MistralOcr41Options;
   'mistral-ocr-4': MistralOcr4Options;
   'mistral-ocr-3': MistralOcr3Options;
@@ -464,6 +473,32 @@ export const HOSTED_OCR_MODEL_CATALOG_SUMMARY = {
         chart_recognition: true,
         merge_layout_blocks: true,
       },
+    },
+    converter: {
+      elementKinds: ['text', 'table', 'figure', 'formula', 'stamp'] as const,
+      geometry: 'optional' as const,
+      assets: 'optional' as const,
+      textAnnotations: 'none' as const,
+    },
+  },
+  /**
+   * GLM-OCR.
+   *
+   * Output summary: Markdown + boxes.
+   * Capabilities: parse=true, extract_source=true, markdown=true, regions=true.
+   * Converter elementKinds/geometry/assets describe a conservative upper bound — not guaranteed fields.
+   */
+  'glm-ocr': {
+    id: 'glm-ocr',
+    label: 'GLM-OCR',
+    isDefault: false,
+    outputSummary: 'Markdown + boxes',
+    capabilities: {
+      parse: true,
+      extract_source: true,
+      markdown: true,
+      regions: true,
+      options: {},
     },
     converter: {
       elementKinds: ['text', 'table', 'figure', 'formula', 'stamp'] as const,

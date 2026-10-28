@@ -1,6 +1,6 @@
 {
   "name": "@openparser/sdk",
-  "version": "1.0.24",
+  "version": "1.0.25",
   "description": "Parse documents and extract structured data with TypeScript",
   "type": "module",
   "main": "./dist/index.js",

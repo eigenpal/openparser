@@ -173,10 +173,15 @@ export type HttpHpsClientOptions = {
   /** Optional headers for private HPS gateways. */
   headers?: Record<string, string>;
   fetchImpl?: (input: string, init?: RequestInit) => Promise<Response>;
+  /** Canonical provenance provider and element-id segment (default Baidu / `paddle`). */
+  provenanceProvider?: string;
+  elementIdPrefix?: string;
 };
 
 /** Must expire before the 900s gateway/ALB deadlines so local timeout bisection wins. */
 export const HPS_PARSE_TIMEOUT_MS = 870_000;
+/** Set to "1" on a 504 from a gateway that stopped at its own bounded deadline (GLM-OCR). */
+export const HPS_DEADLINE_HEADER = 'x-openparser-deadline-exceeded';
 export const HPS_PDF_CHUNK_PAGES = 16;
 export const HPS_PDF_CHUNK_TIMEOUT_MS = 300_000;
 export const HPS_PDF_PAGE_MAX_ATTEMPTS = 5;
@@ -351,6 +356,8 @@ export function createHttpHpsClient(options: HttpHpsClientOptions): HpsClient {
           layoutResults: layoutRecords,
           dataInfoPages,
           figureAssets: 'none',
+          provider: options.provenanceProvider,
+          elementIdPrefix: options.elementIdPrefix,
         });
       } catch (error) {
         if (error instanceof PaddleAdapterError) {
@@ -419,7 +426,11 @@ async function requestLayoutResult(input: LayoutRequestInput): Promise<Record<st
     throw new HpsOverloadError(`HPS overload HTTP ${response.status}`);
   }
   if (response.status === 504) {
-    throw new HpsRequestTimeoutError(input.timeoutMs);
+    // The GLM gateway gives up on its own bounded deadline before ours fires
+    // and says so; that proves a smaller range may help, like our own timeout.
+    // A bare 504 (ALB, Paddle) does not.
+    const gatewayDeadline = response.headers.get(HPS_DEADLINE_HEADER) === '1';
+    throw new HpsRequestTimeoutError(input.timeoutMs, gatewayDeadline);
   }
   if (response.status === 502) {
     // A gateway error does not prove that inference was never dispatched.

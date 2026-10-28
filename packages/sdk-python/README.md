@@ -94,7 +94,7 @@ derivation DAG:
 ```python
 extracted = client.extract.sync(
     {
-        "ocr_model": "mistral-ocr-4",
+        "ocr_model": "mistral-ocr-4-1",
         "llm_model": "openai/gpt-6-luna",
         "grounding": "field",
         "schema": {

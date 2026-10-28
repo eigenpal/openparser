@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.25
+
+### Patch Changes
+
+- 3b54a3f: Add GLM-OCR as a hosted OCR model (`glm-ocr`). The layout converter can now name the provider that served a document, so GLM-OCR results report Z.ai in their provenance instead of Baidu.
+
 ## 1.0.24
 
 ### Patch Changes

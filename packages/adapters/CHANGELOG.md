@@ -1,5 +1,13 @@
 # @openparser/adapters
 
+## 1.0.25
+
+### Patch Changes
+
+- f84ad10: A 504 that a gateway marks with `x-openparser-deadline-exceeded: 1` now splits the PDF page range and retries the smaller ranges, the same as the client's own chunk timeout. A plain 504 is unchanged. The header is exported as `HPS_DEADLINE_HEADER`.
+- 3b54a3f: Add GLM-OCR as a hosted OCR model (`glm-ocr`). The layout converter can now name the provider that served a document, so GLM-OCR results report Z.ai in their provenance instead of Baidu.
+- @openparser/schema@1.0.25
+
 ## 1.0.24
 
 ### Patch Changes
