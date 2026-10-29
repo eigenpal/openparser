@@ -107,7 +107,7 @@ const { canonical, nativeResult } = await client.parse({
   bytes: documentBytes,
   mediaType: 'application/pdf',
   documentId: 'doc-1',
-  model: 'mistral-ocr-4-0',
+  model: 'mistral-ocr-4-1',
   options: { table_format: 'html', include_blocks: true },
 });
 ```

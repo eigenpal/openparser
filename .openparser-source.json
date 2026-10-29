@@ -1,6 +1,6 @@
 {
   "source": "eigenpal/eigenpal",
   "mirror": "eigenpal/openparser",
-  "sourceSha": "d83b34f363a0b471dd3ddf3368ef1604ffcce496",
+  "sourceSha": "ff0df020a917ab71a59f9f6094fbb5fba3528325",
   "generatedBy": "scripts/release/openparser/sync-public-openparser.ts"
 }

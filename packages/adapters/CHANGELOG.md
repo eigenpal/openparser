@@ -1,5 +1,12 @@
 # @openparser/adapters
 
+## 1.0.26
+
+### Patch Changes
+
+- 8c2d87f: Use the current Mistral OCR 4.1 native model ID in the client example and API documentation.
+- @openparser/schema@1.0.26
+
 ## 1.0.25
 
 ### Patch Changes
