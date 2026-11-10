@@ -106,3 +106,30 @@ def test_wait_for_job_polls_until_terminal(client: OpenParserClient) -> None:
 
     assert result.status == "succeeded"
     assert result.result.page_count == 3
+
+
+@respx.mock
+def test_unset_query_parameters_are_not_sent(client: OpenParserClient) -> None:
+    # Generated builders default limit/page/mode; the facade must send only what the caller set.
+    jobs = respx.get("https://api.openparser.dev/jobs").mock(
+        return_value=httpx.Response(200, json={"items": []})
+    )
+    models = respx.get("https://api.openparser.dev/models/llm").mock(
+        return_value=httpx.Response(200, json={"models": []})
+    )
+    single = respx.get("https://api.openparser.dev/jobs/opj_1").mock(
+        return_value=httpx.Response(200, json=job_terminal())
+    )
+
+    client.jobs.list()
+    client.jobs.list(status="queued")
+    client.models.list_llm()
+    client.jobs.get("opj_1")
+
+    assert jobs.calls[0].request.url.query == b""
+    assert jobs.calls[1].request.url.params.get("status") == "queued"
+    assert "limit" not in jobs.calls[1].request.url.params
+    assert models.calls.last.request.url.params.get("mode") == "suggested"
+    assert "page" not in models.calls.last.request.url.params
+    assert "limit" not in models.calls.last.request.url.params
+    assert single.calls.last.request.url.query == b""

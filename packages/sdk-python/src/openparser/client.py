@@ -11,11 +11,48 @@ from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Any, BinaryIO, Literal, Optional, Sequence, Union
-from urllib.parse import quote
 
 import httpx
 
 from openparser._files import to_upload_tuple
+from openparser._generated.client import Client as GeneratedClient
+from openparser._generated.api.extract import (
+    extract_async,
+    extract_batch,
+    extract_sync,
+    suggest_schema,
+)
+from openparser._generated.api.files import (
+    create_file,
+    delete_file,
+    get_file,
+    get_file_content,
+)
+from openparser._generated.api.jobs import (
+    complete_extraction_review,
+    get_extraction_review,
+    get_job,
+    get_job_result,
+    get_job_source,
+    list_jobs,
+    reopen_extraction_review,
+    update_extraction_review,
+)
+from openparser._generated.api.models import list_llm_models, list_ocr_models
+from openparser._generated.api.parse import parse_async, parse_batch, parse_sync
+from openparser._generated.api.pipelines import (
+    create_extraction_pipeline,
+    delete_extraction_pipeline,
+    get_extraction_pipeline,
+    list_extraction_pipelines,
+    update_extraction_pipeline,
+)
+from openparser._generated_requests import (
+    RawBody,
+    optional,
+    optional_wire,
+    Wire,
+)
 from openparser._telemetry import build_telemetry_headers
 from openparser.errors import (
     OpenParserError,
@@ -27,7 +64,7 @@ DEFAULT_BASE_URL = "https://api.openparser.dev"
 DEFAULT_TIMEOUT_SECONDS = 300.0
 DEFAULT_POLL_INTERVAL_SECONDS = 2.0
 DEFAULT_WAIT_TIMEOUT_SECONDS = 300.0
-TERMINAL_JOB_STATUSES = frozenset({"succeeded", "failed", "indeterminate", "partial"})
+TERMINAL_JOB_STATUSES = frozenset({"succeeded", "failed", "indeterminate"})
 
 FileInput = Union[Path, dict[str, Any], BinaryIO]
 ParseResultFormat = Literal["openparser@1", "raw"]
@@ -201,11 +238,16 @@ class OpenParserClient:
         ).rstrip("/")
         self.timeout_seconds = timeout_seconds
         self.max_retries = max_retries
-        self._http = httpx.Client(
-            base_url=self.base_url,
-            timeout=timeout_seconds,
-            headers=_headers(resolved_key, default_headers),
-            **(httpx_args or {}),
+        # The generated client owns the httpx.Client. Retries stay in `_send`, so
+        # they apply the same way to every endpoint and keep httpx_args (TLS, proxies).
+        self._generated = GeneratedClient(base_url=self.base_url)
+        self._generated.set_httpx_client(
+            httpx.Client(
+                base_url=self.base_url,
+                timeout=timeout_seconds,
+                headers=_headers(resolved_key, default_headers),
+                **(httpx_args or {}),
+            )
         )
 
         self.parse = ParseResource(self)
@@ -216,7 +258,7 @@ class OpenParserClient:
         self.pipelines = PipelinesResource(self)
 
     def close(self) -> None:
-        self._http.close()
+        self._generated.get_httpx_client().close()
 
     def __enter__(self) -> "OpenParserClient":
         return self
@@ -224,13 +266,13 @@ class OpenParserClient:
     def __exit__(self, *_: object) -> None:
         self.close()
 
-    def _send_with_retries(
-        self, method: str, url: str, **kwargs: Any
-    ) -> httpx.Response:
-        may_retry = _is_retryable_request(method, kwargs.get("headers"))
+    def _send(self, kwargs: dict[str, Any]) -> httpx.Response:
+        """Send a request built by a generated builder, retrying where the policy allows."""
+        http = self._generated.get_httpx_client()
+        may_retry = _is_retryable_request(kwargs["method"], kwargs.get("headers"))
         for attempt in range(self.max_retries + 1):
             try:
-                response = self._http.request(method, url, **kwargs)
+                response = http.request(**kwargs)
                 if (
                     may_retry
                     and _is_retriable(response.status_code)
@@ -252,11 +294,11 @@ class OpenParserClient:
 
         raise AssertionError("unreachable")
 
-    def _request(self, method: str, url: str, **kwargs: Any) -> Any:
-        return _check_response(self._send_with_retries(method, url, **kwargs))
+    def _request(self, kwargs: dict[str, Any]) -> Any:
+        return _check_response(self._send(kwargs))
 
-    def _request_bytes(self, method: str, url: str, **kwargs: Any) -> bytes:
-        response = self._send_with_retries(method, url, **kwargs)
+    def _request_bytes(self, kwargs: dict[str, Any]) -> bytes:
+        response = self._send(kwargs)
         if response.status_code >= 400:
             _check_response(response)
         return response.content
@@ -284,6 +326,23 @@ class OpenParserClient:
         )
 
 
+def _multipart_submit(
+    root: OpenParserClient,
+    builder: Any,
+    parts: list[tuple[str, Any]],
+    idempotency_key: Optional[str],
+) -> Any:
+    kwargs = builder._get_kwargs(
+        body=RawBody(multipart=parts),
+        idempotency_key=_idempotency_key(idempotency_key),
+    )
+    return root._request(kwargs)
+
+
+def _request_parts(request: dict[str, Any]) -> list[tuple[str, Any]]:
+    return [("request", (None, json.dumps(request), "application/json"))]
+
+
 class ParseResource:
     def __init__(self, root: OpenParserClient) -> None:
         self._root = root
@@ -295,9 +354,7 @@ class ParseResource:
         file: Optional[FileInput] = None,
         idempotency_key: Optional[str] = None,
     ) -> Any:
-        return self._submit(
-            "/parse", request, file=file, idempotency_key=idempotency_key
-        )
+        return self._submit(parse_sync, request, file=file, idempotency_key=idempotency_key)
 
     def async_(
         self,
@@ -306,9 +363,7 @@ class ParseResource:
         file: Optional[FileInput] = None,
         idempotency_key: Optional[str] = None,
     ) -> Any:
-        return self._submit(
-            "/parse/async", request, file=file, idempotency_key=idempotency_key
-        )
+        return self._submit(parse_async, request, file=file, idempotency_key=idempotency_key)
 
     def batch(
         self,
@@ -317,37 +372,22 @@ class ParseResource:
         files: Sequence[FileInput],
         idempotency_key: Optional[str] = None,
     ) -> Any:
-        multipart: list[tuple[str, Any]] = [
-            ("request", (None, json.dumps(request), "application/json")),
-        ]
-        for item in files:
-            multipart.append(("files", to_upload_tuple(item)))
-        return self._root._request(
-            "POST",
-            "/parse/batch",
-            files=multipart,
-            headers={"Idempotency-Key": _idempotency_key(idempotency_key)},
-        )
+        parts = _request_parts(request)
+        parts.extend(("files", to_upload_tuple(item)) for item in files)
+        return _multipart_submit(self._root, parse_batch, parts, idempotency_key)
 
     def _submit(
         self,
-        path: str,
+        builder: Any,
         request: dict[str, Any],
         *,
         file: Optional[FileInput],
         idempotency_key: Optional[str],
     ) -> Any:
-        multipart: dict[str, Any] = {
-            "request": (None, json.dumps(request), "application/json"),
-        }
+        parts = _request_parts(request)
         if file is not None:
-            multipart["file"] = to_upload_tuple(file)
-        return self._root._request(
-            "POST",
-            path,
-            files=multipart,
-            headers={"Idempotency-Key": _idempotency_key(idempotency_key)},
-        )
+            parts.append(("file", to_upload_tuple(file)))
+        return _multipart_submit(self._root, builder, parts, idempotency_key)
 
 
 class ExtractResource:
@@ -361,9 +401,7 @@ class ExtractResource:
         file: Optional[FileInput] = None,
         idempotency_key: Optional[str] = None,
     ) -> Any:
-        return self._submit(
-            "/extract", request, file=file, idempotency_key=idempotency_key
-        )
+        return self._submit(extract_sync, request, file=file, idempotency_key=idempotency_key)
 
     def async_(
         self,
@@ -372,9 +410,7 @@ class ExtractResource:
         file: Optional[FileInput] = None,
         idempotency_key: Optional[str] = None,
     ) -> Any:
-        return self._submit(
-            "/extract/async", request, file=file, idempotency_key=idempotency_key
-        )
+        return self._submit(extract_async, request, file=file, idempotency_key=idempotency_key)
 
     def batch(
         self,
@@ -383,40 +419,26 @@ class ExtractResource:
         files: Sequence[FileInput],
         idempotency_key: Optional[str] = None,
     ) -> Any:
-        multipart: list[tuple[str, Any]] = [
-            ("request", (None, json.dumps(request), "application/json")),
-        ]
-        for item in files:
-            multipart.append(("files", to_upload_tuple(item)))
-        return self._root._request(
-            "POST",
-            "/extract/batch",
-            files=multipart,
-            headers={"Idempotency-Key": _idempotency_key(idempotency_key)},
-        )
+        parts = _request_parts(request)
+        parts.extend(("files", to_upload_tuple(item)) for item in files)
+        return _multipart_submit(self._root, extract_batch, parts, idempotency_key)
 
     def suggest_schema(self, body: dict[str, Any]) -> Any:
-        return self._root._request("POST", "/suggest-schema", json=body)
+        kwargs = suggest_schema._get_kwargs(body=RawBody(json=body))
+        return self._root._request(kwargs)
 
     def _submit(
         self,
-        path: str,
+        builder: Any,
         request: dict[str, Any],
         *,
         file: Optional[FileInput],
         idempotency_key: Optional[str],
     ) -> Any:
-        multipart: dict[str, Any] = {
-            "request": (None, json.dumps(request), "application/json"),
-        }
+        parts = _request_parts(request)
         if file is not None:
-            multipart["file"] = to_upload_tuple(file)
-        return self._root._request(
-            "POST",
-            path,
-            files=multipart,
-            headers={"Idempotency-Key": _idempotency_key(idempotency_key)},
-        )
+            parts.append(("file", to_upload_tuple(file)))
+        return _multipart_submit(self._root, builder, parts, idempotency_key)
 
 
 class JobsResource:
@@ -431,17 +453,13 @@ class JobsResource:
         status: Optional[str] = None,
         operation: Optional[str] = None,
     ) -> Any:
-        params = {
-            "cursor": cursor,
-            "limit": limit,
-            "status": status,
-            "operation": operation,
-        }
-        return self._root._request(
-            "GET",
-            "/jobs",
-            params={k: v for k, v in params.items() if v is not None} or None,
+        kwargs = list_jobs._get_kwargs(
+            cursor=optional(cursor),
+            limit=optional(limit),
+            status=optional_wire(status),
+            operation=optional_wire(operation),
         )
+        return self._root._request(kwargs)
 
     def get(
         self,
@@ -450,12 +468,10 @@ class JobsResource:
         cursor: Optional[str] = None,
         limit: Optional[int] = None,
     ) -> Any:
-        params = {"cursor": cursor, "limit": limit}
-        return self._root._request(
-            "GET",
-            f"/jobs/{quote(job_id, safe='')}",
-            params={k: v for k, v in params.items() if v is not None} or None,
+        kwargs = get_job._get_kwargs(
+            job_id, cursor=optional(cursor), limit=optional(limit)
         )
+        return self._root._request(kwargs)
 
     def result(
         self,
@@ -463,43 +479,26 @@ class JobsResource:
         *,
         format: Optional[ParseResultFormat] = None,
     ) -> Any:
-        params = {"format": format} if format is not None else None
-        return self._root._request(
-            "GET",
-            f"/jobs/{quote(job_id, safe='')}/result",
-            params=params,
-        )
+        kwargs = get_job_result._get_kwargs(job_id, format_=optional_wire(format))
+        return self._root._request(kwargs)
 
     def source(self, job_id: str) -> bytes:
-        return self._root._request_bytes(
-            "GET", f"/jobs/{quote(job_id, safe='')}/source"
-        )
+        return self._root._request_bytes(get_job_source._get_kwargs(job_id))
 
     def review(self, job_id: str) -> Any:
-        return self._root._request(
-            "GET", f"/jobs/{quote(job_id, safe='')}/review"
-        )
+        return self._root._request(get_extraction_review._get_kwargs(job_id))
 
     def update_review(self, job_id: str, body: dict[str, Any]) -> Any:
-        return self._root._request(
-            "PATCH",
-            f"/jobs/{quote(job_id, safe='')}/review",
-            json=body,
-        )
+        kwargs = update_extraction_review._get_kwargs(job_id, body=RawBody(json=body))
+        return self._root._request(kwargs)
 
     def complete_review(self, job_id: str, body: dict[str, Any]) -> Any:
-        return self._root._request(
-            "POST",
-            f"/jobs/{quote(job_id, safe='')}/review/complete",
-            json=body,
-        )
+        kwargs = complete_extraction_review._get_kwargs(job_id, body=RawBody(json=body))
+        return self._root._request(kwargs)
 
     def reopen_review(self, job_id: str, body: dict[str, Any]) -> Any:
-        return self._root._request(
-            "POST",
-            f"/jobs/{quote(job_id, safe='')}/review/reopen",
-            json=body,
-        )
+        kwargs = reopen_extraction_review._get_kwargs(job_id, body=RawBody(json=body))
+        return self._root._request(kwargs)
 
 
 class FilesResource:
@@ -507,20 +506,19 @@ class FilesResource:
         self._root = root
 
     def upload(self, file: FileInput) -> Any:
-        return self._root._request(
-            "POST", "/files", files={"file": to_upload_tuple(file)}
+        kwargs = create_file._get_kwargs(
+            body=RawBody(multipart=[("file", to_upload_tuple(file))])
         )
+        return self._root._request(kwargs)
 
     def get(self, file_id: str) -> Any:
-        return self._root._request("GET", f"/files/{quote(file_id, safe='')}")
+        return self._root._request(get_file._get_kwargs(file_id))
 
     def download(self, file_id: str) -> bytes:
-        return self._root._request_bytes(
-            "GET", f"/files/{quote(file_id, safe='')}/content"
-        )
+        return self._root._request_bytes(get_file_content._get_kwargs(file_id))
 
     def delete(self, file_id: str) -> Any:
-        return self._root._request("DELETE", f"/files/{quote(file_id, safe='')}")
+        return self._root._request(delete_file._get_kwargs(file_id))
 
 
 class ModelsResource:
@@ -528,7 +526,7 @@ class ModelsResource:
         self._root = root
 
     def list_ocr(self) -> Any:
-        return self._root._request("GET", "/models/ocr")
+        return self._root._request(list_ocr_models._get_kwargs())
 
     def list_llm(
         self,
@@ -538,12 +536,13 @@ class ModelsResource:
         page: Optional[int] = None,
         limit: Optional[int] = None,
     ) -> Any:
-        params = {"mode": mode, "q": q, "page": page, "limit": limit}
-        return self._root._request(
-            "GET",
-            "/models/llm",
-            params={k: v for k, v in params.items() if v is not None} or None,
+        kwargs = list_llm_models._get_kwargs(
+            mode=Wire(mode),
+            q=optional(q),
+            page=optional(page),
+            limit=optional(limit),
         )
+        return self._root._request(kwargs)
 
 
 class PipelinesResource:
@@ -551,22 +550,20 @@ class PipelinesResource:
         self._root = root
 
     def list(self) -> Any:
-        return self._root._request("GET", "/pipelines")
+        return self._root._request(list_extraction_pipelines._get_kwargs())
 
     def get(self, pipeline_id: str) -> Any:
-        return self._root._request("GET", f"/pipelines/{quote(pipeline_id, safe='')}")
+        return self._root._request(get_extraction_pipeline._get_kwargs(pipeline_id))
 
     def create(self, body: dict[str, Any]) -> Any:
-        return self._root._request("POST", "/pipelines", json=body)
+        kwargs = create_extraction_pipeline._get_kwargs(body=RawBody(json=body))
+        return self._root._request(kwargs)
 
     def update(self, pipeline_id: str, body: dict[str, Any]) -> Any:
-        return self._root._request(
-            "PATCH",
-            f"/pipelines/{quote(pipeline_id, safe='')}",
-            json=body,
+        kwargs = update_extraction_pipeline._get_kwargs(
+            pipeline_id, body=RawBody(json=body)
         )
+        return self._root._request(kwargs)
 
     def delete(self, pipeline_id: str) -> Any:
-        return self._root._request(
-            "DELETE", f"/pipelines/{quote(pipeline_id, safe='')}"
-        )
+        return self._root._request(delete_extraction_pipeline._get_kwargs(pipeline_id))

@@ -9,10 +9,7 @@ export const env = createEnv({
   server: {
     OPENPARSER_BASE_URL: z.string().optional(),
     OPENPARSER_API_KEY: z.string().optional(),
-    OPENPARSER_DIR: z.string().optional(),
     OPENPARSER_PROFILE: z.string().optional(),
-    DEBUG: z.string().optional(),
-    NO_COLOR: z.string().optional(),
     CI: z.string().optional(),
   },
   runtimeEnv: process.env,

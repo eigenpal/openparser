@@ -61,6 +61,15 @@ for path in out_dir.rglob("*.py"):
     updated = updated.replace(
         "from typing import Any, Self", "from typing import Any\nfrom typing_extensions import Self"
     )
+    # The generator hard-codes `boundary=+++` in the Content-Type of multipart requests,
+    # but httpx writes a random boundary into the body. Drop the header so httpx sets a
+    # matching one.
+    updated = re.sub(
+        r'^    headers\["Content-Type"\] = "multipart/form-data; boundary=\+\+\+"\n\n',
+        "",
+        updated,
+        flags=re.MULTILINE,
+    )
     if (
         "Unset" in updated
         and "from ...types import" in updated

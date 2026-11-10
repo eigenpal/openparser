@@ -411,6 +411,10 @@ async function requestLayoutResult(input: LayoutRequestInput): Promise<Record<st
     if (timeoutSignal.aborted) {
       throw new HpsRequestTimeoutError(input.timeoutMs, true);
     }
+    // An injected fetch that already classified the failure (the hosted
+    // service maps 502, bare 504 and transport errors to availability errors)
+    // keeps its own error; rewrapping it would lose that classification.
+    if (error instanceof HpsParseError) throw error;
     if (!isDefinitivePreDispatchTransportError(error)) {
       // The request may already be executing upstream. Cool down and consume a
       // bounded attempt rather than immediately stacking duplicate GPU work.
@@ -795,7 +799,8 @@ function mergeLayoutResults(results: Record<string, unknown>[]): Record<string, 
   return merged;
 }
 
-function isDefinitivePreDispatchTransportError(error: unknown): boolean {
+/** True when a fetch failure proves the request never reached the server. */
+export function isDefinitivePreDispatchTransportError(error: unknown): boolean {
   const cause =
     typeof error === 'object' && error !== null && 'cause' in error
       ? (error as { cause?: unknown }).cause

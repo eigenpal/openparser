@@ -1,6 +1,7 @@
 import { expect, test } from 'bun:test';
 import {
   DEFAULT_HOSTED_OCR_MODEL_ID,
+  DEPRECATED_HOSTED_OCR_MODEL_IDS,
   HOSTED_OCR_MODEL_CATALOG_SUMMARY,
   HOSTED_OCR_MODEL_IDS,
   hostedParseRequest,
@@ -17,6 +18,14 @@ test('hosted model catalog summary covers every known id', () => {
   expect(HOSTED_OCR_MODEL_CATALOG_SUMMARY['paddleocr-vl-1.6'].converter.elementKinds).toContain(
     'table'
   );
+});
+
+test('deprecated mistral-ocr-4 is typed but not listed', () => {
+  expect(DEPRECATED_HOSTED_OCR_MODEL_IDS).toEqual(['mistral-ocr-4']);
+  expect(HOSTED_OCR_MODEL_IDS as readonly string[]).not.toContain('mistral-ocr-4');
+  expect(
+    hostedParseRequest({ ocr_model: 'mistral-ocr-4', ocr_options: { include_blocks: true } })
+  ).toEqual({ ocr_model: 'mistral-ocr-4', ocr_options: { include_blocks: true } });
 });
 
 test('hostedParseRequest preserves payloads and open-model escape hatch', () => {

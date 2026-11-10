@@ -43,7 +43,8 @@ await client.parse.sync({ ocr_model: 'paddleocr-vl-1.6', file_id: uploaded.id })
 
 If synchronous processing exceeds the server wait limit, `parse.sync()` returns
 a `JobAccepted` reference. Use `'status' in result` to distinguish it from the
-terminal parse result, then poll with `client.jobs.get(result.id)`.
+terminal parse result, then wait with `client.jobs.waitFor(result.id)` (polls
+`jobs.get` every 2 s for up to 300 s; pass `timeoutMs` / `pollIntervalMs` to change).
 
 The SDK adds an idempotency key to every parse and extract request. Pass
 `idempotencyKey` when you need to control retries.
@@ -99,6 +100,7 @@ calculation, inference, and human-review activities with
 const jobsPage = await client.jobs.list({ status: 'succeeded', limit: 25 });
 const firstJobId = jobsPage.data[0]?.id;
 const job = await client.jobs.get('opj_...');
+const finished = await client.jobs.waitFor('opj_...', { timeoutMs: 60_000 });
 const parseBody = await client.jobs.result('opj_...', { format: 'openparser@1' });
 const bytes = await client.jobs.source('opj_...');
 ```

@@ -1,5 +1,14 @@
 # @openparser/cli
 
+## 1.0.27
+
+### Patch Changes
+
+- db83c3f: Stop declaring the unused OPENPARSER_DIR, DEBUG and NO_COLOR environment variables.
+- Updated dependencies [db83c3f]
+- Updated dependencies [db83c3f]
+  - @openparser/sdk@1.0.27
+
 ## 1.0.26
 
 ### Patch Changes

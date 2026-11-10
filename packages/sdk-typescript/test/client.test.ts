@@ -132,6 +132,40 @@ describe('OpenParserClient', () => {
     expect(source).toBeInstanceOf(Blob);
   });
 
+  test('jobs.waitFor polls until the job is terminal', async () => {
+    const requests: { url: string; method: string; auth: string | null }[] = [];
+    const client = new OpenParserClient({
+      apiKey: 'test-key',
+      baseUrl: 'https://api.openparser.dev',
+      fetch: mockFetch(
+        [
+          { status: 200, body: { id: 'opj_test', status: 'running' } },
+          { status: 200, body: { id: 'opj_test', status: 'succeeded' } },
+        ],
+        requests
+      ),
+      maxRetries: 0,
+    });
+
+    const job = await client.jobs.waitFor('opj_test', { pollIntervalMs: 1 });
+
+    expect(job.status).toBe('succeeded');
+    expect(requests).toHaveLength(2);
+  });
+
+  test('jobs.waitFor times out on a job that never finishes', async () => {
+    const client = new OpenParserClient({
+      apiKey: 'test-key',
+      baseUrl: 'https://api.openparser.dev',
+      fetch: mockFetch([{ status: 200, body: { id: 'opj_test', status: 'queued' } }]),
+      maxRetries: 0,
+    });
+
+    await expect(
+      client.jobs.waitFor('opj_test', { timeoutMs: 5, pollIntervalMs: 1 })
+    ).rejects.toBeInstanceOf(OpenParserTimeoutError);
+  });
+
   test('jobs review helpers call the review endpoints', async () => {
     const captured: { url: string; method: string; body?: string }[] = [];
     const review = {

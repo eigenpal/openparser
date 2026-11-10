@@ -42,3 +42,15 @@ def test_hosted_parse_request_builds_wire_dict_and_open_model() -> None:
         "ocr_model": "future-vendor-model",
         "ocr_options": {"experimental_flag": True},
     }
+
+
+def test_deprecated_mistral_ocr_4_alias_stays_importable_but_unlisted() -> None:
+    from openparser import MistralOcr4Options, MistralOcr41Options
+
+    assert MistralOcr4Options is MistralOcr41Options
+    assert "mistral-ocr-4" not in HOSTED_OCR_MODEL_IDS
+    assert "mistral-ocr-4" not in HOSTED_OCR_MODEL_CATALOG_SUMMARY
+    assert hosted_parse_request("mistral-ocr-4", ocr_options={"include_blocks": True}) == {
+        "ocr_model": "mistral-ocr-4",
+        "ocr_options": {"include_blocks": True},
+    }

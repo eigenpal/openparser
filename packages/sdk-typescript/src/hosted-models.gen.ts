@@ -8,7 +8,6 @@ export const HOSTED_OCR_MODEL_IDS = [
   'paddleocr-vl-1.6',
   'glm-ocr',
   'mistral-ocr-4-1',
-  'mistral-ocr-4',
   'mistral-ocr-3',
   'azure-di-layout',
   'azure-di-read',
@@ -18,8 +17,17 @@ export const HOSTED_OCR_MODEL_IDS = [
   'aws-textract-tables-layout',
 ] as const;
 
-/** Literal union of known hosted OCR model IDs. */
-export type HostedOcrModelId = (typeof HOSTED_OCR_MODEL_IDS)[number];
+/**
+ * Hidden aliases that are still accepted and run on their replacement model.
+ * Not listed in `HOSTED_OCR_MODEL_IDS`.
+ * @deprecated Use `mistral-ocr-4-1` instead of `mistral-ocr-4`.
+ */
+export const DEPRECATED_HOSTED_OCR_MODEL_IDS = ['mistral-ocr-4'] as const;
+
+export type DeprecatedHostedOcrModelId = (typeof DEPRECATED_HOSTED_OCR_MODEL_IDS)[number];
+
+/** Literal union of known hosted OCR model IDs, including deprecated aliases. */
+export type HostedOcrModelId = (typeof HOSTED_OCR_MODEL_IDS)[number] | DeprecatedHostedOcrModelId;
 
 /** Default hosted OCR model when callers omit an explicit choice in product UIs. */
 export const DEFAULT_HOSTED_OCR_MODEL_ID = 'paddleocr-vl-1.6' as const satisfies HostedOcrModelId;
@@ -63,44 +71,6 @@ export type GlmOcrOptions = {};
  * Output: Markdown + boxes.
  */
 export type MistralOcr41Options = {
-  /**
-   * Table format.
-   *
-   * How tables are serialized in markdown output.
-   */
-  table_format?: 'html' | 'markdown';
-  /**
-   * Extract header.
-   *
-   * Include detected page headers in output.
-   */
-  extract_header?: boolean;
-  /**
-   * Extract footer.
-   *
-   * Include detected page footers in output.
-   */
-  extract_footer?: boolean;
-  /**
-   * Include blocks.
-   *
-   * Return structured layout blocks with the parse.
-   */
-  include_blocks?: boolean;
-  /**
-   * Confidence scores.
-   *
-   * Attach parse confidence at page or word level.
-   */
-  confidence_scores_granularity?: 'page' | 'word' | null;
-};
-
-/**
- * Hosted `ocr_options` for `mistral-ocr-4` (Mistral OCR 4).
- *
- * Output: Markdown + boxes.
- */
-export type MistralOcr4Options = {
   /**
    * Table format.
    *
@@ -399,12 +369,18 @@ export type AwsTextractTablesLayoutOptions = {
   queries?: readonly string[] | null;
 };
 
+/**
+ * Hosted `ocr_options` for `mistral-ocr-4`.
+ *
+ * @deprecated Use `mistral-ocr-4-1` and `MistralOcr41Options`. `mistral-ocr-4` runs on `mistral-ocr-4-1`.
+ */
+export type MistralOcr4Options = MistralOcr41Options;
+
 /** Exact per-model hosted option types keyed by model id. */
 export type HostedOcrOptionsByModel = {
   'paddleocr-vl-1.6': PaddleocrVl16Options;
   'glm-ocr': GlmOcrOptions;
   'mistral-ocr-4-1': MistralOcr41Options;
-  'mistral-ocr-4': MistralOcr4Options;
   'mistral-ocr-3': MistralOcr3Options;
   'azure-di-layout': AzureDiLayoutOptions;
   'azure-di-read': AzureDiReadOptions;
@@ -412,6 +388,10 @@ export type HostedOcrOptionsByModel = {
   'aws-textract-detect': AwsTextractDetectOptions;
   'aws-textract-layout': AwsTextractLayoutOptions;
   'aws-textract-tables-layout': AwsTextractTablesLayoutOptions;
+  /**
+   * @deprecated Use `mistral-ocr-4-1`.
+   */
+  'mistral-ocr-4': MistralOcr4Options;
 };
 
 /**
@@ -517,38 +497,6 @@ export const HOSTED_OCR_MODEL_CATALOG_SUMMARY = {
   'mistral-ocr-4-1': {
     id: 'mistral-ocr-4-1',
     label: 'Mistral OCR 4.1',
-    isDefault: false,
-    outputSummary: 'Markdown + boxes',
-    capabilities: {
-      parse: true,
-      extract_source: true,
-      markdown: true,
-      regions: true,
-      options: {
-        table_format: true,
-        extract_header: true,
-        extract_footer: true,
-        include_blocks: true,
-        confidence_scores_granularity: true,
-      },
-    },
-    converter: {
-      elementKinds: ['text', 'table', 'figure', 'signature', 'link'] as const,
-      geometry: 'optional' as const,
-      assets: 'optional' as const,
-      textAnnotations: 'optional' as const,
-    },
-  },
-  /**
-   * Mistral OCR 4.
-   *
-   * Output summary: Markdown + boxes.
-   * Capabilities: parse=true, extract_source=true, markdown=true, regions=true.
-   * Converter elementKinds/geometry/assets describe a conservative upper bound — not guaranteed fields.
-   */
-  'mistral-ocr-4': {
-    id: 'mistral-ocr-4',
-    label: 'Mistral OCR 4',
     isDefault: false,
     outputSummary: 'Markdown + boxes',
     capabilities: {
@@ -825,4 +773,5 @@ export const HOSTED_OCR_MODEL_CATALOG_SUMMARY = {
 } as const;
 
 export type HostedOcrModelCatalogSummary = typeof HOSTED_OCR_MODEL_CATALOG_SUMMARY;
-export type HostedOcrModelSummary<M extends HostedOcrModelId> = HostedOcrModelCatalogSummary[M];
+export type HostedOcrModelSummary<M extends keyof HostedOcrModelCatalogSummary> =
+  HostedOcrModelCatalogSummary[M];

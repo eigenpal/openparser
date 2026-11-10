@@ -623,53 +623,6 @@ export function relaxGroundingNarrative(
   return relaxed;
 }
 
-/**
- * Legacy leaf-wrapper transform retained only for local grammar-size benchmarks.
- * Not used by runtime extraction.
- */
-export function transformSchemaForGroundingLeafWrapped(
-  schema: Record<string, unknown>
-): Record<string, unknown> {
-  assertPathSafeSchema(schema, '$');
-  return wrapLeaves(structuredClone(schema) as Record<string, unknown>, '$');
-}
-
-function wrapLeaves(schema: Record<string, unknown>, path: string): Record<string, unknown> {
-  const types = typeList(schema);
-  if (types.includes('object') || (types.length === 0 && isPlainObject(schema.properties))) {
-    const properties = schema.properties as Record<string, unknown>;
-    const nextProps: Record<string, unknown> = {};
-    for (const [key, child] of Object.entries(properties)) {
-      nextProps[key] = wrapLeaves(child as Record<string, unknown>, `${path}.${key}`);
-    }
-    return { ...schema, type: 'object', properties: nextProps, additionalProperties: false };
-  }
-  if (types.includes('array')) {
-    return {
-      ...schema,
-      type: 'array',
-      items: wrapLeaves(schema.items as Record<string, unknown>, `${path}[]`),
-    };
-  }
-  const leaf = { ...schema };
-  delete leaf.description;
-  return {
-    type: 'object',
-    ...(typeof schema.description === 'string' ? { description: schema.description } : {}),
-    properties: {
-      value: leaf,
-      [SOURCE_IDS]: {
-        type: 'array',
-        items: { type: 'string' },
-        description:
-          'Exact source ids from the document (block ids like b0). Empty only when the value is genuinely absent.',
-      },
-    },
-    required: ['value', SOURCE_IDS],
-    additionalProperties: false,
-  };
-}
-
 /** Admission-time check: transform must succeed before a grounded job is accepted. */
 export function assertGroundingSchemaSupported(schema: Record<string, unknown>): void {
   transformSchemaForGrounding(schema);

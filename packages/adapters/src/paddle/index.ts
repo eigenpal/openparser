@@ -13,6 +13,7 @@ export {
   HpsRequestTimeoutError,
   countLayoutRegions,
   createHttpHpsClient,
+  isDefinitivePreDispatchTransportError,
   type HpsClient,
   type HpsParseInput,
   type HpsParseOutput,

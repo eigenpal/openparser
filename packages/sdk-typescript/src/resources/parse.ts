@@ -1,18 +1,9 @@
-import type { OperationResult, RequestRetryContext } from '../client';
 import type { Client } from '../generated/client';
 import { parseAsync, parseBatch, parseSync } from '../generated/sdk.gen';
 import type { ParseRequest } from '../generated/types.gen';
-import { createIdempotencyKey } from '../lib/idempotency';
+import { admitWithKey, type AdmissionOptions, type Dispatch } from './admission';
 
-type Dispatch = <T>(
-  call: () => Promise<OperationResult<T>>,
-  retryContext: RequestRetryContext
-) => Promise<T>;
-type SignalOptions = { signal?: AbortSignal };
-
-export interface ParseAdmissionOptions extends SignalOptions {
-  idempotencyKey?: string;
-}
+export interface ParseAdmissionOptions extends AdmissionOptions {}
 
 export interface ParseSyncOptions extends ParseAdmissionOptions {}
 
@@ -29,44 +20,35 @@ export class ParseResource {
   ) {}
 
   async sync(request: ParseRequest, file?: Blob | File, options: ParseSyncOptions = {}) {
-    const idempotencyKey = options.idempotencyKey ?? createIdempotencyKey();
-    return this.dispatch(
-      () =>
-        parseSync({
-          client: this.client,
-          headers: { 'Idempotency-Key': idempotencyKey },
-          body: { request, file },
-          signal: options.signal,
-        }),
-      { method: 'POST', idempotencyKey }
+    return admitWithKey(this.dispatch, options.idempotencyKey, (headers) =>
+      parseSync({
+        client: this.client,
+        headers,
+        body: { request, file },
+        signal: options.signal,
+      })
     );
   }
 
   async async(request: ParseRequest, file?: Blob | File, options: ParseAsyncOptions = {}) {
-    const idempotencyKey = options.idempotencyKey ?? createIdempotencyKey();
-    return this.dispatch(
-      () =>
-        parseAsync({
-          client: this.client,
-          headers: { 'Idempotency-Key': idempotencyKey },
-          body: { request, file },
-          signal: options.signal,
-        }),
-      { method: 'POST', idempotencyKey }
+    return admitWithKey(this.dispatch, options.idempotencyKey, (headers) =>
+      parseAsync({
+        client: this.client,
+        headers,
+        body: { request, file },
+        signal: options.signal,
+      })
     );
   }
 
   async batch(options: ParseBatchOptions) {
-    const idempotencyKey = options.idempotencyKey ?? createIdempotencyKey();
-    return this.dispatch(
-      () =>
-        parseBatch({
-          client: this.client,
-          headers: { 'Idempotency-Key': idempotencyKey },
-          body: options.body,
-          signal: options.signal,
-        }),
-      { method: 'POST', idempotencyKey }
+    return admitWithKey(this.dispatch, options.idempotencyKey, (headers) =>
+      parseBatch({
+        client: this.client,
+        headers,
+        body: options.body,
+        signal: options.signal,
+      })
     );
   }
 }

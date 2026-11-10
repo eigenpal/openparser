@@ -103,7 +103,6 @@ export {
   relaxGroundingNarrative,
   transformIntentForPointer,
   transformSchemaForGrounding,
-  transformSchemaForGroundingLeafWrapped,
   type CompiledTransformPlan,
 } from './grounding/schema-transform';
 export {

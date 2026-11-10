@@ -1,5 +1,12 @@
 # @openparser/adapters
 
+## 1.0.27
+
+### Patch Changes
+
+- db83c3f: The Paddle HPS client now keeps the error an injected fetch already classified, such as an availability error, instead of rewrapping it as a timeout.
+- @openparser/schema@1.0.27
+
 ## 1.0.26
 
 ### Patch Changes

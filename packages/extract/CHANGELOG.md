@@ -1,5 +1,13 @@
 # @openparser/extract
 
+## 1.0.27
+
+### Patch Changes
+
+- db83c3f: Remove `transformSchemaForGroundingLeafWrapped`. It was a benchmark-only helper that runtime extraction never used.
+- @openparser/lineage@1.0.27
+  - @openparser/schema@1.0.27
+
 ## 1.0.26
 
 ### Patch Changes

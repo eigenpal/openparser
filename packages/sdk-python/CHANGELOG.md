@@ -1,5 +1,12 @@
 # openparser-sdk
 
+## 1.0.27
+
+### Patch Changes
+
+- db83c3f: Hide the duplicate `mistral-ocr-4` model from the OCR model list and the model summaries. It stays accepted in the SDK request types and `MistralOcr4Options` stays exported, both marked deprecated: use `mistral-ocr-4-1` and `MistralOcr41Options`. Requests that name `mistral-ocr-4` still run on Mistral OCR 4.1. The Python SDK's HTTP layer now builds its requests from the generated client; its import paths, method signatures and return values are unchanged, and the private `_http` attribute is replaced by the generated client's httpx client. The Python `TERMINAL_JOB_STATUSES` constant no longer lists `partial`, a status the API never returns.
+- db83c3f: Add `client.jobs.waitFor(jobId)`, which polls a job until it succeeds, fails or is indeterminate.
+
 ## 1.0.26
 
 No changes in this release.

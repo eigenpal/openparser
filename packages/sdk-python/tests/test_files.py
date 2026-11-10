@@ -97,3 +97,18 @@ def test_parse_batch_uploads_indexed_files(tmp_path: Path, client: OpenParserCli
     assert 'filename="a.pdf"' in body
     assert 'filename="b.pdf"' in body
     assert route.calls.last.request.headers["idempotency-key"]
+
+
+@respx.mock
+def test_multipart_content_type_boundary_matches_body(client: OpenParserClient) -> None:
+    # The Content-Type boundary must be the one httpx wrote into the body (codegen.sh drops the fixed one).
+    route = respx.post("https://api.openparser.dev/files").mock(
+        return_value=httpx.Response(200, json={"id": "file_123", "filename": "contract.pdf"})
+    )
+
+    client.files.upload({"content": b"%PDF", "filename": "contract.pdf", "mime_type": "application/pdf"})
+
+    request = route.calls.last.request
+    boundary = request.headers["content-type"].split("boundary=", 1)[1]
+    assert boundary != "+++"
+    assert f"--{boundary}".encode() in request.content

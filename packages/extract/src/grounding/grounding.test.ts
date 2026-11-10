@@ -11,7 +11,6 @@ import {
   renderGroundedDocument,
   transformIntentForPointer,
   transformSchemaForGrounding,
-  transformSchemaForGroundingLeafWrapped,
   unwrapGroundedOutput,
 } from '../index';
 
@@ -504,60 +503,6 @@ describe('grounding schema transform', () => {
         $defs: { Dead: { type: 'string' } },
       })
     ).toThrow(GroundingUnsupportedSchemaError);
-  });
-
-  test('flat envelope is materially smaller than leaf wrappers on large nested schemas', () => {
-    const large = {
-      type: 'object',
-      additionalProperties: false,
-      required: ['vendor', 'currency', 'line_items', 'totals'],
-      properties: {
-        vendor: { type: 'string' },
-        currency: { type: 'string', enum: ['USD', 'EUR', 'GBP'] },
-        line_items: {
-          type: 'array',
-          items: {
-            type: 'object',
-            additionalProperties: false,
-            required: ['sku', 'description', 'qty', 'unit_price', 'tax', 'metadata'],
-            properties: {
-              sku: { type: 'string' },
-              description: { type: 'string' },
-              qty: { type: 'number' },
-              unit_price: { type: 'number' },
-              tax: { type: ['number', 'null'] },
-              metadata: {
-                type: 'object',
-                additionalProperties: false,
-                required: ['category', 'warehouse', 'lot'],
-                properties: {
-                  category: { type: 'string' },
-                  warehouse: { type: 'string' },
-                  lot: { type: 'string' },
-                },
-              },
-            },
-          },
-        },
-        totals: {
-          type: 'object',
-          additionalProperties: false,
-          required: ['subtotal', 'tax', 'shipping', 'grand_total'],
-          properties: {
-            subtotal: { type: 'number' },
-            tax: { type: 'number' },
-            shipping: { type: 'number' },
-            grand_total: { type: 'number' },
-          },
-        },
-      },
-    };
-
-    const flatChars = JSON.stringify(transformSchemaForGrounding(large)).length;
-    const wrappedChars = JSON.stringify(transformSchemaForGroundingLeafWrapped(large)).length;
-    expect(flatChars).toBeLessThan(wrappedChars);
-    // Flat metadata is paid once; leaf wrapping multiplies it across every leaf.
-    expect(flatChars / wrappedChars).toBeLessThan(0.75);
   });
 });
 
