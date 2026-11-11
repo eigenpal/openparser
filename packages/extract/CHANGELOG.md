@@ -1,5 +1,13 @@
 # @openparser/extract
 
+## 1.0.28
+
+### Patch Changes
+
+- 8e68dcc: Extraction with Claude models now accepts schemas with many optional (nullable) fields. Previously such schemas were rejected by the model provider while the same schema worked on other models; failed provider requests now also record the provider's reason.
+- @openparser/lineage@1.0.28
+  - @openparser/schema@1.0.28
+
 ## 1.0.27
 
 ### Patch Changes

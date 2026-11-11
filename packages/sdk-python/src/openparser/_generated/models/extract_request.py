@@ -43,7 +43,9 @@ class ExtractRequest:
             llm_model (str | Unset):
             llm_options (ExtractRequestLlmOptions | Unset):
             schema (ExtractRequestSchema | Unset):
-            repair_attempts (int | Unset):
+            repair_attempts (int | Unset): Schema-repair attempts (0 to 2) after a concrete invalid JSON/schema response.
+                Defaults to `1` when omitted; send `0` to disable repair. Each repair is a separate
+                provider-accepted OpenRouter attempt billed at the model's retail token rates.
             grounding (ExtractRequestGrounding | Unset): Optional field grounding mode. Defaults to `none` for inline
                 requests. Changing
                 grounding with the same Idempotency-Key returns `409 idempotency_conflict`.

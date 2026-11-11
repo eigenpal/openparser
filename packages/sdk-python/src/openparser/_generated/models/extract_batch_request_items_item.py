@@ -38,7 +38,9 @@ class ExtractBatchRequestItemsItem:
             llm_model (str | Unset):
             llm_options (ExtractBatchRequestItemsItemLlmOptions | Unset):
             schema (ExtractBatchRequestItemsItemSchema | Unset):
-            repair_attempts (int | Unset):
+            repair_attempts (int | Unset): Schema-repair attempts (0 to 2) after a concrete invalid JSON/schema response.
+                Defaults to `1` when omitted; send `0` to disable repair. Each repair is a separate
+                provider-accepted OpenRouter attempt billed at the model's retail token rates.
             grounding (ExtractBatchRequestItemsItemGrounding | Unset):
      """
 

@@ -69,6 +69,13 @@ export {
   type FieldConfirmedReviewEvent,
 } from './review-events';
 
+export {
+  ANTHROPIC_STRUCTURED_OUTPUT_LIMITS,
+  fitSchemaToProviderLimits,
+  structuredOutputSchemaLimitsForModel,
+  type ProviderSchemaFit,
+  type StructuredOutputSchemaLimits,
+} from './provider-schema-limits';
 export { StrictExtractionSchemaError, normalizeStrictExtractionSchema } from './strict-schema';
 
 export {

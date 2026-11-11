@@ -82,7 +82,7 @@ Create a saved extraction pipeline.
 | `--llm-model <id>`      | no       | `"openai/gpt-6-luna"` | LLM model id                              |
 | `--ocr-model <id>`      | no       | `"paddleocr-vl-1.6"`  | OCR model id                              |
 | `--grounding <mode>`    | no       |                       | none or field                             |
-| `--repair-attempts <n>` | no       |                       | Schema repair attempts (0-2)              |
+| `--repair-attempts <n>` | no       |                       | Schema repair attempts (0-2, default 1)   |
 | `--body <json>`         | no       |                       | Full request JSON (overrides other flags) |
 | `--json`                | no       |                       | Output the raw server response as JSON    |
 | `--base-url <url>`      | no       |                       | OpenParser API base URL                   |

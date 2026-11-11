@@ -198,7 +198,7 @@ function extractOptions(cmd: Command): Command {
         .option('--file-id <id>', 'Reuse a pooled file id')
         .option('--parse-job-id <id>', 'Reuse a succeeded parse job')
         .option('--grounding <mode>', 'none or field')
-        .option('--repair-attempts <n>', 'Schema repair attempts (0-2)', intArg)
+        .option('--repair-attempts <n>', 'Schema repair attempts (0-2, default 1)', intArg)
         .option('--output-format <fmt>', 'openparser@1 or raw')
         .option('--idempotency-key <key>', 'Idempotency-Key header override')
     )
@@ -489,7 +489,7 @@ withBaseUrl(
       .option('--llm-model <id>', 'LLM model id', DEFAULT_EXTRACTION_LLM_MODEL)
       .option('--ocr-model <id>', 'OCR model id', 'paddleocr-vl-1.6')
       .option('--grounding <mode>', 'none or field')
-      .option('--repair-attempts <n>', 'Schema repair attempts (0-2)', intArg)
+      .option('--repair-attempts <n>', 'Schema repair attempts (0-2, default 1)', intArg)
       .option('--body <json>', 'Full request JSON (overrides other flags)')
   )
 ).action(

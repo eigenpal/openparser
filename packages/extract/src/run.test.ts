@@ -366,6 +366,170 @@ describe('runGroundedExtraction', () => {
   });
 });
 
+/** Count union-typed and optional parameters the way Anthropic's strict mode does. */
+function anthropicSchemaCounts(schema: unknown): { unions: number; optional: number } {
+  if (!schema || typeof schema !== 'object' || Array.isArray(schema)) {
+    return { unions: 0, optional: 0 };
+  }
+  const node = schema as Record<string, unknown>;
+  let unions = (Array.isArray(node.type) && node.type.length > 1) || node.anyOf ? 1 : 0;
+  let optional = 0;
+  const children: unknown[] = [];
+  if (node.properties && typeof node.properties === 'object') {
+    const required = new Set((node.required as string[] | undefined) ?? []);
+    for (const [key, child] of Object.entries(node.properties)) {
+      if (!required.has(key)) optional++;
+      children.push(child);
+    }
+  }
+  if (node.items) children.push(node.items);
+  for (const child of children) {
+    const counts = anthropicSchemaCounts(child);
+    unions += counts.unions;
+    optional += counts.optional;
+  }
+  return { unions, optional };
+}
+
+describe('provider schema limits', () => {
+  // Shape of the production schema that Anthropic rejected with HTTP 400:
+  // nested objects holding 26 `[T, "null"]` leaves (limit: 16 unions).
+  const nullableGroup = (prefix: string, count: number) => ({
+    type: 'object',
+    properties: Object.fromEntries(
+      Array.from({ length: count }, (_, i) => [
+        `${prefix}${i}`,
+        { type: i % 3 === 0 ? ['boolean', 'null'] : ['string', 'null'] },
+      ])
+    ),
+  });
+  const WIDE_NULLABLE_SCHEMA = {
+    type: 'object',
+    properties: {
+      a: nullableGroup('a', 7),
+      b: {
+        ...nullableGroup('b', 9),
+        properties: { ...nullableGroup('b', 9).properties, nested: nullableGroup('n', 4) },
+      },
+      c: {
+        ...nullableGroup('c', 6),
+        properties: {
+          ...nullableGroup('c', 6).properties,
+          rows: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: { kind: { type: 'string', enum: ['x', 'y'] }, note: { type: 'string' } },
+            },
+          },
+        },
+      },
+    },
+  };
+
+  for (const grounding of ['none', 'field'] as const) {
+    test(`anthropic models get a schema within 16 unions / 24 optional (grounding=${grounding})`, async () => {
+      const requests: StructuredExtractionRequest[] = [];
+      const values = {
+        a: Object.fromEntries(Array.from({ length: 7 }, (_, i) => [`a${i}`, null])),
+        b: {
+          ...Object.fromEntries(Array.from({ length: 9 }, (_, i) => [`b${i}`, null])),
+          nested: Object.fromEntries(Array.from({ length: 4 }, (_, i) => [`n${i}`, null])),
+        },
+        c: {
+          ...Object.fromEntries(Array.from({ length: 6 }, (_, i) => [`c${i}`, null])),
+          rows: [{ kind: 'x', note: 'n' }],
+        },
+      };
+      const result = await runGroundedExtraction({
+        schema: WIDE_NULLABLE_SCHEMA,
+        parsedDocument: DOC,
+        repairAttempts: 0,
+        grounding,
+        llmModel: 'anthropic/claude-sonnet-5.5',
+        complete: async (request) => {
+          requests.push(request);
+          // Anthropic omits demoted optional keys instead of writing null.
+          const omit = (value: Record<string, unknown>, schema: Record<string, unknown>) => {
+            const props = schema.properties as Record<string, Record<string, unknown>>;
+            const required = new Set(schema.required as string[]);
+            const out: Record<string, unknown> = {};
+            for (const [key, child] of Object.entries(value)) {
+              if (!required.has(key) && child === null) continue;
+              out[key] =
+                child && typeof child === 'object' && !Array.isArray(child)
+                  ? omit(child as Record<string, unknown>, props[key]!)
+                  : child;
+            }
+            return out;
+          };
+          const valuesSchema =
+            grounding === 'field'
+              ? ((request.schema.properties as Record<string, unknown>).values as Record<
+                  string,
+                  unknown
+                >)
+              : request.schema;
+          const sent = omit(values, valuesSchema);
+          return {
+            content: jsonContent(grounding === 'field' ? { values: sent, fields: [] } : sent),
+          };
+        },
+      });
+
+      const counts = anthropicSchemaCounts(requests[0]!.schema);
+      expect(counts.unions).toBeLessThanOrEqual(16);
+      expect(counts.optional).toBeLessThanOrEqual(24);
+      expect(result.output).toEqual(values);
+      expect(result.attempts.map((a) => a.status)).toEqual(['succeeded']);
+    });
+  }
+
+  test('other providers receive the caller schema unchanged', async () => {
+    const requests: StructuredExtractionRequest[] = [];
+    await runGroundedExtraction({
+      schema: WIDE_NULLABLE_SCHEMA,
+      parsedDocument: DOC,
+      repairAttempts: 0,
+      llmModel: 'openai/gpt-6.1-sol',
+      complete: async (request) => {
+        requests.push(request);
+        return { content: '{}' };
+      },
+    }).catch(() => undefined);
+    expect(anthropicSchemaCounts(requests[0]!.schema)).toEqual({ unions: 26, optional: 0 });
+  });
+
+  test('a demoted field the model fills keeps its value', async () => {
+    const result = await runGroundedExtraction({
+      schema: WIDE_NULLABLE_SCHEMA,
+      parsedDocument: DOC,
+      repairAttempts: 0,
+      llmModel: 'anthropic/claude-sonnet-5.5',
+      complete: async () => ({
+        content: jsonContent({
+          a: { a0: true, a1: 'x', a2: 'y', a3: false, a4: 'z', a5: null, a6: null },
+          b: {
+            b0: null,
+            b1: null,
+            b2: null,
+            b3: null,
+            b4: null,
+            b5: null,
+            b6: null,
+            b7: null,
+            b8: 'kept',
+            nested: { n0: null, n1: null, n2: null, n3: null },
+          },
+          c: { c0: null, c1: null, c2: null, c3: null, c4: null, c5: 'kept', rows: [] },
+        }),
+      }),
+    });
+    expect((result.output.b as Record<string, unknown>).b8).toBe('kept');
+    expect((result.output.c as Record<string, unknown>).c5).toBe('kept');
+  });
+});
+
 describe('isGroundedExtractionSchemaSupported', () => {
   test('accepts object schemas after strict additionalProperties coercion', () => {
     expect(

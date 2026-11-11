@@ -14,6 +14,10 @@ import {
   GROUNDED_EXTRACT_PROMPT,
 } from './prompts';
 import {
+  fitSchemaToProviderLimits,
+  structuredOutputSchemaLimitsForModel,
+} from './provider-schema-limits';
+import {
   ExtractionSchemaFailure,
   MAX_EXTRACTION_REPAIR_ATTEMPTS,
   structuredExtractionFailureFromUnknown,
@@ -99,6 +103,12 @@ export async function runGroundedExtraction(
     ? transformSchemaForGrounding(callerSchema)
     : providerSafeExtractionSchema(callerSchema);
   const responseSchema = grounded ? relaxGroundingNarrative(modelSchema) : modelSchema;
+  // Provider budgets (Anthropic: 16 union / 24 optional parameters) change only
+  // what is sent; responses are restored and validated against `responseSchema`.
+  const providerFit = fitSchemaToProviderLimits(
+    modelSchema,
+    structuredOutputSchemaLimitsForModel(input.llmModel)
+  );
   const documentText = grounded
     ? renderGroundedDocument(input.parsedDocument)
     : input.parsedDocument.markdown;
@@ -123,7 +133,7 @@ export async function runGroundedExtraction(
       raw = await input.complete({
         attemptIndex: index,
         kind,
-        schema: modelSchema,
+        schema: providerFit.schema,
         prompt,
         documentText,
         repairFeedback,
@@ -149,7 +159,7 @@ export async function runGroundedExtraction(
       throw error;
     }
 
-    const modelValidation = validateOutput(raw.content, responseSchema);
+    const modelValidation = validateOutput(raw.content, responseSchema, providerFit.restore);
     let acceptedOutput: Record<string, unknown> | null = null;
     let grounding: ExtractionGroundingResult | undefined;
     let validationErrors = modelValidation.validationErrors;

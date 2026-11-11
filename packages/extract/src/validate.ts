@@ -41,7 +41,9 @@ export function validateParsedValue(
 
 export function validateOutput(
   content: string,
-  schema: Record<string, unknown>
+  schema: Record<string, unknown>,
+  /** Applied to the parsed JSON before validation (e.g. restoring provider-omitted nulls). */
+  prepare: (value: unknown) => unknown = (value) => value
 ): ExtractionValidationResult {
   let value: unknown;
   try {
@@ -53,5 +55,5 @@ export function validateOutput(
       validationErrors: [{ path: '/', kind: 'json_decode', message: 'response is not valid JSON' }],
     };
   }
-  return validateParsedValue(value, schema);
+  return validateParsedValue(prepare(value), schema);
 }

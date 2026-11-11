@@ -42,7 +42,9 @@ class ExtractBatchItem:
             llm_model (str | Unset):
             llm_options (ExtractBatchItemLlmOptions | Unset):
             schema (ExtractBatchItemSchema | Unset):
-            repair_attempts (int | Unset):
+            repair_attempts (int | Unset): Schema-repair attempts (0 to 2) after a concrete invalid JSON/schema response.
+                Defaults to `1` when omitted; send `0` to disable repair. Each repair is a separate
+                provider-accepted OpenRouter attempt billed at the model's retail token rates.
             grounding (ExtractBatchItemGrounding | Unset): Optional field grounding mode. Defaults to `none`. `field` opts
                 into verified
                 per-leaf citations and is part of idempotency identity.

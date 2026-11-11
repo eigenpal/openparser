@@ -1,5 +1,13 @@
 # @openparser/cli
 
+## 1.0.28
+
+### Patch Changes
+
+- 9e38725: Extraction now allows one schema repair attempt by default. When `repair_attempts` is omitted on an extract request, a batch item or a new saved pipeline, a result that fails schema validation gets one more model attempt with the validation errors instead of failing right away. Send `repair_attempts: 0` to turn repair off; the maximum stays 2. Each repair is a separate model call billed at the model's token rates. The SDK and CLI documentation now state the default.
+- Updated dependencies [9e38725]
+  - @openparser/sdk@1.0.28
+
 ## 1.0.27
 
 ### Patch Changes

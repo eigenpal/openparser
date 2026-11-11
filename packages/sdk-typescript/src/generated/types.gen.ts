@@ -35,7 +35,10 @@ export type OcrModel = string;
 export type LlmModel = string;
 
 /**
- * Explicit schema-repair attempts allowed after a concrete invalid JSON/schema response.
+ * Schema-repair attempts allowed after a concrete invalid JSON/schema response.
+ * Defaults to `1` when omitted; send `0` to disable repair. Each repair is a separate
+ * provider-accepted OpenRouter attempt billed at the model's retail token rates.
+ *
  */
 export type RepairAttempts = number;
 
@@ -90,6 +93,12 @@ export type ExtractRequest = {
   schema?: {
     [key: string]: unknown;
   };
+  /**
+   * Schema-repair attempts (0 to 2) after a concrete invalid JSON/schema response.
+   * Defaults to `1` when omitted; send `0` to disable repair. Each repair is a separate
+   * provider-accepted OpenRouter attempt billed at the model's retail token rates.
+   *
+   */
   repair_attempts?: number;
   /**
    * Optional field grounding mode. Defaults to `none` for inline requests. Changing
@@ -147,6 +156,12 @@ export type CreateExtractionPipelineRequest = {
   schema: {
     [key: string]: unknown;
   };
+  /**
+   * Schema-repair attempts (0 to 2) after a concrete invalid JSON/schema response.
+   * Defaults to `1` when omitted; send `0` to disable repair. Each repair is a separate
+   * provider-accepted OpenRouter attempt billed at the model's retail token rates.
+   *
+   */
   repair_attempts?: number;
   grounding?: 'none' | 'field';
 };
@@ -284,6 +299,12 @@ export type ExtractBatchItem = {
   schema?: {
     [key: string]: unknown;
   };
+  /**
+   * Schema-repair attempts (0 to 2) after a concrete invalid JSON/schema response.
+   * Defaults to `1` when omitted; send `0` to disable repair. Each repair is a separate
+   * provider-accepted OpenRouter attempt billed at the model's retail token rates.
+   *
+   */
   repair_attempts?: number;
   /**
    * Optional field grounding mode. Defaults to `none`. `field` opts into verified
@@ -334,6 +355,12 @@ export type ExtractBatchRequest = {
     schema?: {
       [key: string]: unknown;
     };
+    /**
+     * Schema-repair attempts (0 to 2) after a concrete invalid JSON/schema response.
+     * Defaults to `1` when omitted; send `0` to disable repair. Each repair is a separate
+     * provider-accepted OpenRouter attempt billed at the model's retail token rates.
+     *
+     */
     repair_attempts?: number;
     grounding?: 'none' | 'field';
   }>;

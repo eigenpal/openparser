@@ -97,6 +97,11 @@ export type GroundedExtractionInput = {
   prompt?: string;
   complete: CompleteStructuredExtraction;
   hooks?: ExtractionRunHooks;
+  /**
+   * Model id the host will call. Used only to fit the provider-facing schema
+   * into that provider's strict structured-output limits.
+   */
+  llmModel?: string;
 };
 
 export type GroundedExtractionResult = {
