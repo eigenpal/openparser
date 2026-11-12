@@ -1,5 +1,11 @@
 # @openparser/lineage
 
+## 1.0.29
+
+### Patch Changes
+
+- 6558280: Update third-party dependencies to their latest minor and patch releases.
+
 ## 1.0.28
 
 No changes in this release.

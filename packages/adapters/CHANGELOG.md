@@ -1,5 +1,12 @@
 # @openparser/adapters
 
+## 1.0.29
+
+### Patch Changes
+
+- 6558280: Update third-party dependencies to their latest minor and patch releases.
+- @openparser/schema@1.0.29
+
 ## 1.0.28
 
 ### Patch Changes

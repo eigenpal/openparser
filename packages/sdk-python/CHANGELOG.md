@@ -1,5 +1,9 @@
 # openparser-sdk
 
+## 1.0.29
+
+No changes in this release.
+
 ## 1.0.28
 
 ### Patch Changes
