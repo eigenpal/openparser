@@ -1,5 +1,13 @@
 # @openparser/cli
 
+## 1.0.30
+
+### Patch Changes
+
+- 1e34161: Export `DEFAULT_HOSTED_LLM_MODEL_ID` from the SDK hosted-model helpers (TypeScript and Python) and use it as the CLI's default extraction model.
+- Updated dependencies [1e34161]
+  - @openparser/sdk@1.0.30
+
 ## 1.0.29
 
 ### Patch Changes

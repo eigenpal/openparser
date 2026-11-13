@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.30
+
+### Patch Changes
+
+- 1e34161: Export `DEFAULT_HOSTED_LLM_MODEL_ID` from the SDK hosted-model helpers (TypeScript and Python) and use it as the CLI's default extraction model.
+
 ## 1.0.29
 
 No changes in this release.

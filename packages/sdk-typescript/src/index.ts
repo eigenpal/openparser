@@ -65,6 +65,7 @@ export type {
 
 export type * from './hosted-models.gen';
 export {
+  DEFAULT_HOSTED_LLM_MODEL_ID,
   DEFAULT_HOSTED_OCR_MODEL_ID,
   HOSTED_OCR_MODEL_CATALOG_SUMMARY,
   HOSTED_OCR_MODEL_IDS,

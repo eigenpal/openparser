@@ -117,7 +117,9 @@ def test_http_date_retry_after_uses_delay_until_date(
 
     mock_sleep.assert_called_once()  # type: ignore[attr-defined]
     delay = mock_sleep.call_args.args[0]  # type: ignore[attr-defined]
-    assert 4.0 <= delay <= 5.0
+    # HTTP-date has whole-second precision, so the header can lose up to 1s
+    # to truncation, and a little more to elapsed time before the parse.
+    assert 3.0 <= delay <= 5.0
 
 
 @respx.mock

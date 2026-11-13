@@ -32,6 +32,9 @@ export type HostedOcrModelId = (typeof HOSTED_OCR_MODEL_IDS)[number] | Deprecate
 /** Default hosted OCR model when callers omit an explicit choice in product UIs. */
 export const DEFAULT_HOSTED_OCR_MODEL_ID = 'paddleocr-vl-1.6' as const satisfies HostedOcrModelId;
 
+/** Default hosted extraction LLM model for newly authored extract requests and pipelines. */
+export const DEFAULT_HOSTED_LLM_MODEL_ID = 'openai/gpt-6-luna' as const;
+
 /**
  * Hosted `ocr_options` for `paddleocr-vl-1.6` (PaddleOCR-VL 1.6).
  *

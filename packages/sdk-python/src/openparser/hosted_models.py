@@ -41,6 +41,9 @@ HOSTED_OCR_MODEL_IDS: tuple[HostedOcrModelId, ...] = (
 
 DEFAULT_HOSTED_OCR_MODEL_ID: HostedOcrModelId = "paddleocr-vl-1.6"
 
+# Default hosted extraction LLM model for newly authored extract requests and pipelines.
+DEFAULT_HOSTED_LLM_MODEL_ID: str = "openai/gpt-6-luna"
+
 class PaddleocrVl16Options(TypedDict):
     """Hosted ocr_options for paddleocr-vl-1.6 (PaddleOCR-VL 1.6).
 
@@ -602,6 +605,7 @@ __all__ = [
     "HostedOcrModelId",
     "HOSTED_OCR_MODEL_IDS",
     "DEFAULT_HOSTED_OCR_MODEL_ID",
+    "DEFAULT_HOSTED_LLM_MODEL_ID",
     "PaddleocrVl16Options",
     "GlmOcrOptions",
     "MistralOcr41Options",

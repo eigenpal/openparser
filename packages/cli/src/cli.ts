@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { DEFAULT_HOSTED_LLM_MODEL_ID } from '@openparser/sdk/hosted-models';
 import { Command } from 'commander';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -26,7 +27,6 @@ import {
   pipelinesUpdate,
 } from './commands/pipelines';
 import { status } from './commands/status';
-import { DEFAULT_EXTRACTION_LLM_MODEL } from './lib/defaults';
 import { action } from './lib/format-error';
 import { addJsonFlag, intArg, setQuiet, withBaseUrl } from './lib/ui';
 
@@ -191,7 +191,7 @@ function extractOptions(cmd: Command): Command {
     addJsonFlag(
       cmd
         .option('--ocr-model <id>', 'OCR model id', 'paddleocr-vl-1.6')
-        .option('--llm-model <id>', 'LLM model id', DEFAULT_EXTRACTION_LLM_MODEL)
+        .option('--llm-model <id>', 'LLM model id', DEFAULT_HOSTED_LLM_MODEL_ID)
         .option('--schema <path>', 'JSON Schema file for inline extraction')
         .option('--schema-json <json>', 'Inline JSON Schema string')
         .option('--pipeline-id <id>', 'Saved extraction pipeline id')
@@ -486,7 +486,7 @@ withBaseUrl(
       .option('--slug <slug>', 'URL-safe slug')
       .option('--schema <path>', 'JSON Schema file')
       .option('--schema-json <json>', 'Inline JSON Schema')
-      .option('--llm-model <id>', 'LLM model id', DEFAULT_EXTRACTION_LLM_MODEL)
+      .option('--llm-model <id>', 'LLM model id', DEFAULT_HOSTED_LLM_MODEL_ID)
       .option('--ocr-model <id>', 'OCR model id', 'paddleocr-vl-1.6')
       .option('--grounding <mode>', 'none or field')
       .option('--repair-attempts <n>', 'Schema repair attempts (0-2, default 1)', intArg)

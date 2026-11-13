@@ -1,75 +1,23 @@
 import { $ } from 'bun';
-import {
-  cpSync,
-  existsSync,
-  mkdirSync,
-  mkdtempSync,
-  readdirSync,
-  readFileSync,
-  rmSync,
-  statSync,
-  writeFileSync,
-} from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   assertExactOpenParserDependencies,
-  pinWorkspaceDependenciesToExact,
   serializePackageJsonDeterministic,
 } from '../../../scripts/lib/openparser-pack-manifest';
+import {
+  assertDefinedExports,
+  assertExportConditions,
+  assertPackedFiles,
+  stagePublishTree,
+} from '../../../scripts/lib/openparser-package-build';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const schemaRoot = join(root, '../openparser-schema');
 const lineageRoot = join(root, '../openparser-lineage');
 const work = mkdtempSync(join(tmpdir(), 'openparser-extract-pack-'));
-
-function removeTestFiles(dir: string): void {
-  if (!existsSync(dir)) return;
-  for (const name of readdirSync(dir)) {
-    const p = join(dir, name);
-    const st = statSync(p);
-    if (st.isDirectory()) removeTestFiles(p);
-    else if (name.includes('.test.')) rmSync(p, { force: true });
-  }
-}
-
-/** Fail if a dist ESM file exports a binding it never defines (Bun barrel-export bug). */
-function assertDefinedExports(filePath: string): void {
-  const src = readFileSync(filePath, 'utf8');
-  const names = new Set<string>();
-  for (const match of src.matchAll(/export\s*\{([^}]+)\}/g)) {
-    for (const part of match[1]!.split(',')) {
-      const cleaned = part.trim();
-      if (!cleaned) continue;
-      names.add(cleaned.split(/\s+as\s+/)[0]!.trim());
-    }
-  }
-  for (const match of src.matchAll(/export\s*\{([^}]+)\}\s*from\s*['"][^'"]+['"]/g)) {
-    for (const part of match[1]!.split(',')) {
-      const cleaned = part.trim();
-      if (!cleaned) continue;
-      names.delete(cleaned.split(/\s+as\s+/)[0]!.trim());
-    }
-  }
-  const missing: string[] = [];
-  for (const name of names) {
-    const defined =
-      new RegExp(
-        `(?:^|\\n)(?:(?:var|let|const|class|(?:async\\s+)?function)\\s+${name}\\b)`,
-        'm'
-      ).test(src) ||
-      new RegExp(`export\\s+(?:async\\s+)?(?:function|class|const|let|var)\\s+${name}\\b`).test(
-        src
-      );
-    if (!defined) missing.push(name);
-  }
-  if (missing.length > 0) {
-    throw new Error(
-      `${filePath} exports bindings without definitions: ${missing.slice(0, 8).join(', ')}`
-    );
-  }
-}
 
 try {
   await $`bun run build`.cwd(schemaRoot);
@@ -102,36 +50,20 @@ try {
   if (!pkg.types?.startsWith('./src/')) {
     throw new Error('package types must point at src for clean-checkout typecheck');
   }
-  for (const [subpath, conditions] of Object.entries(pkg.exports)) {
-    if (!conditions.types?.startsWith('./src/')) {
-      throw new Error(`${subpath} types must resolve to src`);
-    }
-    if (!conditions.bun?.startsWith('./src/')) {
-      throw new Error(`${subpath} bun must resolve to src`);
-    }
-    if (!conditions.import?.startsWith('./dist/')) {
-      throw new Error(`${subpath} import must resolve to dist`);
-    }
-  }
+  assertExportConditions(pkg.exports);
 
-  const dry = (await $`npm pack --dry-run --json --ignore-scripts`.cwd(root).json()) as Array<{
-    files: Array<{ path: string }>;
-  }>;
-  const paths = new Set(dry[0]?.files.map((f) => f.path) ?? []);
-  for (const required of [
-    'dist/index.js',
-    'dist/index.d.ts',
-    'src/index.ts',
-    'src/grounding.ts',
-    'src/grounding/lineage.ts',
-  ]) {
-    if (!paths.has(required)) throw new Error(`missing packed file: ${required}`);
-  }
-  for (const path of paths) {
-    if (path.includes('.test.') || path.startsWith('scripts/')) {
-      throw new Error(`unexpected packed path: ${path}`);
-    }
-  }
+  await assertPackedFiles({
+    root,
+    required: [
+      'dist/index.js',
+      'dist/index.d.ts',
+      'src/index.ts',
+      'src/grounding.ts',
+      'src/grounding/lineage.ts',
+    ],
+    forbiddenReason: (path) =>
+      path.includes('.test.') || path.startsWith('scripts/') ? 'unexpected packed path' : undefined,
+  });
 
   const lockstepVersion = pkg.version;
   for (const [label, otherRoot] of [
@@ -156,21 +88,12 @@ try {
   ).trim();
 
   const rewriteDir = join(work, 'extract-publish');
-  mkdirSync(rewriteDir, { recursive: true });
-  cpSync(join(root, 'dist'), join(rewriteDir, 'dist'), { recursive: true });
-  cpSync(join(root, 'src'), join(rewriteDir, 'src'), { recursive: true });
-  cpSync(join(root, 'README.md'), join(rewriteDir, 'README.md'));
-  cpSync(join(root, 'LICENSE'), join(rewriteDir, 'LICENSE'));
-  removeTestFiles(join(rewriteDir, 'src'));
-
-  const staged = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')) as Record<
-    string,
-    unknown
-  >;
-  pinWorkspaceDependenciesToExact(staged, lockstepVersion);
-  staged.scripts = { prepack: 'node -e ""' };
-  assertExactOpenParserDependencies(staged, lockstepVersion, '@openparser/extract');
-  writeFileSync(join(rewriteDir, 'package.json'), serializePackageJsonDeterministic(staged));
+  stagePublishTree({
+    root,
+    rewriteDir,
+    lockstepVersion,
+    packageName: '@openparser/extract',
+  });
 
   const extractTgz = (
     await $`npm pack --silent --ignore-scripts --pack-destination ${work}`.cwd(rewriteDir).text()
