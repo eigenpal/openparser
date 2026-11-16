@@ -1,5 +1,9 @@
 # @openparser/schema
 
+## 1.0.31
+
+No changes in this release.
+
 ## 1.0.30
 
 No changes in this release.

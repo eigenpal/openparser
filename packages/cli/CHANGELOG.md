@@ -1,5 +1,12 @@
 # @openparser/cli
 
+## 1.0.31
+
+### Patch Changes
+
+- 9698734: Update third-party dependencies to their latest minor and patch releases.
+- @openparser/sdk@1.0.31
+
 ## 1.0.30
 
 ### Patch Changes
